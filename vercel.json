@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "installCommand": "npm --prefix stock-ui install",
   "buildCommand": "npm --prefix stock-ui run build",
   "outputDirectory": "stock-ui/dist",
   "rewrites": [
