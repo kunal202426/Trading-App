@@ -41,29 +41,26 @@ app.add_middleware(
 
 # --------------- symbol resolution (no ML needed) ---------------
 SYMBOL_ALIASES = {
-    "TATAMOTORS": "TMCV.NS",
+    "TATAMOTORS":    "TMCV.NS",
     "TATAMOTORSDVR": "TMCV.NS",
-    "M&M": "M%26M.NS",
-    "MM": "M%26M.NS",
-    "LT": "LT.NS",
-    "BAJAJ-AUTO": "BAJAJ-AUTO.NS",
-    "NIFTY50": "^NSEI",
-    "SENSEX": "^BSESN",
+    "M&M":           "M%26M.NS",
+    "MM":            "M%26M.NS",
+    "LT":            "LT.NS",
+    "BAJAJ-AUTO":    "BAJAJ-AUTO.NS",
+    "NIFTY50":       "^NSEI",
+    "SENSEX":        "^BSESN",
+    "526071":        "526071.BO",
+    "COASTCORP":     "COASTCORP.NS",
+    "WANBURY":       "WANBURY.NS",
 }
 
 def resolve_symbol(symbol: str) -> str:
     sym = symbol.upper()
     if sym in SYMBOL_ALIASES:
         return SYMBOL_ALIASES[sym]
-    for suffix in [".NS", ".BO", ""]:
-        candidate = sym + suffix
-        try:
-            t = yf.Ticker(candidate)
-            hist = t.history(period="2d")
-            if not hist.empty:
-                return candidate
-        except Exception:
-            continue
+    # BSE numeric codes → .BO, everything else → .NS
+    if sym.isdigit():
+        return sym + ".BO"
     return sym + ".NS"
 
 # --------------- lazy predictor (heavy ML, only for /predict) ----
