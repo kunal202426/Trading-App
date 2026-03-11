@@ -18,7 +18,6 @@
     { "src": "/portfolio", "dest": "backend/api.py" },
     { "src": "/news/(.*)", "dest": "backend/api.py" },
     { "src": "/fundamentals/(.*)", "dest": "backend/api.py" },
-    {"methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]},
 
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/index.html" }
