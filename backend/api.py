@@ -5,9 +5,26 @@ from datetime import datetime
 import pandas as pd
 import yfinance as yf
 import httpx
-from ta.momentum import RSIIndicator
-from ta.trend import MACD
-from ta.volatility import BollingerBands
+
+# --------------- inline technical indicators (no ta dependency) --
+def _rsi(close, window=14):
+    delta = close.diff()
+    gain = delta.clip(lower=0).ewm(com=window - 1, min_periods=window).mean()
+    loss = (-delta.clip(upper=0)).ewm(com=window - 1, min_periods=window).mean()
+    rs = gain / loss
+    return 100 - (100 / (1 + rs))
+
+def _macd(close, fast=12, slow=26, signal=9):
+    ema_fast = close.ewm(span=fast, adjust=False).mean()
+    ema_slow = close.ewm(span=slow, adjust=False).mean()
+    line = ema_fast - ema_slow
+    sig  = line.ewm(span=signal, adjust=False).mean()
+    return line, sig, line - sig
+
+def _bollinger(close, window=20, dev=2):
+    mid = close.rolling(window).mean()
+    std = close.rolling(window).std()
+    return mid + dev * std, mid - dev * std, mid
 app = FastAPI(title="Stock Prediction API")
 
 app.add_middleware(
@@ -87,17 +104,15 @@ def get_chart(symbol: str, period: str = "6mo", interval: str = "1d"):
             raise HTTPException(status_code=404, detail="No data found")
 
         # Compute indicators on full hist
-        rsi_ind  = RSIIndicator(close=hist['Close'], window=14)
-        macd_ind = MACD(close=hist['Close'])
-        bb_ind   = BollingerBands(close=hist['Close'], window=20, window_dev=2)
-
-        hist['rsi']         = rsi_ind.rsi()
-        hist['macd_line']   = macd_ind.macd()
-        hist['macd_signal'] = macd_ind.macd_signal()
-        hist['macd_hist']   = macd_ind.macd_diff()
-        hist['bb_upper']    = bb_ind.bollinger_hband()
-        hist['bb_lower']    = bb_ind.bollinger_lband()
-        hist['bb_mid']      = bb_ind.bollinger_mavg()
+        hist['rsi']         = _rsi(hist['Close'])
+        macd_line, macd_sig, macd_hist = _macd(hist['Close'])
+        hist['macd_line']   = macd_line
+        hist['macd_signal'] = macd_sig
+        hist['macd_hist']   = macd_hist
+        bb_upper, bb_lower, bb_mid = _bollinger(hist['Close'])
+        hist['bb_upper']    = bb_upper
+        hist['bb_lower']    = bb_lower
+        hist['bb_mid']      = bb_mid
 
         candles = []
         for date, row in hist.iterrows():
