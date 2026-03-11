@@ -8,7 +8,6 @@ import httpx
 from ta.momentum import RSIIndicator
 from ta.trend import MACD
 from ta.volatility import BollingerBands
-from dynamic_predictor import DynamicStockPredictor
 app = FastAPI(title="Stock Prediction API")
 
 app.add_middleware(
@@ -23,7 +22,42 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-predictor = DynamicStockPredictor()
+# --------------- symbol resolution (no ML needed) ---------------
+SYMBOL_ALIASES = {
+    "TATAMOTORS": "TMCV.NS",
+    "TATAMOTORSDVR": "TMCV.NS",
+    "M&M": "M%26M.NS",
+    "MM": "M%26M.NS",
+    "LT": "LT.NS",
+    "BAJAJ-AUTO": "BAJAJ-AUTO.NS",
+    "NIFTY50": "^NSEI",
+    "SENSEX": "^BSESN",
+}
+
+def resolve_symbol(symbol: str) -> str:
+    sym = symbol.upper()
+    if sym in SYMBOL_ALIASES:
+        return SYMBOL_ALIASES[sym]
+    for suffix in [".NS", ".BO", ""]:
+        candidate = sym + suffix
+        try:
+            t = yf.Ticker(candidate)
+            hist = t.history(period="2d")
+            if not hist.empty:
+                return candidate
+        except Exception:
+            continue
+    return sym + ".NS"
+
+# --------------- lazy predictor (heavy ML, only for /predict) ----
+_predictor = None
+
+def _get_predictor():
+    global _predictor
+    if _predictor is None:
+        from dynamic_predictor import DynamicStockPredictor
+        _predictor = DynamicStockPredictor()
+    return _predictor
 
 @app.get("/health")
 def health():
@@ -32,7 +66,7 @@ def health():
 @app.get("/predict/{symbol}")
 def predict(symbol: str):
     try:
-        return predictor.predict_now(symbol.upper())
+        return _get_predictor().predict_now(symbol.upper())
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
@@ -41,12 +75,12 @@ def predict(symbol: str):
 @app.get("/predict/batch/stocks")
 def batch_predict(symbols: str):
     symbol_list = [s.strip().upper() for s in symbols.split(",")]
-    return predictor.batch_predict(symbol_list)
+    return _get_predictor().batch_predict(symbol_list)
 
 @app.get("/chart/{symbol}")
 def get_chart(symbol: str, period: str = "6mo", interval: str = "1d"):
     try:
-        resolved = predictor._resolve_symbol(symbol.upper())
+        resolved = resolve_symbol(symbol.upper())
         ticker = yf.Ticker(resolved)
         hist = ticker.history(period=period, interval=interval)
         if hist.empty:
