@@ -17,7 +17,7 @@ import { db } from "../firebase";
 import { useAuth } from "../contexts/AuthContext";
 import TiltCard from "../components/TiltCard";
 import HoverDevCard from "../components/HoverDevCard";
-const API = "http://localhost:8000";
+const API = import.meta.env.VITE_API_URL || '';
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import HC_3D from "highcharts/highcharts-3d";

@@ -23,7 +23,7 @@ import {
   ResponsiveContainer, CartesianGrid,
 } from 'recharts';
 
-const API = 'http://localhost:8000';
+const API = import.meta.env.VITE_API_URL || '';
 import TroubleshootIcon from '@mui/icons-material/Troubleshoot';
 const signalColors = { 1: '#16a34a', 0: '#d97706', [-1]: '#dc2626' };
 const signalLabels = { 1: 'BUY', 0: 'HOLD', [-1]: 'SELL' };
@@ -661,7 +661,7 @@ export default function Dashboard() {
     setFundamentalError('');
 
     try {
-      const url = `http://localhost:8000/fundamentals/${encodeURIComponent(cleanSymbol)}`;
+      const url = `${API}/fundamentals/${encodeURIComponent(cleanSymbol)}`;
       console.log('Fetching fundamentals from:', url);
 
       const res = await fetch(url);

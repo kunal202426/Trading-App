@@ -3,7 +3,7 @@ import { Box, Typography, Chip, Stack, Skeleton } from '@mui/material';
 import axios from 'axios';
 import './NewsMarquee.css';
 
-const API = 'http://localhost:8000';
+const API = import.meta.env.VITE_API_URL || '';
 
 const FALLBACK = [
   { title: 'Markets steady as global cues stay mixed', summary: 'Indices hold gains amid cautious optimism.', source: 'Reuters', impact: 'Neutral', image: '' },

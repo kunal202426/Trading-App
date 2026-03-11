@@ -16,7 +16,7 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import NewsMarquee from '../components/NewsMarquee';
 
-const API = 'http://localhost:8000';
+const API = import.meta.env.VITE_API_URL || '';
 
 const signalColor = (s) => s === 1 ? '#16a34a' : s === -1 ? '#dc2626' : '#d97706';
 const signalLabel = (s) => s === 1 ? 'BUY' : s === -1 ? 'SELL' : 'HOLD';
