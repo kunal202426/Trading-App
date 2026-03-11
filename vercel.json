@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "buildCommand": "cd stock-ui && npm install && npm run build",
+  "outputDirectory": "stock-ui/dist",
+  "framework": "vite",
+  "installCommand": "cd stock-ui && npm install",
+  "devCommand": "cd stock-ui && npm run dev",
+  "regions": ["bom1"],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

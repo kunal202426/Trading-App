@@ -1,0 +1,115 @@
+:root {
+  --marquee-gap: 1rem;
+  --row-duration: 45s;
+}
+
+.marquee-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* ── Each scrollable row ── */
+.marquee-row {
+  display: flex;
+  gap: var(--marquee-gap);
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  cursor: grab;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  padding: 4px 0;
+}
+
+.marquee-row::-webkit-scrollbar {
+  display: none;
+}
+
+.marquee-row.dragging {
+  cursor: grabbing;
+  scroll-behavior: auto;
+}
+
+/* Auto-scroll animation rows */
+.marquee-row-auto {
+  overflow: hidden;
+  position: relative;
+}
+
+.marquee-row-track {
+  display: flex;
+  gap: var(--marquee-gap);
+  width: max-content;
+}
+
+.marquee-row-track.scroll-left {
+  animation: scroll-left var(--row-duration) linear infinite;
+}
+
+.marquee-row-track.scroll-right {
+  animation: scroll-right var(--row-duration) linear infinite;
+}
+
+.marquee-row-auto:hover .marquee-row-track {
+  animation-play-state: paused;
+}
+
+@keyframes scroll-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(calc(-50% - var(--marquee-gap) / 2)); }
+}
+
+@keyframes scroll-right {
+  from { transform: translateX(calc(-50% - var(--marquee-gap) / 2)); }
+  to   { transform: translateX(0); }
+}
+
+/* Fade edges per row */
+.marquee-row-auto::before,
+.marquee-row-auto::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 60px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.marquee-row-auto::before {
+  left: 0;
+  background: linear-gradient(to right, #f3f4f6, transparent);
+}
+
+.marquee-row-auto::after {
+  right: 0;
+  background: linear-gradient(to left, #f3f4f6, transparent);
+}
+
+/* ── Card ── */
+.news-card-marquee {
+  flex-shrink: 0;
+  width: 280px;
+  height: 300px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.news-card-marquee:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.news-card-marquee img {
+  -webkit-user-drag: none;
+  user-select: none;
+  pointer-events: none;
+}

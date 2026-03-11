@@ -1,0 +1,168 @@
+import React, { useState } from "react";
+import {
+  Box,
+  Paper,
+  TextField,
+  Typography,
+  Button,
+  CircularProgress,
+} from "@mui/material";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { auth } from "../firebase";
+import { useNavigate } from "react-router-dom";
+import logo from "../assets/logo.png";
+
+const Signup = () => {
+  const [name, setName]               = useState("");
+  const [email, setEmail]             = useState("");
+  const [password, setPassword]       = useState("");
+  const [confirmPassword, setConfirm] = useState("");
+  const [error, setError]             = useState("");
+  const [loading, setLoading]         = useState(false);
+
+  const navigate = useNavigate();
+
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      if (name.trim()) {
+        await updateProfile(cred.user, { displayName: name.trim() });
+      }
+      navigate("/portfolio");
+    } catch (err) {
+      switch (err.code) {
+        case "auth/email-already-in-use":
+          setError("An account with this email already exists.");
+          break;
+        case "auth/invalid-email":
+          setError("Invalid email address.");
+          break;
+        case "auth/weak-password":
+          setError("Password is too weak.");
+          break;
+        default:
+          setError("Sign up failed. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Box
+      sx={{
+        minHeight: "100vh",
+        bgcolor: "#f3f4f6",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        px: { xs: 1.5, sm: 2, md: 3 },
+        py: { xs: 2, sm: 3 },
+      }}
+    >
+      <Paper elevation={0} sx={{ p: { xs: 3, sm: 4 }, width: '100%', maxWidth: { xs: '100%', sm: 420 }, borderRadius: { xs: 2, sm: 3 }, border: '1px solid #e5e7eb' }}>
+        <Box sx={{ display: "flex", justifyContent: "center", mb: { xs: 2, md: 3 } }}>
+          <img src={logo} alt="Logo" style={{ height: 60, width: "auto" }} />
+        </Box>
+
+        <Typography variant="h5" align="center" sx={{ mb: { xs: 2, md: 3 }, fontWeight: 700, color: '#0f172a', fontSize: { xs: '1.3rem', sm: '1.5rem' } }}>
+          Sign Up
+        </Typography>
+
+        <form onSubmit={handleSignup}>
+          <TextField
+            fullWidth
+            label="Name"
+            margin="normal"
+            size="small"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <TextField
+            fullWidth
+            label="Email"
+            type="email"
+            margin="normal"
+            size="small"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <TextField
+            fullWidth
+            label="Password"
+            type="password"
+            margin="normal"
+            size="small"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <TextField
+            fullWidth
+            label="Confirm Password"
+            type="password"
+            margin="normal"
+            size="small"
+            value={confirmPassword}
+            onChange={(e) => setConfirm(e.target.value)}
+            required
+          />
+
+          {error && (
+            <Box
+              sx={{
+                mt: 1,
+                p: { xs: 1, sm: 1.5 },
+                borderRadius: 2,
+                border: "1px solid #fecaca",
+                bgcolor: "#fee2e2",
+                color: "#b91c1c",
+                fontSize: { xs: '0.75rem', sm: '0.85rem' },
+              }}
+            >
+              {error}
+            </Box>
+          )}
+
+          <Button
+            fullWidth
+            type="submit"
+            variant="contained"
+            size="large"
+            sx={{ mt: 2 }}
+            disabled={loading}
+            startIcon={loading ? <CircularProgress size={18} /> : null}
+          >
+            {loading ? "Creating account..." : "Create Account"}
+          </Button>
+        </form>
+
+        <Button
+          fullWidth
+          variant="text"
+          size="large"
+          sx={{ mt: 1, color: '#1976d2' }}
+          onClick={() => navigate("/login")}
+        >
+          Back to Login
+        </Button>
+      </Paper>
+    </Box>
+  );
+};
+
+export default Signup;
