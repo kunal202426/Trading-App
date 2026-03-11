@@ -1,0 +1,7 @@
+{
+  "name": "trading-app",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix stock-ui install && npm --prefix stock-ui run build"
+  }
+}
