@@ -6,6 +6,9 @@ import pandas as pd
 import yfinance as yf
 import httpx
 
+# Vercel filesystem is read-only — redirect yfinance cache to /tmp
+yf.set_tz_cache_location("/tmp/yfinance_cache")
+
 # --------------- inline technical indicators (no ta dependency) --
 def _rsi(close, window=14):
     delta = close.diff()
