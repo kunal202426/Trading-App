@@ -6,10 +6,14 @@
   "installCommand": "cd stock-ui && npm install",
   "devCommand": "cd stock-ui && npm run dev",
   "regions": ["bom1"],
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
+  "functions": {
+    "api.py": {
+      "runtime": "python3.9",
+      "maxDuration": 30
     }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api.py" },
+    { "source": "/(.*)", "destination": "/stock-ui/dist/index.html" }
   ]
 }
