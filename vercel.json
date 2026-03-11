@@ -1,24 +1,13 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "stock-ui/package.json",
-      "use": "@vercel/static-build",
-      "config": {"distDir": "dist"}
-    },
-    {
-      "src": "api.py",
-      "use": "@vercel/python"
-    }
-  ],
-  "routes": [
-    { "src": "/health", "dest": "api.py" },
-    { "src": "/predict/(.*)", "dest": "api.py" },
-    { "src": "/chart/(.*)", "dest": "api.py" },
-    { "src": "/portfolio", "dest": "api.py" },
-    { "src": "/news/(.*)", "dest": "api.py" },
-    { "src": "/fundamentals/(.*)", "dest": "api.py" },
-    { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/index.html" }
+  "buildCommand": "npm --prefix stock-ui run build",
+  "outputDirectory": "stock-ui/dist",
+  "rewrites": [
+    { "source": "/health",             "destination": "/api/index" },
+    { "source": "/predict/:path*",     "destination": "/api/index" },
+    { "source": "/chart/:path*",       "destination": "/api/index" },
+    { "source": "/portfolio",          "destination": "/api/index" },
+    { "source": "/news/:path*",        "destination": "/api/index" },
+    { "source": "/fundamentals/:path*","destination": "/api/index" }
   ]
 }
