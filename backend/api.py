@@ -1,3 +1,7 @@
+import sys, os
+# Ensure backend/ siblings (dynamic_predictor, layer*.py etc.) are importable
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -149,6 +153,8 @@ def get_chart(symbol: str, period: str = "6mo", interval: str = "1d"):
     except HTTPException:
         raise
     except Exception as e:
+        import traceback
+        print(f"CHART ERROR [{symbol}]: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/portfolio")

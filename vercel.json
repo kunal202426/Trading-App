@@ -1,5 +1,8 @@
 {
   "version": 2,
+  "functions": {
+    "backend/api.py": { "maxDuration": 60 }
+  },
   "builds": [
     {
       "src": "package.json",
