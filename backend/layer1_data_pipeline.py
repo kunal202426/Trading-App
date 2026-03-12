@@ -63,32 +63,24 @@ class MarketDataLoader:
 
     def load_real_ohlcv(self, symbol: str) -> pd.DataFrame:
         """
-        Fetch real OHLCV data from Yahoo Finance.
-        NSE symbols need '.NS' appended (e.g. RELIANCE → RELIANCE.NS)
+        Fetch real OHLCV data from Alpha Vantage.
+        NSE symbols are resolved via user_symbol_to_av (e.g. RELIANCE → NSE:RELIANCE).
+        Falls back to synthetic data if the API returns no results.
         """
-        import yfinance as yf
-        ticker = symbol + ".NS"
-        raw = yf.download(ticker,
-                          start=self.start_date,
-                          end=self.end_date,
-                          auto_adjust=True,
-                          progress=False)
+        from alpha_vantage import get_daily_ohlcv, user_symbol_to_av
+        av_ticker = user_symbol_to_av(symbol)
+        start_str = self.start_date.strftime("%Y-%m-%d") if hasattr(self.start_date, 'strftime') else str(self.start_date)[:10]
+        end_str = self.end_date.strftime("%Y-%m-%d") if hasattr(self.end_date, 'strftime') else str(self.end_date)[:10]
+
+        raw = get_daily_ohlcv(av_ticker, start_date=start_str, end_date=end_str)
 
         if raw.empty:
-            print(f"  ⚠ No data for {ticker}, using synthetic fallback.")
+            print(f"  ⚠ No data for {av_ticker}, using synthetic fallback.")
             return self.generate_synthetic_ohlcv(symbol)
 
-        raw = raw.reset_index()
-        df = pd.DataFrame({
-            'date':           pd.to_datetime(raw['Date']),
-            'symbol':         symbol,
-            'open':           raw['Open'].values.flatten(),
-            'high':           raw['High'].values.flatten(),
-            'low':            raw['Low'].values.flatten(),
-            'close':          raw['Close'].values.flatten(),
-            'volume':         raw['Volume'].values.flatten(),
-            'adjusted_close': raw['Close'].values.flatten(),
-        })
+        # Alpha Vantage already returns lowercase columns: date, open, high, low, close, volume, adjusted_close
+        df = raw.copy()
+        df['symbol'] = symbol
         return df.dropna().reset_index(drop=True)
     
     def generate_synthetic_ohlcv(self, symbol: str, seed: int = 42) -> pd.DataFrame:
@@ -110,10 +102,10 @@ class MarketDataLoader:
         })
 
     def load_all(self) -> Dict[str, pd.DataFrame]:
-        """Load real OHLCV data for the entire universe via yfinance."""
+        """Load real OHLCV data for the entire universe via Alpha Vantage."""
         data = {}
         for sym in self.universe:
-            print(f"  Downloading {sym} from Yahoo Finance...")
+            print(f"  Downloading {sym} via Alpha Vantage...")
             df = self.load_real_ohlcv(sym)
             self.pit_store.register(sym, df, 'daily_price')
             data[sym] = df

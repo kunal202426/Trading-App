@@ -7,11 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from datetime import datetime
 import pandas as pd
-import yfinance as yf
 import httpx
-
-# Vercel filesystem is read-only — redirect yfinance cache to /tmp
-yf.set_tz_cache_location("/tmp/yfinance_cache")
+from alpha_vantage import user_symbol_to_av, get_ohlcv_for_period
 
 # --------------- inline technical indicators (no ta dependency) --
 def _rsi(close, window=14):
@@ -46,29 +43,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --------------- symbol resolution (no ML needed) ---------------
-SYMBOL_ALIASES = {
-    "TATAMOTORS":    "TMCV.NS",
-    "TATAMOTORSDVR": "TMCV.NS",
-    "M&M":           "M%26M.NS",
-    "MM":            "M%26M.NS",
-    "LT":            "LT.NS",
-    "BAJAJ-AUTO":    "BAJAJ-AUTO.NS",
-    "NIFTY50":       "^NSEI",
-    "SENSEX":        "^BSESN",
-    "526071":        "526071.BO",
-    "COASTCORP":     "COASTCORP.NS",
-    "WANBURY":       "WANBURY.NS",
-}
+# --------------- symbol resolution (delegates to alpha_vantage module) --------
 
 def resolve_symbol(symbol: str) -> str:
-    sym = symbol.upper()
-    if sym in SYMBOL_ALIASES:
-        return SYMBOL_ALIASES[sym]
-    # BSE numeric codes → .BO, everything else → .NS
-    if sym.isdigit():
-        return sym + ".BO"
-    return sym + ".NS"
+    return user_symbol_to_av(symbol)
 
 # --------------- lazy predictor (heavy ML, only for /predict) ----
 _predictor = None
@@ -102,31 +80,30 @@ def batch_predict(symbols: str):
 def get_chart(symbol: str, period: str = "6mo", interval: str = "1d"):
     try:
         resolved = resolve_symbol(symbol.upper())
-        ticker = yf.Ticker(resolved)
-        hist = ticker.history(period=period, interval=interval)
+        hist = get_ohlcv_for_period(resolved, period=period, interval=interval)
         if hist.empty:
             raise HTTPException(status_code=404, detail="No data found")
 
-        # Compute indicators on full hist
-        hist['rsi']         = _rsi(hist['Close'])
-        macd_line, macd_sig, macd_hist = _macd(hist['Close'])
+        # Compute indicators on full hist (lowercase column names from Alpha Vantage)
+        hist['rsi']         = _rsi(hist['close'])
+        macd_line, macd_sig, macd_hist_col = _macd(hist['close'])
         hist['macd_line']   = macd_line
         hist['macd_signal'] = macd_sig
-        hist['macd_hist']   = macd_hist
-        bb_upper, bb_lower, bb_mid = _bollinger(hist['Close'])
+        hist['macd_hist']   = macd_hist_col
+        bb_upper, bb_lower, bb_mid = _bollinger(hist['close'])
         hist['bb_upper']    = bb_upper
         hist['bb_lower']    = bb_lower
         hist['bb_mid']      = bb_mid
 
         candles = []
-        for date, row in hist.iterrows():
+        for _, row in hist.iterrows():
             candles.append({
-                "date":        str(date.date()),
-                "open":        round(float(row["Open"]), 2),
-                "high":        round(float(row["High"]), 2),
-                "low":         round(float(row["Low"]), 2),
-                "close":       round(float(row["Close"]), 2),
-                "volume":      int(row["Volume"]),
+                "date":        str(row["date"].date()),
+                "open":        round(float(row["open"]), 2),
+                "high":        round(float(row["high"]), 2),
+                "low":         round(float(row["low"]), 2),
+                "close":       round(float(row["close"]), 2),
+                "volume":      int(row["volume"]),
                 "rsi":         round(float(row["rsi"]), 1)         if not pd.isna(row["rsi"])         else None,
                 "macd_line":   round(float(row["macd_line"]), 3)   if not pd.isna(row["macd_line"])   else None,
                 "macd_signal": round(float(row["macd_signal"]), 3) if not pd.isna(row["macd_signal"]) else None,
@@ -192,9 +169,8 @@ def get_portfolio():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-MARKETAUX_KEY = os.getenv("MARKETAUX_KEY")
-if not MARKETAUX_KEY:
-    raise HTTPException(status_code=500, detail="Server is missing MARKETAUX_KEY")
+
+MARKETAUX_KEY = "HsC3kPpxLO2mGwsL68O0oQGVq1DEcfPLVaTGg4lX"
 
 @app.get("/news/{symbol}")
 async def get_news(symbol: str):

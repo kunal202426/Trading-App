@@ -10,8 +10,8 @@ import pickle
 import datetime
 import numpy as np
 import pandas as pd
-import yfinance as yf
 from typing import Dict, List
+from alpha_vantage import user_symbol_to_av, get_daily_ohlcv, get_quote
 
 from layer1_data_pipeline import MarketDataLoader
 from layer2_feature_engineering import FeatureEngine, z_score_features
@@ -25,17 +25,6 @@ MODEL_CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 class DynamicStockPredictor:
     """Download data, build features, train models, and predict for any NSE symbol."""
 
-    SYMBOL_ALIASES = {
-        "TATAMOTORS": "TMCV.NS",
-        "TATAMOTORSDVR": "TMCV.NS",
-        "M&M": "M%26M.NS",
-        "MM": "M%26M.NS",
-        "LT": "LT.NS",
-        "BAJAJ-AUTO": "BAJAJ-AUTO.NS",
-        "NIFTY50": "^NSEI",
-        "SENSEX": "^BSESN",
-    }
-
     def __init__(self):
         self.feature_engine = FeatureEngine()
         self.regime_detector = RegimeDetector()
@@ -45,33 +34,8 @@ class DynamicStockPredictor:
         os.makedirs(MODEL_CACHE_DIR, exist_ok=True)
 
     def _resolve_symbol(self, symbol: str) -> str:
-        """Resolve a user-facing symbol to a valid Yahoo Finance ticker."""
-        # Check alias map first
-        if symbol.upper() in self.SYMBOL_ALIASES:
-            resolved = self.SYMBOL_ALIASES[symbol.upper()]
-            print(f"  ✓ Alias: {symbol} → {resolved}")
-            return resolved
-
-        # Try suffixes in order
-        candidates = [
-            symbol + ".NS",
-            symbol + ".BO",
-            symbol,
-        ]
-        for candidate in candidates:
-            try:
-                t = yf.Ticker(candidate)
-                hist = t.history(period="2d")
-                if not hist.empty:
-                    print(f"  ✓ Resolved: {symbol} → {candidate}")
-                    return candidate
-            except Exception:
-                continue
-
-        raise ValueError(
-            f"Cannot find '{symbol}' on Yahoo Finance.\n"
-            f"Tip: Check exact symbol at https://finance.yahoo.com/quote/{symbol}.NS"
-        )
+        """Resolve a user-facing symbol to an Alpha Vantage ticker (e.g. NSE:INFY)."""
+        return user_symbol_to_av(symbol)
 
     # ──────────────────────────────────────────────
     # 1. load_or_train
@@ -95,31 +59,19 @@ class DynamicStockPredictor:
         start_date = (datetime.date.today()
                       - datetime.timedelta(days=3 * 365)).strftime("%Y-%m-%d")
 
-        # Resolve symbol to a valid Yahoo Finance ticker
-        yf_ticker = self._resolve_symbol(symbol)
+        av_ticker = self._resolve_symbol(symbol)
+        print(f"  Downloading {symbol} ({av_ticker}) via Alpha Vantage...")
 
-        raw = yf.download(yf_ticker,
-                          start=start_date,
-                          end=end_date,
-                          auto_adjust=True,
-                          progress=False)
+        raw = get_daily_ohlcv(av_ticker, start_date=start_date, end_date=end_date)
 
         if raw is None or raw.empty:
             raise ValueError(
-                f"Could not download data for {yf_ticker} (resolved from {symbol})."
+                f"Could not download data for {av_ticker} (resolved from {symbol})."
             )
 
-        raw = raw.reset_index()
-        price_df = pd.DataFrame({
-            'date':           pd.to_datetime(raw['Date']),
-            'symbol':         symbol,
-            'open':           raw['Open'].values.flatten(),
-            'high':           raw['High'].values.flatten(),
-            'low':            raw['Low'].values.flatten(),
-            'close':          raw['Close'].values.flatten(),
-            'volume':         raw['Volume'].values.flatten(),
-            'adjusted_close': raw['Close'].values.flatten(),
-        })
+        # raw already has lowercase columns: date, open, high, low, close, volume, adjusted_close
+        price_df = raw.copy()
+        price_df['symbol'] = symbol
         price_df = price_df.dropna().reset_index(drop=True)
 
         loader = MarketDataLoader(
@@ -175,7 +127,7 @@ class DynamicStockPredictor:
 
     def predict_now(self, symbol: str) -> dict:
         """
-        Produce a prediction dict for*symbol* using the most recent day
+        Produce a prediction dict for *symbol* using the most recent day
         of features.
         """
         master_df = self.load_or_train(symbol)
@@ -222,19 +174,26 @@ class DynamicStockPredictor:
         else:
             final_signal = 0
 
-        ticker = yf.Ticker(self._resolve_symbol(symbol))
-        hist = ticker.history(period="2d")
-        last_price = round(float(hist['Close'].iloc[-1]), 2) if not hist.empty else 0.0
+        # ── Live price via Alpha Vantage GLOBAL_QUOTE ─────────────────
+        av_sym = self._resolve_symbol(symbol)
+        try:
+            quote = get_quote(av_sym)
+            last_price = round(quote["price"], 2)
+        except Exception:
+            last_price = 0.0
+
         timestamp = str(master_df.index[-1].date()
                         if hasattr(master_df.index[-1], "date")
                         else master_df.index[-1])
 
-        # ── Price targets per horizon ─────────────────────────────────
+        # ── 60-day volatility for price targets ───────────────────────
+        raw_hist = None
         try:
-            resolved = self._resolve_symbol(symbol)
-            raw_hist = yf.Ticker(resolved).history(period="60d")
+            sixty_days_ago = (datetime.date.today()
+                              - datetime.timedelta(days=90)).strftime("%Y-%m-%d")
+            raw_hist = get_daily_ohlcv(av_sym, start_date=sixty_days_ago)
             if not raw_hist.empty and len(raw_hist) > 5:
-                log_returns = np.log(raw_hist['Close'] / raw_hist['Close'].shift(1)).dropna()
+                log_returns = np.log(raw_hist['close'] / raw_hist['close'].shift(1)).dropna()
                 daily_vol = float(log_returns.std())
                 daily_vol = max(0.005, min(daily_vol, 0.08))
             else:
@@ -329,11 +288,8 @@ class DynamicStockPredictor:
 
         print("ATR fallback columns:", list(raw_df.columns)[-20:])
 
-        # Prefer raw_hist (original OHLCV, uppercase columns) over feature-engineered raw_df
-        try:
-            _atr_df = raw_hist if (not raw_hist.empty) else raw_df
-        except NameError:
-            _atr_df = raw_df
+        # Prefer raw_hist (original OHLCV, lowercase columns from Alpha Vantage)
+        _atr_df = raw_hist if (raw_hist is not None and not raw_hist.empty) else raw_df
 
         high_s  = get_series(_atr_df, 'High', 'high')
         low_s   = get_series(_atr_df, 'Low', 'low')
