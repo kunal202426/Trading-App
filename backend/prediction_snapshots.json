@@ -1,0 +1,554 @@
+{
+  "RELIANCE": {
+    "symbol": "RELIANCE",
+    "signal": 1,
+    "confidence": 0.78,
+    "regime": "Trending",
+    "horizon_signals": {
+      "ultra_short": {
+        "signal": 1,
+        "confidence": 0.78,
+        "target_price": 1238.88,
+        "stop_loss": 1222.28,
+        "horizon_label": "~45 mins"
+      },
+      "short": {
+        "signal": 1,
+        "confidence": 0.78,
+        "target_price": 1246.83,
+        "stop_loss": 1222.28,
+        "horizon_label": "~3 hours"
+      },
+      "intraday": {
+        "signal": 1,
+        "confidence": 0.78,
+        "target_price": 1252.80,
+        "stop_loss": 1222.28,
+        "horizon_label": "1 day"
+      },
+      "swing": {
+        "signal": 1,
+        "confidence": 0.77,
+        "target_price": 1277.95,
+        "stop_loss": 1222.28,
+        "horizon_label": "1 week"
+      },
+      "positional": {
+        "signal": 0,
+        "confidence": 0.66,
+        "target_price": 1232.45,
+        "stop_loss": null,
+        "horizon_label": "2 months"
+      }
+    },
+    "last_price": 1232.45,
+    "timestamp": "2026-03-12",
+    "primary_target": 1252.80,
+    "primary_stop": 1222.28,
+    "primary_horizon_label": "1 day",
+    "_snapshot": true,
+    "_snapshot_date": "2026-03-12",
+    "indicators": {
+      "rsi": 38.5,
+      "macd": 8.5,
+      "macd_signal": 5.0,
+      "macd_hist": 3.5,
+      "bb_pct_b": 0.28,
+      "bb_bandwidth": 0.048,
+      "obv_zscore": 1.8,
+      "mfi": 42.8,
+      "atr": 18.5,
+      "adx": 29.2,
+      "hvol_20d": 0.0165,
+      "india_vix": 16.5,
+      "pcr_index": 1.0,
+      "momentum_20": -0.032,
+      "momentum_50": -0.018,
+      "regime_score": 0.29,
+      "fear_greed": 43.1
+    }
+  },
+  "TCS": {
+    "symbol": "TCS",
+    "signal": 0,
+    "confidence": 0.52,
+    "regime": "Ranging",
+    "horizon_signals": {
+      "ultra_short": {
+        "signal": 0,
+        "confidence": 0.52,
+        "target_price": 3856.30,
+        "stop_loss": null,
+        "horizon_label": "~45 mins"
+      },
+      "short": {
+        "signal": 0,
+        "confidence": 0.52,
+        "target_price": 3856.30,
+        "stop_loss": null,
+        "horizon_label": "~3 hours"
+      },
+      "intraday": {
+        "signal": 0,
+        "confidence": 0.52,
+        "target_price": 3856.30,
+        "stop_loss": null,
+        "horizon_label": "1 day"
+      },
+      "swing": {
+        "signal": 0,
+        "confidence": 0.51,
+        "target_price": 3856.30,
+        "stop_loss": null,
+        "horizon_label": "1 week"
+      },
+      "positional": {
+        "signal": 0,
+        "confidence": 0.44,
+        "target_price": 3856.30,
+        "stop_loss": null,
+        "horizon_label": "2 months"
+      }
+    },
+    "last_price": 3856.30,
+    "timestamp": "2026-03-12",
+    "primary_target": 3856.30,
+    "primary_stop": null,
+    "primary_horizon_label": "1 day",
+    "_snapshot": true,
+    "_snapshot_date": "2026-03-12",
+    "indicators": {
+      "rsi": 52.1,
+      "macd": 12.4,
+      "macd_signal": 11.2,
+      "macd_hist": 1.2,
+      "bb_pct_b": 0.55,
+      "bb_bandwidth": 0.042,
+      "obv_zscore": 0.3,
+      "mfi": 54.6,
+      "atr": 48.3,
+      "adx": 18.4,
+      "hvol_20d": 0.014,
+      "india_vix": 16.5,
+      "pcr_index": 1.0,
+      "momentum_20": 0.012,
+      "momentum_50": 0.025,
+      "regime_score": 0.18,
+      "fear_greed": 51.3
+    }
+  },
+  "INFY": {
+    "symbol": "INFY",
+    "signal": 1,
+    "confidence": 0.78,
+    "regime": "Trending",
+    "horizon_signals": {
+      "ultra_short": {
+        "signal": 1,
+        "confidence": 0.78,
+        "target_price": 1592.12,
+        "stop_loss": 1571.70,
+        "horizon_label": "~45 mins"
+      },
+      "short": {
+        "signal": 1,
+        "confidence": 0.78,
+        "target_price": 1601.90,
+        "stop_loss": 1571.70,
+        "horizon_label": "~3 hours"
+      },
+      "intraday": {
+        "signal": 1,
+        "confidence": 0.78,
+        "target_price": 1609.22,
+        "stop_loss": 1571.70,
+        "horizon_label": "1 day"
+      },
+      "swing": {
+        "signal": 1,
+        "confidence": 0.77,
+        "target_price": 1640.17,
+        "stop_loss": 1571.70,
+        "horizon_label": "1 week"
+      },
+      "positional": {
+        "signal": 0,
+        "confidence": 0.66,
+        "target_price": 1584.20,
+        "stop_loss": null,
+        "horizon_label": "2 months"
+      }
+    },
+    "last_price": 1584.20,
+    "timestamp": "2026-03-12",
+    "primary_target": 1609.22,
+    "primary_stop": 1571.70,
+    "primary_horizon_label": "1 day",
+    "_snapshot": true,
+    "_snapshot_date": "2026-03-12",
+    "indicators": {
+      "rsi": 37.8,
+      "macd": 10.2,
+      "macd_signal": 4.4,
+      "macd_hist": 5.8,
+      "bb_pct_b": 0.22,
+      "bb_bandwidth": 0.052,
+      "obv_zscore": 2.1,
+      "mfi": 38.2,
+      "atr": 22.6,
+      "adx": 32.6,
+      "hvol_20d": 0.0158,
+      "india_vix": 16.5,
+      "pcr_index": 1.0,
+      "momentum_20": -0.045,
+      "momentum_50": -0.028,
+      "regime_score": 0.33,
+      "fear_greed": 42.7
+    }
+  },
+  "HDFCBANK": {
+    "symbol": "HDFCBANK",
+    "signal": 1,
+    "confidence": 0.78,
+    "regime": "Trending",
+    "horizon_signals": {
+      "ultra_short": {
+        "signal": 1,
+        "confidence": 0.78,
+        "target_price": 1720.29,
+        "stop_loss": 1700.44,
+        "horizon_label": "~45 mins"
+      },
+      "short": {
+        "signal": 1,
+        "confidence": 0.78,
+        "target_price": 1729.79,
+        "stop_loss": 1700.44,
+        "horizon_label": "~3 hours"
+      },
+      "intraday": {
+        "signal": 1,
+        "confidence": 0.78,
+        "target_price": 1736.92,
+        "stop_loss": 1700.44,
+        "horizon_label": "1 day"
+      },
+      "swing": {
+        "signal": 1,
+        "confidence": 0.77,
+        "target_price": 1766.96,
+        "stop_loss": 1700.44,
+        "horizon_label": "1 week"
+      },
+      "positional": {
+        "signal": 0,
+        "confidence": 0.66,
+        "target_price": 1712.60,
+        "stop_loss": null,
+        "horizon_label": "2 months"
+      }
+    },
+    "last_price": 1712.60,
+    "timestamp": "2026-03-12",
+    "primary_target": 1736.92,
+    "primary_stop": 1700.44,
+    "primary_horizon_label": "1 day",
+    "_snapshot": true,
+    "_snapshot_date": "2026-03-12",
+    "indicators": {
+      "rsi": 41.3,
+      "macd": 14.6,
+      "macd_signal": 6.2,
+      "macd_hist": 8.4,
+      "bb_pct_b": 0.18,
+      "bb_bandwidth": 0.038,
+      "obv_zscore": 1.4,
+      "mfi": 46.3,
+      "atr": 22.8,
+      "adx": 27.8,
+      "hvol_20d": 0.0142,
+      "india_vix": 16.5,
+      "pcr_index": 1.0,
+      "momentum_20": -0.025,
+      "momentum_50": 0.008,
+      "regime_score": 0.28,
+      "fear_greed": 44.8
+    }
+  },
+  "ICICIBANK": {
+    "symbol": "ICICIBANK",
+    "signal": 1,
+    "confidence": 0.78,
+    "regime": "Trending",
+    "horizon_signals": {
+      "ultra_short": {
+        "signal": 1,
+        "confidence": 0.78,
+        "target_price": 1174.44,
+        "stop_loss": 1159.01,
+        "horizon_label": "~45 mins"
+      },
+      "short": {
+        "signal": 1,
+        "confidence": 0.78,
+        "target_price": 1181.83,
+        "stop_loss": 1159.01,
+        "horizon_label": "~3 hours"
+      },
+      "intraday": {
+        "signal": 1,
+        "confidence": 0.78,
+        "target_price": 1187.38,
+        "stop_loss": 1159.01,
+        "horizon_label": "1 day"
+      },
+      "swing": {
+        "signal": 1,
+        "confidence": 0.77,
+        "target_price": 1210.76,
+        "stop_loss": 1159.01,
+        "horizon_label": "1 week"
+      },
+      "positional": {
+        "signal": 0,
+        "confidence": 0.66,
+        "target_price": 1168.45,
+        "stop_loss": null,
+        "horizon_label": "2 months"
+      }
+    },
+    "last_price": 1168.45,
+    "timestamp": "2026-03-12",
+    "primary_target": 1187.38,
+    "primary_stop": 1159.01,
+    "primary_horizon_label": "1 day",
+    "_snapshot": true,
+    "_snapshot_date": "2026-03-12",
+    "indicators": {
+      "rsi": 36.2,
+      "macd": 7.8,
+      "macd_signal": 4.7,
+      "macd_hist": 3.1,
+      "bb_pct_b": 0.31,
+      "bb_bandwidth": 0.046,
+      "obv_zscore": 1.6,
+      "mfi": 39.8,
+      "atr": 17.2,
+      "adx": 31.4,
+      "hvol_20d": 0.0162,
+      "india_vix": 16.5,
+      "pcr_index": 1.0,
+      "momentum_20": -0.038,
+      "momentum_50": -0.012,
+      "regime_score": 0.31,
+      "fear_greed": 41.7
+    }
+  },
+  "COASTCORP": {
+    "symbol": "COASTCORP",
+    "signal": -1,
+    "confidence": 0.78,
+    "regime": "Ranging",
+    "horizon_signals": {
+      "ultra_short": {
+        "signal": -1,
+        "confidence": 0.78,
+        "target_price": 61.72,
+        "stop_loss": 63.35,
+        "horizon_label": "~45 mins"
+      },
+      "short": {
+        "signal": -1,
+        "confidence": 0.78,
+        "target_price": 60.94,
+        "stop_loss": 63.35,
+        "horizon_label": "~3 hours"
+      },
+      "intraday": {
+        "signal": -1,
+        "confidence": 0.78,
+        "target_price": 60.36,
+        "stop_loss": 63.35,
+        "horizon_label": "1 day"
+      },
+      "swing": {
+        "signal": -1,
+        "confidence": 0.77,
+        "target_price": 57.89,
+        "stop_loss": 63.35,
+        "horizon_label": "1 week"
+      },
+      "positional": {
+        "signal": 0,
+        "confidence": 0.66,
+        "target_price": 62.35,
+        "stop_loss": null,
+        "horizon_label": "2 months"
+      }
+    },
+    "last_price": 62.35,
+    "timestamp": "2026-03-12",
+    "primary_target": 60.36,
+    "primary_stop": 63.35,
+    "primary_horizon_label": "1 day",
+    "_snapshot": true,
+    "_snapshot_date": "2026-03-12",
+    "indicators": {
+      "rsi": 67.4,
+      "macd": -1.8,
+      "macd_signal": 0.5,
+      "macd_hist": -2.3,
+      "bb_pct_b": 0.82,
+      "bb_bandwidth": 0.068,
+      "obv_zscore": -1.9,
+      "mfi": 69.4,
+      "atr": 2.1,
+      "adx": 22.3,
+      "hvol_20d": 0.032,
+      "india_vix": 16.5,
+      "pcr_index": 1.0,
+      "momentum_20": 0.058,
+      "momentum_50": 0.042,
+      "regime_score": 0.22,
+      "fear_greed": 60.4
+    }
+  },
+  "WANBURY": {
+    "symbol": "WANBURY",
+    "signal": 0,
+    "confidence": 0.50,
+    "regime": "Ranging",
+    "horizon_signals": {
+      "ultra_short": {
+        "signal": 0,
+        "confidence": 0.50,
+        "target_price": 156.80,
+        "stop_loss": null,
+        "horizon_label": "~45 mins"
+      },
+      "short": {
+        "signal": 0,
+        "confidence": 0.50,
+        "target_price": 156.80,
+        "stop_loss": null,
+        "horizon_label": "~3 hours"
+      },
+      "intraday": {
+        "signal": 0,
+        "confidence": 0.50,
+        "target_price": 156.80,
+        "stop_loss": null,
+        "horizon_label": "1 day"
+      },
+      "swing": {
+        "signal": 0,
+        "confidence": 0.49,
+        "target_price": 156.80,
+        "stop_loss": null,
+        "horizon_label": "1 week"
+      },
+      "positional": {
+        "signal": 0,
+        "confidence": 0.43,
+        "target_price": 156.80,
+        "stop_loss": null,
+        "horizon_label": "2 months"
+      }
+    },
+    "last_price": 156.80,
+    "timestamp": "2026-03-12",
+    "primary_target": 156.80,
+    "primary_stop": null,
+    "primary_horizon_label": "1 day",
+    "_snapshot": true,
+    "_snapshot_date": "2026-03-12",
+    "indicators": {
+      "rsi": 48.6,
+      "macd": 0.4,
+      "macd_signal": 1.2,
+      "macd_hist": -0.8,
+      "bb_pct_b": 0.46,
+      "bb_bandwidth": 0.058,
+      "obv_zscore": -0.2,
+      "mfi": 50.2,
+      "atr": 4.2,
+      "adx": 15.8,
+      "hvol_20d": 0.025,
+      "india_vix": 16.5,
+      "pcr_index": 1.0,
+      "momentum_20": -0.008,
+      "momentum_50": -0.015,
+      "regime_score": 0.16,
+      "fear_greed": 49.2
+    }
+  },
+  "526071": {
+    "symbol": "526071",
+    "signal": -1,
+    "confidence": 0.78,
+    "regime": "Ranging",
+    "horizon_signals": {
+      "ultra_short": {
+        "signal": -1,
+        "confidence": 0.78,
+        "target_price": 83.27,
+        "stop_loss": 85.67,
+        "horizon_label": "~45 mins"
+      },
+      "short": {
+        "signal": -1,
+        "confidence": 0.78,
+        "target_price": 82.12,
+        "stop_loss": 85.67,
+        "horizon_label": "~3 hours"
+      },
+      "intraday": {
+        "signal": -1,
+        "confidence": 0.78,
+        "target_price": 81.25,
+        "stop_loss": 85.67,
+        "horizon_label": "1 day"
+      },
+      "swing": {
+        "signal": -1,
+        "confidence": 0.77,
+        "target_price": 77.61,
+        "stop_loss": 85.67,
+        "horizon_label": "1 week"
+      },
+      "positional": {
+        "signal": 0,
+        "confidence": 0.66,
+        "target_price": 84.20,
+        "stop_loss": null,
+        "horizon_label": "2 months"
+      }
+    },
+    "last_price": 84.20,
+    "timestamp": "2026-03-12",
+    "primary_target": 81.25,
+    "primary_stop": 85.67,
+    "primary_horizon_label": "1 day",
+    "_snapshot": true,
+    "_snapshot_date": "2026-03-12",
+    "indicators": {
+      "rsi": 65.3,
+      "macd": -0.8,
+      "macd_signal": 0.4,
+      "macd_hist": -1.2,
+      "bb_pct_b": 0.72,
+      "bb_bandwidth": 0.072,
+      "obv_zscore": -1.5,
+      "mfi": 66.8,
+      "atr": 3.1,
+      "adx": 20.1,
+      "hvol_20d": 0.035,
+      "india_vix": 16.5,
+      "pcr_index": 1.0,
+      "momentum_20": 0.042,
+      "momentum_50": 0.031,
+      "regime_score": 0.20,
+      "fear_greed": 59.2
+    }
+  }
+}

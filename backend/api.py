@@ -1,4 +1,4 @@
-import sys, os
+import sys, os, json
 # Ensure backend/ siblings (dynamic_predictor, layer*.py etc.) are importable
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -30,6 +30,19 @@ def _bollinger(close, window=20, dev=2):
     mid = close.rolling(window).mean()
     std = close.rolling(window).std()
     return mid + dev * std, mid - dev * std, mid
+
+# --------------- snapshot fallback (pre-computed for presentation warmup) ---
+_SNAPSHOT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               "prediction_snapshots.json")
+_snapshots: dict = {}
+if os.path.exists(_SNAPSHOT_PATH):
+    try:
+        with open(_SNAPSHOT_PATH) as _f:
+            _snapshots = json.load(_f)
+        print(f"[snapshots] Loaded {len(_snapshots)} pre-computed snapshots from {_SNAPSHOT_PATH}")
+    except Exception as _e:
+        print(f"[snapshots] Could not load snapshots: {_e}")
+
 app = FastAPI(title="Stock Prediction API")
 
 app.add_middleware(
@@ -125,6 +138,10 @@ def predict(symbol: str):
     # Not seen before → kick off background training, ask client to retry
     if status is None:
         threading.Thread(target=_train_symbol, args=(sym,), daemon=True).start()
+        if sym in _snapshots:
+            snap = dict(_snapshots[sym])
+            snap["_snapshot"] = True
+            return snap
         return JSONResponse(status_code=202, content={
             "status":  "warming_up",
             "symbol":  sym,
@@ -133,11 +150,23 @@ def predict(symbol: str):
 
     # Still training → ask client to retry
     if status == "training":
+        if sym in _snapshots:
+            snap = dict(_snapshots[sym])
+            snap["_snapshot"] = True
+            return snap
         return JSONResponse(status_code=202, content={
             "status":  "warming_up",
             "symbol":  sym,
             "message": f"Model for {sym} is still training. Retry in ~60 seconds.",
         })
+
+    # Training failed → serve snapshot or return error
+    if status == "error":
+        if sym in _snapshots:
+            snap = dict(_snapshots[sym])
+            snap["_snapshot"] = True
+            return snap
+        raise HTTPException(status_code=503, detail=f"Model training failed for {sym}. No snapshot available.")
 
     # Ready → predict instantly (in-memory cache hit inside load_or_train)
     try:
