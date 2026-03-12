@@ -1,10 +1,9 @@
 """
-Alpha Vantage client — replaces yfinance for stock data.
-API docs: https://www.alphavantage.co/documentation/
+Stock data client — queries Yahoo Finance HTTP API directly (no yfinance library).
+Avoids yfinance's rate-limit / IP-block issues while using the same data source.
 
-Symbol format for Indian stocks:
-  NSE: NSE:INFY, NSE:TCS, NSE:RELIANCE
-  BSE: BSE:500325, BSE:500696
+Alpha Vantage key is retained as an env var for potential premium use later.
+Public interface is unchanged so api.py / dynamic_predictor / layer1 need no edits.
 """
 import os
 import time
@@ -14,145 +13,173 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 ALPHA_VANTAGE_KEY = os.environ.get("ALPHA_VANTAGE_KEY", "XILS5XXXXXB2G49I")
-_BASE = "https://www.alphavantage.co/query"
 
-# Free tier: 5 calls/min — enforce at least 12 s between calls
-_CALL_INTERVAL = 12.0
-_last_call: float = 0.0
+_YF_BASE  = "https://query1.finance.yahoo.com/v8/finance/chart"
+_YF_BASE2 = "https://query2.finance.yahoo.com/v8/finance/chart"   # fallback
 
-# Static alias map: user-facing name → Alpha Vantage symbol
-_SYMBOL_ALIASES = {
-    "TATAMOTORS":    "NSE:TATAMOTORS",
-    "TATAMOTORSDVR": "NSE:TATAMOTORS",
-    "M&M":           "NSE:M&M",
-    "MM":            "NSE:M&M",
-    "LT":            "NSE:LT",
-    "BAJAJ-AUTO":    "NSE:BAJAJ-AUTO",
-    "NIFTY50":       "NSE:NIFTY50",
-    "SENSEX":        "BSE:SENSEX",
-    "526071":        "BSE:526071",
-    "COASTCORP":     "NSE:COASTCORP",
-    "WANBURY":       "NSE:WANBURY",
-    # yfinance-style tickers that code may pass through
-    "^NSEI":         "NSE:NIFTY50",
-    "^BSESN":        "BSE:SENSEX",
+_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/120.0.0.0 Safari/537.36"
+    ),
+    "Accept":          "application/json",
+    "Accept-Language": "en-US,en;q=0.9",
 }
 
-
-def _throttle():
-    """Sleep if needed to stay within 5 calls/min rate limit."""
-    global _last_call
-    elapsed = time.time() - _last_call
-    if elapsed < _CALL_INTERVAL:
-        time.sleep(_CALL_INTERVAL - elapsed)
-    _last_call = time.time()
+# Static alias map: user-facing name → Yahoo Finance ticker
+_SYMBOL_ALIASES = {
+    "TATAMOTORS":    "TATAMOTORS.NS",
+    "TATAMOTORSDVR": "TATAMOTORS.NS",
+    "M&M":           "M%26M.NS",
+    "MM":            "M%26M.NS",
+    "LT":            "LT.NS",
+    "BAJAJ-AUTO":    "BAJAJ-AUTO.NS",
+    "NIFTY50":       "^NSEI",
+    "SENSEX":        "^BSESN",
+    "526071":        "526071.BO",
+    "COASTCORP":     "COASTCORP.NS",
+    "WANBURY":       "WANBURY.NS",
+}
 
 
 def user_symbol_to_av(symbol: str) -> str:
     """
-    Convert a user-facing or yfinance-style symbol to Alpha Vantage format.
+    Convert a user-facing symbol to Yahoo Finance ticker format.
+    (Function kept as 'to_av' so existing imports in api.py / dynamic_predictor
+    / layer1 require no changes.)
+
     Examples:
-      INFY        → NSE:INFY
-      INFY.NS     → NSE:INFY
-      500325.BO   → BSE:500325
-      TATAMOTORS  → NSE:TATAMOTORS (via alias)
-      M%26M.NS    → NSE:M&M
+      HDFCBANK    → HDFCBANK.NS
+      RELIANCE    → RELIANCE.NS
+      526071      → 526071.BO
+      NIFTY50     → ^NSEI
+      NSE:INFY    → INFY.NS   (Alpha Vantage format passthrough)
     """
     sym = symbol.upper().replace("%26", "&")
 
-    # Check static alias table first
     if sym in _SYMBOL_ALIASES:
         return _SYMBOL_ALIASES[sym]
 
-    # yfinance suffix stripping
-    if sym.endswith(".NS"):
-        return "NSE:" + sym[:-3]
-    if sym.endswith(".BO"):
-        return "BSE:" + sym[:-3]
+    # Handle NSE:/BSE: prefixes from any previous code
+    if sym.startswith("NSE:"):
+        return sym[4:] + ".NS"
+    if sym.startswith("BSE:"):
+        return sym[4:] + ".BO"
 
-    # Already in AV format
-    if ":" in sym:
+    # Already in Yahoo Finance format
+    if sym.endswith(".NS") or sym.endswith(".BO") or sym.startswith("^"):
         return sym
 
+    # BSE numeric codes
+    if sym.isdigit():
+        return sym + ".BO"
+
     # Default: assume NSE
-    return "NSE:" + sym
+    return sym + ".NS"
 
 
-def _period_to_dates(period: str):
-    """Convert yfinance-style period string to (start_date, end_date) tuple."""
-    end = datetime.today()
+# ── period / interval helpers ────────────────────────────────────────────────
+
+def _period_to_range(period: str) -> str:
     mapping = {
-        "1d":  1,
-        "5d":  5,
-        "1mo": 30,
-        "3mo": 90,
-        "6mo": 180,
-        "1y":  365,
-        "2y":  730,
-        "5y":  1825,
-        "max": 365 * 20,
+        "1d": "1d", "5d": "5d", "1mo": "1mo", "3mo": "3mo",
+        "6mo": "6mo", "1y": "1y", "2y": "2y", "5y": "5y", "max": "max",
     }
-    days = mapping.get(period.lower(), 180)
-    return (end - timedelta(days=days)).strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")
+    return mapping.get(period.lower(), "6mo")
 
 
 def _yf_interval_to_av(interval: str) -> Optional[str]:
-    """Map yfinance interval to Alpha Vantage intraday interval string, or None for daily."""
-    mapping = {
-        "1m":  "1min",
-        "5m":  "5min",
-        "15m": "15min",
-        "30m": "30min",
-        "1h":  "60min",
-        "60m": "60min",
-        "90m": "60min",  # closest available
-    }
-    return mapping.get(interval.lower())  # None means use daily endpoint
+    """Return None for daily (use daily endpoint), else return intraday interval."""
+    intraday = {"1m", "2m", "5m", "15m", "30m", "60m", "90m", "1h"}
+    return interval.lower() if interval.lower() in intraday else None
 
+
+# ── core HTTP fetcher ─────────────────────────────────────────────────────────
+
+def _fetch_yf_chart(yf_symbol: str, range_: str = "6mo",
+                    interval: str = "1d") -> dict:
+    """
+    Call Yahoo Finance chart API, retrying on query2 if query1 fails.
+    Returns the raw result[0] dict.
+    """
+    params = {
+        "range":           range_,
+        "interval":        interval,
+        "includePrePost":  "false",
+        "events":          "div,splits",
+    }
+
+    last_err: Exception = ValueError(f"No data for {yf_symbol}")
+    for base in (_YF_BASE, _YF_BASE2):
+        try:
+            url  = f"{base}/{yf_symbol}"
+            resp = requests.get(url, headers=_HEADERS, params=params, timeout=15)
+            resp.raise_for_status()
+            data   = resp.json()
+            result = data.get("chart", {}).get("result")
+            if result:
+                return result[0]
+            err = data.get("chart", {}).get("error") or {}
+            last_err = ValueError(
+                f"Yahoo Finance: {err.get('description', 'No data returned')} "
+                f"(symbol={yf_symbol})"
+            )
+        except requests.HTTPError as e:
+            last_err = e
+            time.sleep(0.5)
+        except ValueError:
+            raise
+        except Exception as e:
+            last_err = e
+            time.sleep(0.5)
+
+    raise last_err
+
+
+def _chart_to_df(result: dict) -> pd.DataFrame:
+    """Convert a Yahoo Finance chart result dict to a tidy DataFrame."""
+    timestamps = result.get("timestamp", [])
+    if not timestamps:
+        return pd.DataFrame()
+
+    quotes       = result["indicators"]["quote"][0]
+    adjclose_raw = (
+        result["indicators"].get("adjclose", [{}])[0].get("adjclose")
+        or quotes.get("close", [])
+    )
+
+    # Convert UTC epoch → IST date (NSE trading hours are all within UTC day)
+    dates = (
+        pd.to_datetime(timestamps, unit="s", utc=True)
+          .tz_convert("Asia/Kolkata")
+          .normalize()
+          .tz_localize(None)
+    )
+
+    df = pd.DataFrame({
+        "date":           dates,
+        "open":           [float(v) if v is not None else float("nan") for v in quotes.get("open",   [])],
+        "high":           [float(v) if v is not None else float("nan") for v in quotes.get("high",   [])],
+        "low":            [float(v) if v is not None else float("nan") for v in quotes.get("low",    [])],
+        "close":          [float(v) if v is not None else float("nan") for v in quotes.get("close",  [])],
+        "volume":         [int(v)   if v is not None else 0            for v in quotes.get("volume", [])],
+        "adjusted_close": [float(v) if v is not None else float("nan") for v in adjclose_raw],
+    })
+    return df.dropna(subset=["close"]).reset_index(drop=True)
+
+
+# ── public API (interface unchanged from original alpha_vantage.py) ───────────
 
 def get_daily_ohlcv(av_symbol: str, start_date: Optional[str] = None,
                     end_date: Optional[str] = None) -> pd.DataFrame:
     """
-    Fetch adjusted daily OHLCV from Alpha Vantage TIME_SERIES_DAILY_ADJUSTED.
-    Returns a DataFrame with columns: date, open, high, low, close, volume, adjusted_close
-    Optionally filters to [start_date, end_date] (YYYY-MM-DD strings).
+    Fetch daily OHLCV data via Yahoo Finance.
+    av_symbol: Yahoo Finance ticker (HDFCBANK.NS, ^NSEI, 526071.BO …)
+    Returns DataFrame: date, open, high, low, close, volume, adjusted_close
     """
-    _throttle()
-    params = {
-        "function":   "TIME_SERIES_DAILY_ADJUSTED",
-        "symbol":     av_symbol,
-        "outputsize": "full",
-        "apikey":     ALPHA_VANTAGE_KEY,
-        "datatype":   "json",
-    }
-    resp = requests.get(_BASE, params=params, timeout=30)
-    resp.raise_for_status()
-    data = resp.json()
-
-    if "Error Message" in data:
-        raise ValueError(f"Alpha Vantage: {data['Error Message']} (symbol={av_symbol})")
-    if "Note" in data:
-        raise RuntimeError(f"Alpha Vantage rate limit: {data['Note']}")
-    if "Information" in data:
-        raise RuntimeError(f"Alpha Vantage API limit: {data['Information']}")
-
-    ts = data.get("Time Series (Daily)", {})
-    if not ts:
-        raise ValueError(f"No daily data returned for {av_symbol}")
-
-    records = []
-    for date_str, v in ts.items():
-        records.append({
-            "date":           pd.to_datetime(date_str),
-            "open":           float(v.get("1. open", 0)),
-            "high":           float(v.get("2. high", 0)),
-            "low":            float(v.get("3. low", 0)),
-            "close":          float(v.get("4. close", 0)),
-            "volume":         int(float(v.get("6. volume", 0))),
-            "adjusted_close": float(v.get("5. adjusted close", v.get("4. close", 0))),
-        })
-
-    df = pd.DataFrame(records).sort_values("date").reset_index(drop=True)
+    result = _fetch_yf_chart(av_symbol, range_="max", interval="1d")
+    df     = _chart_to_df(result)
 
     if start_date:
         df = df[df["date"] >= pd.to_datetime(start_date)]
@@ -165,90 +192,37 @@ def get_daily_ohlcv(av_symbol: str, start_date: Optional[str] = None,
 def get_intraday_ohlcv(av_symbol: str, av_interval: str = "5min",
                        outputsize: str = "full") -> pd.DataFrame:
     """
-    Fetch intraday OHLCV from Alpha Vantage TIME_SERIES_INTRADAY.
-    av_interval: '1min' | '5min' | '15min' | '30min' | '60min'
-    Returns DataFrame with columns: date, open, high, low, close, volume
+    Fetch intraday OHLCV.
+    av_interval: Alpha Vantage style ('1min','5min','15min','30min','60min')
     """
-    _throttle()
-    params = {
-        "function":   "TIME_SERIES_INTRADAY",
-        "symbol":     av_symbol,
-        "interval":   av_interval,
-        "outputsize": outputsize,
-        "adjusted":   "true",
-        "apikey":     ALPHA_VANTAGE_KEY,
-        "datatype":   "json",
-    }
-    resp = requests.get(_BASE, params=params, timeout=30)
-    resp.raise_for_status()
-    data = resp.json()
-
-    if "Error Message" in data:
-        raise ValueError(f"Alpha Vantage intraday: {data['Error Message']}")
-    if "Note" in data:
-        raise RuntimeError(f"Alpha Vantage rate limit: {data['Note']}")
-    if "Information" in data:
-        raise RuntimeError(f"Alpha Vantage API limit: {data['Information']}")
-
-    key = f"Time Series ({av_interval})"
-    ts = data.get(key, {})
-    if not ts:
-        raise ValueError(f"No intraday data returned for {av_symbol} @ {av_interval}")
-
-    records = []
-    for dt_str, v in ts.items():
-        records.append({
-            "date":   pd.to_datetime(dt_str),
-            "open":   float(v.get("1. open", 0)),
-            "high":   float(v.get("2. high", 0)),
-            "low":    float(v.get("3. low", 0)),
-            "close":  float(v.get("4. close", 0)),
-            "volume": int(float(v.get("5. volume", 0))),
-        })
-
-    return pd.DataFrame(records).sort_values("date").reset_index(drop=True)
+    iv_map = {"1min": "1m", "5min": "5m", "15min": "15m",
+              "30min": "30m", "60min": "60m"}
+    yf_interval = iv_map.get(av_interval, "5m")
+    range_      = "1d" if outputsize == "compact" else "5d"
+    result      = _fetch_yf_chart(av_symbol, range_=range_, interval=yf_interval)
+    return _chart_to_df(result)
 
 
 def get_quote(av_symbol: str) -> dict:
     """
-    Fetch the latest quote via Alpha Vantage GLOBAL_QUOTE.
-    Returns dict with: price, open, high, low, volume, prev_close, change, change_pct
+    Fetch latest quote via Yahoo Finance meta fields.
+    Returns dict: price, open, high, low, volume, prev_close, change, change_pct
     """
-    _throttle()
-    params = {
-        "function": "GLOBAL_QUOTE",
-        "symbol":   av_symbol,
-        "apikey":   ALPHA_VANTAGE_KEY,
-    }
-    resp = requests.get(_BASE, params=params, timeout=15)
-    resp.raise_for_status()
-    data = resp.json()
-
-    if "Error Message" in data:
-        raise ValueError(f"Alpha Vantage quote error: {data['Error Message']}")
-    if "Note" in data:
-        raise RuntimeError(f"Alpha Vantage rate limit: {data['Note']}")
-    if "Information" in data:
-        raise RuntimeError(f"Alpha Vantage API limit: {data['Information']}")
-
-    q = data.get("Global Quote", {})
-    if not q or not q.get("05. price"):
-        raise ValueError(f"No quote data returned for {av_symbol}")
-
-    change_pct_str = q.get("10. change percent", "0%").replace("%", "").strip()
-    try:
-        change_pct = float(change_pct_str)
-    except ValueError:
-        change_pct = 0.0
+    result     = _fetch_yf_chart(av_symbol, range_="5d", interval="1d")
+    meta       = result.get("meta", {})
+    price      = float(meta.get("regularMarketPrice") or meta.get("previousClose") or 0)
+    prev_close = float(meta.get("previousClose")      or meta.get("chartPreviousClose") or 0)
+    change     = round(price - prev_close, 2)
+    change_pct = round((change / prev_close * 100) if prev_close else 0, 2)
 
     return {
-        "price":      float(q.get("05. price", 0)),
-        "open":       float(q.get("02. open", 0)),
-        "high":       float(q.get("03. high", 0)),
-        "low":        float(q.get("04. low", 0)),
-        "volume":     int(float(q.get("06. volume", 0))),
-        "prev_close": float(q.get("08. previous close", 0)),
-        "change":     float(q.get("09. change", 0)),
+        "price":      price,
+        "open":       float(meta.get("regularMarketOpen",    price) or price),
+        "high":       float(meta.get("regularMarketDayHigh", price) or price),
+        "low":        float(meta.get("regularMarketDayLow",  price) or price),
+        "volume":     int(meta.get("regularMarketVolume", 0) or 0),
+        "prev_close": prev_close,
+        "change":     change,
         "change_pct": change_pct,
     }
 
@@ -256,21 +230,18 @@ def get_quote(av_symbol: str) -> dict:
 def get_ohlcv_for_period(av_symbol: str, period: str = "6mo",
                          interval: str = "1d") -> pd.DataFrame:
     """
-    High-level helper used by the chart endpoint.
-    Converts yfinance-style period/interval to AV calls.
-    Returns DataFrame with columns: date, open, high, low, close, volume, adjusted_close
+    High-level helper used by the /chart endpoint.
+    Converts yfinance-style period/interval to Yahoo Finance API calls.
     """
+    yf_range    = _period_to_range(period)
     av_interval = _yf_interval_to_av(interval)
-    start_date, end_date = _period_to_dates(period)
 
     if av_interval is None:
-        # Daily data
-        return get_daily_ohlcv(av_symbol, start_date=start_date, end_date=end_date)
+        result = _fetch_yf_chart(av_symbol, range_=yf_range, interval="1d")
     else:
-        # Intraday data — use compact for short periods to save a call
-        outputsize = "compact" if period in ("1d", "5d") else "full"
-        df = get_intraday_ohlcv(av_symbol, av_interval=av_interval, outputsize=outputsize)
-        df = df[df["date"] >= pd.to_datetime(start_date)]
-        # adjusted_close not available for intraday — use close
+        result = _fetch_yf_chart(av_symbol, range_=yf_range, interval=av_interval)
+
+    df = _chart_to_df(result)
+    if av_interval is not None:
         df["adjusted_close"] = df["close"]
-        return df.reset_index(drop=True)
+    return df
