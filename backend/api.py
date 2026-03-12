@@ -192,7 +192,9 @@ def get_portfolio():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-MARKETAUX_KEY = "HsC3kPpxLO2mGwsL68O0oQGVq1DEcfPLVaTGg4lX"
+MARKETAUX_KEY = os.getenv("MARKETAUX_KEY")
+if not MARKETAUX_KEY:
+    raise HTTPException(status_code=500, detail="Server is missing MARKETAUX_KEY")
 
 @app.get("/news/{symbol}")
 async def get_news(symbol: str):
