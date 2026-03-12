@@ -2,6 +2,7 @@ import sys, os
 # Ensure backend/ siblings (dynamic_predictor, layer*.py etc.) are importable
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+import threading
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -50,22 +51,97 @@ def resolve_symbol(symbol: str) -> str:
 
 # --------------- lazy predictor (heavy ML, only for /predict) ----
 _predictor = None
+_predictor_lock = threading.Lock()
+
+# Symbols to pre-train at startup — covers the most-used ones from logs
+PRETRAIN_SYMBOLS = ["RELIANCE", "TCS", "INFY", "HDFCBANK",
+                    "ICICIBANK", "COASTCORP", "WANBURY", "526071"]
+
+# Per-symbol status: None | "training" | "ready" | "error"
+_model_status: dict = {}
+_model_status_lock = threading.Lock()
+
 
 def _get_predictor():
     global _predictor
     if _predictor is None:
-        from dynamic_predictor import DynamicStockPredictor
-        _predictor = DynamicStockPredictor()
+        with _predictor_lock:
+            if _predictor is None:
+                from dynamic_predictor import DynamicStockPredictor
+                _predictor = DynamicStockPredictor()
     return _predictor
+
+
+def _train_symbol(symbol: str):
+    """Train (or load cached) model for one symbol. Updates _model_status."""
+    with _model_status_lock:
+        if _model_status.get(symbol) == "training":
+            return                          # already in progress
+        _model_status[symbol] = "training"
+    try:
+        _get_predictor().load_or_train(symbol)
+        with _model_status_lock:
+            _model_status[symbol] = "ready"
+        print(f"[warmup] {symbol} ready")
+    except Exception as e:
+        with _model_status_lock:
+            _model_status[symbol] = "error"
+        print(f"[warmup] {symbol} failed: {e}")
+
+
+@app.on_event("startup")
+def startup_pretrain():
+    """Pre-train all common symbols sequentially in one background thread."""
+    def _run():
+        print(f"[warmup] Starting background pre-training: {', '.join(PRETRAIN_SYMBOLS)}")
+        for sym in PRETRAIN_SYMBOLS:
+            _train_symbol(sym)
+        print("[warmup] All pre-training complete.")
+
+    threading.Thread(target=_run, daemon=True).start()
+
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "timestamp": str(datetime.now())}
+    with _model_status_lock:
+        status_snapshot = dict(_model_status)
+    ready  = [s for s, v in status_snapshot.items() if v == "ready"]
+    training = [s for s, v in status_snapshot.items() if v == "training"]
+    return {
+        "status":   "ok",
+        "timestamp": str(datetime.now()),
+        "models_ready":    ready,
+        "models_training": training,
+    }
+
 
 @app.get("/predict/{symbol}")
 def predict(symbol: str):
+    sym = symbol.upper()
+
+    with _model_status_lock:
+        status = _model_status.get(sym)
+
+    # Not seen before → kick off background training, ask client to retry
+    if status is None:
+        threading.Thread(target=_train_symbol, args=(sym,), daemon=True).start()
+        return JSONResponse(status_code=202, content={
+            "status":  "warming_up",
+            "symbol":  sym,
+            "message": f"Model for {sym} is being trained. Retry in ~2 minutes.",
+        })
+
+    # Still training → ask client to retry
+    if status == "training":
+        return JSONResponse(status_code=202, content={
+            "status":  "warming_up",
+            "symbol":  sym,
+            "message": f"Model for {sym} is still training. Retry in ~60 seconds.",
+        })
+
+    # Ready → predict instantly (in-memory cache hit inside load_or_train)
     try:
-        return _get_predictor().predict_now(symbol.upper())
+        return _get_predictor().predict_now(sym)
     except ValueError as e:
         detail = str(e)
         if any(k in detail for k in ("Cannot find", "Could not download", "No data")):
