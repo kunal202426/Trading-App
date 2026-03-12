@@ -98,17 +98,28 @@ def _yf_interval_to_av(interval: str) -> Optional[str]:
 # ── core HTTP fetcher ─────────────────────────────────────────────────────────
 
 def _fetch_yf_chart(yf_symbol: str, range_: str = "6mo",
-                    interval: str = "1d") -> dict:
+                    interval: str = "1d",
+                    period1: int = None, period2: int = None) -> dict:
     """
     Call Yahoo Finance chart API, retrying on query2 if query1 fails.
+    Prefer period1/period2 (unix timestamps) over range when available — more reliable.
     Returns the raw result[0] dict.
     """
-    params = {
-        "range":           range_,
-        "interval":        interval,
-        "includePrePost":  "false",
-        "events":          "div,splits",
-    }
+    if period1 and period2:
+        params = {
+            "period1":        str(period1),
+            "period2":        str(period2),
+            "interval":       interval,
+            "includePrePost": "false",
+            "events":         "div,splits",
+        }
+    else:
+        params = {
+            "range":          range_,
+            "interval":       interval,
+            "includePrePost": "false",
+            "events":         "div,splits",
+        }
 
     last_err: Exception = ValueError(f"No data for {yf_symbol}")
     for base in (_YF_BASE, _YF_BASE2):
@@ -178,8 +189,16 @@ def get_daily_ohlcv(av_symbol: str, start_date: Optional[str] = None,
     av_symbol: Yahoo Finance ticker (HDFCBANK.NS, ^NSEI, 526071.BO …)
     Returns DataFrame: date, open, high, low, close, volume, adjusted_close
     """
-    result = _fetch_yf_chart(av_symbol, range_="max", interval="1d")
-    df     = _chart_to_df(result)
+    # Use timestamp-based query when dates are provided — more reliable than range=max
+    if start_date:
+        p1 = int(datetime.strptime(start_date, "%Y-%m-%d").timestamp())
+        p2 = int((datetime.strptime(end_date, "%Y-%m-%d") if end_date
+                  else datetime.now()).timestamp())
+        result = _fetch_yf_chart(av_symbol, interval="1d", period1=p1, period2=p2)
+    else:
+        result = _fetch_yf_chart(av_symbol, range_="max", interval="1d")
+
+    df = _chart_to_df(result)
 
     if start_date:
         df = df[df["date"] >= pd.to_datetime(start_date)]

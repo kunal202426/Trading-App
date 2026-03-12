@@ -67,7 +67,10 @@ def predict(symbol: str):
     try:
         return _get_predictor().predict_now(symbol.upper())
     except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        detail = str(e)
+        if any(k in detail for k in ("Cannot find", "Could not download", "No data")):
+            raise HTTPException(status_code=404, detail=detail)
+        raise HTTPException(status_code=500, detail=detail)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

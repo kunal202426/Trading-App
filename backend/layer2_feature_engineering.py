@@ -246,8 +246,11 @@ class CrossMarketFeatures:
                              market_ret: pd.Series,
                              window=60) -> pd.Series:
         """C4 – Idiosyncratic alpha (residual after market beta)."""
+        n = len(stock_ret)
+        if n < window:
+            return pd.Series([np.nan] * n, index=stock_ret.index, name='ff_residual')
         residuals = []
-        for i in range(window, len(stock_ret)):
+        for i in range(window, n):
             y = stock_ret.iloc[i-window:i].values
             x = market_ret.iloc[i-window:i].values
             if np.std(x) < 1e-10:

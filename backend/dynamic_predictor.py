@@ -68,6 +68,7 @@ class DynamicStockPredictor:
             raise ValueError(
                 f"Could not download data for {av_ticker} (resolved from {symbol})."
             )
+        print(f"  Downloaded {len(raw)} rows for {av_ticker} ({start_date} → {end_date})")
 
         # raw already has lowercase columns: date, open, high, low, close, volume, adjusted_close
         price_df = raw.copy()
