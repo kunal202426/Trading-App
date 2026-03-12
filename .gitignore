@@ -43,9 +43,8 @@ stock-ui/build/
 *~
 .DS_Store
 
-# Model cache and data — tracked so Vercel has pre-trained models
-# model_cache/
-# *.pkl
+# Model cache — regenerated at runtime on the server
+backend/model_cache/*.pkl
 *.h5
 *.hdf5
 *.joblib
