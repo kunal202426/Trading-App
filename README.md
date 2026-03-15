@@ -1,4 +1,4 @@
-# YES Securities - AI-Powered Trading Platform
+AI-Powered Trading Platform
 
 A comprehensive stock prediction and portfolio management platform with AI-powered signals, real-time analysis, and intelligent trading insights for the Indian stock market.
 
@@ -7,7 +7,7 @@ A comprehensive stock prediction and portfolio management platform with AI-power
 ![Python](https://img.shields.io/badge/Python-3.8+-3776ab)
 ![Firebase](https://img.shields.io/badge/Firebase-Auth%20%7C%20Firestore-orange)
 
-## 🚀 Features
+## Features
 
 ### AI-Powered Intelligence
 - **42-Feature ML Pipeline** - Multi-model ensemble for BUY/SELL signal generation
@@ -58,7 +58,7 @@ A comprehensive stock prediction and portfolio management platform with AI-power
 - **Drift Detection** - Automatic model retraining on data drift
 - **Backtesting** - Historical performance validation
 
-## 📦 Installation
+## Installation
 
 ### Prerequisites
 - Node.js 16+ and npm
@@ -97,7 +97,7 @@ npm run dev
 
 Visit `http://localhost:5173` to see the app!
 
-## 🚀 Deployment
+##  Deployment
 
 ### Frontend (Vercel/Netlify)
 ```bash
@@ -131,7 +131,7 @@ Stock_prediction/
 └── main_orchestrator.py    # Prediction orchestrator
 ```
 
-## 🎯 Key Components
+##  Key Components
 
 ### Landing Page
 - Premium parallax scrolling experience
@@ -153,7 +153,7 @@ Stock_prediction/
 - Prediction history and accuracy
 - Entry/exit recommendations
 
-## 🔐 Environment Variables
+## Environment Variables
 
 Create `.env` file:
 ```env
@@ -172,7 +172,7 @@ VITE_FIREBASE_APP_ID=your_app_id
 - **Uptime**: 99.5%+ (monitored)
 - **Page Load**: <2s on 3G connection
 
-## 🤝 Contributing
+##  Contributing
 
 This is a prototype project. Contributions, issues, and feature requests are welcome!
 
@@ -180,7 +180,7 @@ This is a prototype project. Contributions, issues, and feature requests are wel
 
 This project is for educational and demonstration purposes.
 
-## ⚠️ Disclaimer
+##  Disclaimer
 
 **Important**: This is a PROTOTYPE for demonstration purposes.
 
@@ -198,4 +198,4 @@ Full Stack Developer Intern, Bengaluru
 
 ---
 
-Built with ❤️ using React, Python, and AI
+
