@@ -112,7 +112,7 @@ npm run build
 # Set environment variables for Firebase credentials
 ```
 
-## 📊 Project Structure
+## Project Structure
 
 ```
 Stock_prediction/
@@ -131,7 +131,7 @@ Stock_prediction/
 └── main_orchestrator.py    # Prediction orchestrator
 ```
 
-##  Key Components
+## Key Components
 
 ### Landing Page
 - Premium parallax scrolling experience
@@ -165,7 +165,7 @@ VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 VITE_FIREBASE_APP_ID=your_app_id
 ```
 
-## 📈 Performance
+## Performance
 
 - **Prediction Accuracy**: ~68.4% (backtested)
 - **Response Time**: <500ms average API latency
@@ -178,7 +178,7 @@ This is a prototype project. Contributions, issues, and feature requests are wel
 
 ## 📄 License
 
-This project is for educational and demonstration purposes.
+This project is for educational and demonstration purposes only and a project under the Internship at YES Securities.
 
 ##  Disclaimer
 
@@ -190,8 +190,7 @@ This project is for educational and demonstration purposes.
 - Always consult a certified financial advisor before making investment decisions.
 - The developer is not responsible for any financial losses.
 
-## 👨‍💻 Developer
-
+## DEVELOPER
 **Kunal Mathur**
 Full Stack Developer Intern, Bengaluru
 [GitHub](https://github.com/kunal202426)
