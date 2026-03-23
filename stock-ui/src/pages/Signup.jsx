@@ -11,6 +11,7 @@ import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
+import MagneticButton from "../components/ui/MagneticButton";
 
 const Signup = () => {
   const [name, setName]               = useState("");
@@ -21,6 +22,14 @@ const Signup = () => {
   const [loading, setLoading]         = useState(false);
 
   const navigate = useNavigate();
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+      return;
+    }
+    navigate("/");
+  };
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -66,6 +75,7 @@ const Signup = () => {
       sx={{
         minHeight: "100vh",
         bgcolor: "#f3f4f6",
+        position: "relative",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -73,7 +83,42 @@ const Signup = () => {
         py: { xs: 2, sm: 3 },
       }}
     >
-      <Paper elevation={0} sx={{ p: { xs: 3, sm: 4 }, width: '100%', maxWidth: { xs: '100%', sm: 420 }, borderRadius: { xs: 2, sm: 3 }, border: '1px solid #e5e7eb' }}>
+      <Box sx={{ position: "absolute", top: { xs: 14, sm: 18 }, left: { xs: 14, sm: 18 }, zIndex: 2 }}>
+        <MagneticButton type="button" arrow="←" onClick={handleBack} style={{ padding: "8px 12px", fontSize: 12 }}>
+          Back
+        </MagneticButton>
+      </Box>
+
+      <Paper
+        elevation={0}
+        sx={{
+          p: { xs: 3, sm: 4 },
+          width: '100%',
+          maxWidth: { xs: '100%', sm: 420 },
+          borderRadius: { xs: 2, sm: 3 },
+          border: '1px solid #e5e7eb',
+          transformOrigin: 'center top',
+          willChange: 'transform, box-shadow',
+          animation: 'authCardFloat3d 7.2s ease-in-out infinite',
+          '@keyframes authCardFloat3d': {
+            '0%': {
+              transform: 'translateY(0px)',
+              boxShadow: '0 8px 20px rgba(15,23,42,0.10), 0 2px 8px rgba(15,23,42,0.06)',
+            },
+            '50%': {
+              transform: 'translateY(-6px)',
+              boxShadow: '0 20px 38px rgba(15,23,42,0.16), 0 8px 16px rgba(15,23,42,0.10)',
+            },
+            '100%': {
+              transform: 'translateY(0px)',
+              boxShadow: '0 8px 20px rgba(15,23,42,0.10), 0 2px 8px rgba(15,23,42,0.06)',
+            },
+          },
+          '@media (prefers-reduced-motion: reduce)': {
+            animation: 'none',
+          },
+        }}
+      >
         <Box sx={{ display: "flex", justifyContent: "center", mb: { xs: 2, md: 3 } }}>
           <img src={logo} alt="Logo" style={{ height: 60, width: "auto" }} />
         </Box>

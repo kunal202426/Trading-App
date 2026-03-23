@@ -14,7 +14,7 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
-import NewsMarquee from '../components/NewsMarquee';
+import NewsMarquee from '../components/features/NewsMarquee';
 
 const API = import.meta.env.VITE_API_URL || '';
 

@@ -15,7 +15,7 @@ export default function HoverDevCard({ children, onClick }) {
         },
       }}
     >
-    
+
       <Box
         className="hover-bg"
         sx={{

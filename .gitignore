@@ -43,8 +43,8 @@ stock-ui/build/
 *~
 .DS_Store
 
-# Model cache — regenerated at runtime on the server
-backend/model_cache/*.pkl
+# Model cache — commit pre-trained models for faster deployment startup
+# backend/model_cache/*.pkl
 *.h5
 *.hdf5
 *.joblib

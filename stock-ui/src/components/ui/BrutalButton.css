@@ -1,0 +1,64 @@
+.brutal-btn {
+  --bb-bg: #ffffff;
+  --bb-fg: #0f1729;
+  --bb-border: #0f1729;
+  --bb-shadow: #0f1729;
+  --bb-arrow: #2563eb;
+  --bb-offset: 8px;
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 10px 14px;
+  background: var(--bb-bg);
+  color: var(--bb-fg);
+  border: 2px solid var(--bb-border);
+  border-radius: 0;
+  box-shadow: calc(var(--bb-offset) * -1) var(--bb-offset) 0 0 var(--bb-shadow);
+
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease, color 0.18s ease;
+}
+
+.brutal-btn .arrow {
+  color: var(--bb-arrow);
+  font-size: 15px;
+  line-height: 1;
+  transition: transform 0.18s ease;
+}
+
+.brutal-btn:hover {
+  box-shadow: 0 0 0 0 var(--bb-shadow);
+  transform: translate(calc(var(--bb-offset) * -1), var(--bb-offset));
+}
+
+.brutal-btn:hover .arrow {
+  transform: translateX(3px);
+}
+
+.brutal-btn:active {
+  box-shadow: 0 0 0 0 var(--bb-shadow);
+  transform: translate(calc(var(--bb-offset) * -1), var(--bb-offset));
+}
+
+.brutal-btn:focus-visible {
+  outline: 2px solid #111827;
+  outline-offset: 3px;
+}
+
+.brutal-btn--on-dark {
+  --bb-bg: #ffffff;
+  --bb-fg: #4338ca;
+  --bb-border: #ffffff;
+  --bb-shadow: #000000;
+  --bb-arrow: #ef4444;
+}

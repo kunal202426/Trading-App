@@ -6,9 +6,11 @@ const MagneticButton = ({
   onClick,
   rotate = false,        // if true, button rotates continuously
   size = 'normal',       // 'normal' | 'round-large'
+  'aria-label': ariaLabel,
 }) => {
-  const ref = useRef(null);
-  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const ref  = useRef(null);
+  const [pos, setPos]         = useState({ x: 0, y: 0 });
+  const [focused, setFocused] = useState(false);
 
   const handleMouse = (e) => {
     const rect = ref.current.getBoundingClientRect();
@@ -32,7 +34,11 @@ const MagneticButton = ({
       style={{ display: 'inline-block', position: 'relative' }}
     >
       <motion.button
+        type="button"
         onClick={onClick}
+        aria-label={ariaLabel}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
         animate={rotate ? { rotate: 360 } : {}}
         transition={rotate ? { repeat: Infinity, duration: 10, ease: 'linear' } : {}}
         whileHover={{ scale: 1.06 }}
@@ -56,9 +62,12 @@ const MagneticButton = ({
           overflow: 'hidden',
           textTransform: isRound ? 'uppercase' : 'none',
           lineHeight: isRound ? 1.3 : 1,
+          // Visible focus ring for keyboard navigation (WCAG 2.4.7)
+          outline: focused ? '2px solid #4361ee' : '2px solid transparent',
+          outlineOffset: 3,
         }}
       >
-        {/* Inner text moves slightly against magnet */}
+        {/* Inner span moves slightly against the magnet pull */}
         <motion.span
           animate={{
             x: pos.x * 0.15,

@@ -3,18 +3,18 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     mode: 'light',
-    primary: { main: '#1976d2' },
+    primary: { main: '#4361ee' },
     secondary: { main: '#FF6B35' },
     success: { main: '#16a34a' },
     error: { main: '#dc2626' },
     warning: { main: '#d97706' },
     background: {
-      default: '#f3f4f6',
+      default: '#f5f7ff',
       paper: '#ffffff',
     },
     text: {
-      primary: '#0f172a',
-      secondary: '#64748b',
+      primary: '#0f1729',
+      secondary: '#52637a',
     },
   },
   shape: { borderRadius: 12 },
@@ -25,8 +25,8 @@ const theme = createTheme({
     MuiCssBaseline: {
       styleOverrides: {
         body: {
-          backgroundColor: '#f3f4f6',
-          color: '#0f172a',
+          backgroundColor: '#f5f7ff',
+          color: '#0f1729',
         }
       }
     },
@@ -34,9 +34,9 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           backgroundColor: '#ffffff',
-          color: '#0f172a',
-          boxShadow: '0 2px 12px rgba(15,23,42,0.08)',
-          border: '1px solid #e5e7eb',
+          color: '#0f1729',
+          boxShadow: '0 2px 12px rgba(15,23,42,0.07)',
+          border: '1px solid #e0e6f1',
         }
       }
     },
@@ -44,7 +44,7 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           backgroundColor: '#ffffff',
-          color: '#0f172a',
+          color: '#0f1729',
         }
       }
     },
@@ -52,8 +52,8 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           backgroundColor: '#ffffff',
-          color: '#0f172a',
-          boxShadow: '0 2px 12px rgba(15,23,42,0.08)',
+          color: '#0f1729',
+          boxShadow: '0 2px 12px rgba(15,23,42,0.07)',
         }
       }
     },

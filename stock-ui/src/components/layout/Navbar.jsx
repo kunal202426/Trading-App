@@ -94,17 +94,17 @@ export default function Navbar({ symbol, onSymbolChange, onSearch, onLogout, onM
               display: 'flex',
               alignItems: 'center',
               borderRadius: '50px',
-              bgcolor: searchFocused ? 'rgba(25,118,210,0.08)' : 'rgba(25,118,210,0.05)',
+              bgcolor: searchFocused ? 'rgba(67,97,238,0.08)' : 'rgba(67,97,238,0.05)',
               px: 2,
               transition: 'all 0.25s ease',
-              boxShadow: searchFocused ? '0 0 0 3px rgba(25,118,210,0.25)' : 'none',
-              '&:hover': { bgcolor: 'rgba(25,118,210,0.12)' },
+              boxShadow: searchFocused ? '0 0 0 3px rgba(67,97,238,0.25)' : 'none',
+              '&:hover': { bgcolor: 'rgba(67,97,238,0.12)' },
               flex: { xs: 1, md: 'none' },
               mx: { xs: 1, md: 0 },
             }}
           >
             <SearchIcon
-              sx={{ color: '#1976d2', fontSize: 20, mr: 1, cursor: 'pointer' }}
+              sx={{ color: '#4361ee', fontSize: 20, mr: 1, cursor: 'pointer' }}
               onClick={() => onSearch?.()}
             />
             <InputBase
@@ -132,7 +132,7 @@ export default function Navbar({ symbol, onSymbolChange, onSearch, onLogout, onM
                 variant="text"
                 onClick={() => navigate('/macro')}
                 startIcon={<PublicIcon fontSize="small" />}
-                sx={{ color: '#64748b', textTransform: 'none', fontWeight: 600, fontSize: { xs: '0.75rem', sm: '0.85rem', md: '0.9rem' }, whiteSpace: 'nowrap' }}
+                sx={{ color: '#52637a', textTransform: 'none', fontWeight: 600, fontSize: { xs: '0.75rem', sm: '0.85rem', md: '0.9rem' }, whiteSpace: 'nowrap' }}
               >
                 Macro / Regime
               </Button>
@@ -140,7 +140,7 @@ export default function Navbar({ symbol, onSymbolChange, onSearch, onLogout, onM
               {/* Live clock */}
               <Box sx={{ textAlign: 'right', mr: 1, display: { xs: 'none', lg: 'block' } }}>
                 <Typography sx={{
-                  fontFamily: '"JetBrains Mono", monospace', color: '#1976d2',
+                  fontFamily: '"JetBrains Mono", monospace', color: '#4361ee',
                   fontSize: { xs: '0.8rem', md: '0.95rem' }, fontWeight: 600, lineHeight: 1.2,
                 }}>
                   {istTime}
@@ -154,7 +154,7 @@ export default function Navbar({ symbol, onSymbolChange, onSearch, onLogout, onM
               </Box>
 
               {/* Notifications */}
-              <IconButton sx={{ color: '#64748b' }}>
+              <IconButton sx={{ color: '#52637a' }}>
                 <Badge badgeContent={0} color="error">
                   <NotificationsIcon />
                 </Badge>
@@ -162,7 +162,7 @@ export default function Navbar({ symbol, onSymbolChange, onSearch, onLogout, onM
 
               {/* Profile */}
               <IconButton
-                sx={{ color: '#64748b' }}
+                sx={{ color: '#52637a' }}
                 onClick={(e) => setProfileAnchor(e.currentTarget)}
               >
                 <AccountCircle />
@@ -183,7 +183,7 @@ export default function Navbar({ symbol, onSymbolChange, onSearch, onLogout, onM
               </Menu>
 
               {/* Logout */}
-              <IconButton sx={{ color: '#64748b' }} onClick={() => onLogout?.()}>
+              <IconButton sx={{ color: '#52637a' }} onClick={() => onLogout?.()}>
                 <LogoutIcon />
               </IconButton>
             </Box>
@@ -192,7 +192,7 @@ export default function Navbar({ symbol, onSymbolChange, onSearch, onLogout, onM
           {/* ── RIGHT: Mobile ── */}
           {isMobile && (
             <>
-              <IconButton sx={{ color: '#64748b' }} onClick={(e) => setMobileAnchor(e.currentTarget)}>
+              <IconButton sx={{ color: '#52637a' }} onClick={(e) => setMobileAnchor(e.currentTarget)}>
                 <MoreVertIcon />
               </IconButton>
               <Menu
@@ -210,7 +210,7 @@ export default function Navbar({ symbol, onSymbolChange, onSearch, onLogout, onM
                 <MenuItem onClick={() => { navigate('/macro'); setMobileAnchor(null); }}>Macro / Regime</MenuItem>
                 <Divider />
                 <MenuItem onClick={() => setMobileAnchor(null)} sx={{ gap: 1 }}>
-                  <AccountCircle fontSize="small" sx={{ color: '#64748b' }} /> Profile
+                  <AccountCircle fontSize="small" sx={{ color: '#52637a' }} /> Profile
                 </MenuItem>
                 <MenuItem onClick={() => { setMobileAnchor(null); onLogout?.(); }} sx={{ gap: 1, color: '#dc2626' }}>
                   <LogoutIcon fontSize="small" /> Logout

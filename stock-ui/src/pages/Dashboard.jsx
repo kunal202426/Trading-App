@@ -75,7 +75,7 @@ const slideUp = {
 // ─────────────────────────────────────────────────────
 // WATCHLIST (Left Panel)
 // ─────────────────────────────────────────────────────
-function Watchlist({ symbols, activeSymbol, onSelect, onAdd, flash }) {
+function Watchlist({ symbols, activeSymbol, onSelect, onAdd, onRemove, flash }) {
   const [newSym, setNewSym] = useState('');
   const handleAdd = () => {
     const s = newSym.trim().toUpperCase();
@@ -121,6 +121,25 @@ function Watchlist({ symbols, activeSymbol, onSelect, onAdd, flash }) {
                 primary={sym}
                 primaryTypographyProps={{ fontWeight: 600, fontSize: 13, color: '#0f172a' }}
               />
+              <Tooltip title={symbols.length === 1 ? 'At least one symbol is required' : 'Remove from watchlist'}>
+                <span>
+                  <IconButton
+                    size="small"
+                    disabled={symbols.length === 1}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRemove?.(sym);
+                    }}
+                    sx={{
+                      color: '#94a3b8',
+                      p: 0.5,
+                      '&:hover': { color: '#dc2626', bgcolor: 'rgba(220,38,38,0.08)' },
+                    }}
+                  >
+                    <CloseIcon sx={{ fontSize: 16 }} />
+                  </IconButton>
+                </span>
+              </Tooltip>
             </ListItemButton>
           </motion.div>
         ))}
@@ -445,9 +464,9 @@ function RegimeCard({ regime }) {
 // ─────────────────────────────────────────────────────
 // HORIZON MATRIX
 // ─────────────────────────────────────────────────────
-function HorizonMatrix({ horizonSignals }) {
+function HorizonMatrix({ horizonSignals={} }) {
   const horizons = Object.entries(horizonSignals);
-
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -525,7 +544,7 @@ export default function Dashboard() {
   const [chartKey, setChartKey] = useState(0);
   const [watchlistDrawerOpen, setWatchlistDrawerOpen] = useState(false);
 
-  // ── Pick up symbol from navbar search navigation ──
+
   useEffect(() => {
     if (location.state?.symbol) {
       setSymbol(location.state.symbol);
@@ -533,14 +552,14 @@ export default function Dashboard() {
     }
   }, [location.state]);
 
-  // ── Fundamentals overlay state ──
+  
   const [fundamentalOpen, setFundamentalOpen] = useState(false);
   const [fundamentalLoading, setFundamentalLoading] = useState(false);
   const [fundamentalData, setFundamentalData] = useState(null);
   const [fundamentalSymbol, setFundamentalSymbol] = useState('');
   const [fundamentalError, setFundamentalError] = useState('');
 
-  // ── Fetch chart data from backend API ──
+
   useEffect(() => {
     let cancelled = false;
     const fetchChart = async () => {
@@ -577,7 +596,6 @@ export default function Dashboard() {
     return () => { cancelled = true; };
   }, [symbol]);
 
-  // ── Analyse: fetch chart + prediction together ──
   const handleAnalyse = async () => {
     setPredLoading(true);
     setPredError('');
@@ -618,14 +636,13 @@ export default function Dashboard() {
     }
   };
 
-  // ── Derived ──
   const points = stockData?.points || [];
   const lastPoint = points.length > 0 ? points[points.length - 1] : null;
   const isUp = (stockData?.changePct || 0) >= 0;
   const fmtVol = (v) => v >= 1e7 ? `${(v / 1e7).toFixed(2)} Cr`
     : v >= 1e5 ? `${(v / 1e5).toFixed(2)} L` : (v || 0).toLocaleString('en-IN');
 
-  // ── Shared handler for analysis navigation ──
+
   const handleOpenAnalysis = (e) => {
     e?.preventDefault?.();
     e?.stopPropagation?.();
@@ -646,7 +663,23 @@ export default function Dashboard() {
     });
   };
 
-  // ── Handler for fundamentals overlay ──
+  const handleRemoveFromWatchlist = (symToRemove) => {
+    setWatchlist((prev) => {
+      if (prev.length === 1) return prev;
+      const next = prev.filter((sym) => sym !== symToRemove);
+
+      if (symbol === symToRemove) {
+        setSymbol(next[0] || '');
+        setPrediction(null);
+      }
+      if (currentSymbol === symToRemove) {
+        setCurrentSymbol('');
+      }
+
+      return next;
+    });
+  };
+
   const handleOpenFundamentals = async (e) => {
     e?.preventDefault?.();
     e?.stopPropagation?.();
@@ -700,6 +733,7 @@ export default function Dashboard() {
               activeSymbol={symbol}
               onSelect={(s) => { setSymbol(s); setPrediction(null); }}
               onAdd={(s) => setWatchlist((prev) => [...prev, s])}
+              onRemove={handleRemoveFromWatchlist}
               flash={flashWatchlist}
             />
         </Box>
@@ -1046,6 +1080,7 @@ export default function Dashboard() {
           activeSymbol={symbol}
           onSelect={(s) => { setSymbol(s); setPrediction(null); setWatchlistDrawerOpen(false); }}
           onAdd={(s) => setWatchlist((prev) => [...prev, s])}
+          onRemove={handleRemoveFromWatchlist}
           flash={flashWatchlist}
         />
       </Drawer>

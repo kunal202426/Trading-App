@@ -2,9 +2,116 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>YES Securities - AI-Powered Trading Platform</title>
+
+    <!-- ── Primary SEO meta ─────────────────────────────────────────────── -->
+    <title>YES Securities — AI-Powered Stock Market Platform for Indian Investors</title>
+    <meta
+      name="description"
+      content="YES Securities: AI-powered equity research, real-time portfolio tracking, and ML-driven BUY/SELL signals for NSE &amp; BSE. Join 7.5 lakh+ investors today."
+    />
+    <meta name="robots" content="index, follow" />
+
+    <!-- ── Open Graph (social sharing) ─────────────────────────────────── -->
+    <meta property="og:type"        content="website" />
+    <meta property="og:title"       content="YES Securities — AI-Powered Stock Market Platform" />
+    <meta property="og:description" content="AI-powered equity research, real-time portfolio tracking, and market intelligence built for the modern Indian investor." />
+    <meta property="og:image"       content="/og-preview.png" />
+    <meta property="og:locale"      content="en_IN" />
+    <meta property="og:site_name"   content="YES Securities" />
+
+    <!-- ── Twitter card ─────────────────────────────────────────────────── -->
+    <meta name="twitter:card"        content="summary_large_image" />
+    <meta name="twitter:title"       content="YES Securities — AI-Powered Stock Market Platform" />
+    <meta name="twitter:description" content="AI-powered equity research, real-time portfolio tracking, and market intelligence for the modern Indian investor." />
+    <meta name="twitter:image"       content="/og-preview.png" />
+
+    <!-- ── Favicon ──────────────────────────────────────────────────────── -->
+    <link rel="icon" type="image/png" href="/favicon.png" />
+
+    <!-- ── Font preconnect — reduces Google Fonts latency ───────────────── -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!--
+      ── Hero image preload ───────────────────────────────────────────────
+      NOTE: Vite hashes asset filenames in production builds.
+      For this preload to work in production, either:
+        (a) Move main.png → public/hero.png → use href="/hero.png", OR
+        (b) Add the @vite/plugin-legacy + vite-plugin-html to inject the hashed path.
+      In dev (vite dev server) the path below works as-is.
+    -->
+    <!-- <link rel="preload" as="image" href="/src/assets/main.png" fetchpriority="high" /> -->
+
+    <!-- ── Critical CSS — inlined to unblock FCP ────────────────────────── -->
+    <style>
+      /* ── Design-token layer ────────────────────────────────────────────────── */
+      :root {
+        /* Backgrounds */
+        --c-bg:          #f5f7ff;   /* page base — barely-there lavender-blue                */
+        --c-surface:     #ffffff;   /* cards / surfaces                                      */
+        --c-tint-indigo: #eef1ff;   /* section tint 1 — soft indigo                          */
+        --c-tint-warm:   #f9f9ff;   /* section tint 2 — warm-cool wash                       */
+        --c-dark:        #0b1929;   /* dark section bg                                       */
+
+        /* Brand */
+        --c-primary:     #4361ee;   /* richer indigo-blue                                    */
+        --c-primary-10:  #eff3ff;   /* 10% primary tint                                      */
+
+        /* Text */
+        --c-text-1:      #0f1729;   /* primary text                                          */
+        --c-text-2:      #52637a;   /* secondary text                                        */
+        --c-text-3:      #8b99af;   /* muted / caption                                       */
+
+        /* Borders */
+        --c-border:      #e0e6f1;   /* default border                                        */
+        --c-border-dark: #d1d9eb;   /* slightly heavier border                               */
+      }
+
+      /* Base reset — must paint before the JS bundle executes */
+      *, *::before, *::after { box-sizing: border-box; }
+
+      html, body, #root {
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        background: var(--c-bg);   /* prevents FOUC flash on landing page */
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+        max-width: 100vw;
+      }
+
+      /* Minimal scrollbar */
+      ::-webkit-scrollbar        { width: 6px; }
+      ::-webkit-scrollbar-track  { background: var(--c-bg); }
+      ::-webkit-scrollbar-thumb  { background: rgba(67,97,238,0.22); border-radius: 3px; }
+
+      /* Ticker keyframes — available before ticker.css / React hydrates */
+      @keyframes ticker-left  { from { transform: translateX(0)    } to { transform: translateX(-50%) } }
+      @keyframes ticker-right { from { transform: translateX(-50%) } to { transform: translateX(0)    } }
+
+      /* Global focus-visible ring — WCAG 2.4.7 */
+      :focus-visible {
+        outline: 2px solid var(--c-primary) !important;
+        outline-offset: 3px;
+      }
+
+      /* BounceCards keyboard focus ring */
+      [role="listitem"]:focus-visible {
+        outline: 2px solid var(--c-primary);
+        outline-offset: 4px;
+        border-radius: 22px;
+      }
+
+      /* Hero h1 critical typography */
+      h1 {
+        font-size: clamp(2.8rem, 6vw, 5rem);
+        font-weight: 900;
+        line-height: 1.0;
+        letter-spacing: -0.04em;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>

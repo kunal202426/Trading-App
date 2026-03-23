@@ -58,4 +58,3 @@ export default function TiltCard({children}) {
     </motion.div>
   );
 };
-
