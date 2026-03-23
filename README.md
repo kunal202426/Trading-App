@@ -1,4 +1,4 @@
-AI-Powered Trading Platform
+AI-POWERED TRADING PLATFORM
 
 A comprehensive stock prediction and portfolio management platform with AI-powered signals, real-time analysis, and intelligent trading insights for the Indian stock market.
 
