@@ -616,6 +616,8 @@ const StatsBar = () => (
 
 
 
+
+
 const StepIntoInvesting = () => {
   const [activeTab, setActiveTab] = useState(investingTabs[0].id);
   const navigate = useNavigate();
