@@ -22,9 +22,7 @@ export default function OmniAnimation({ onProgress }) {
     const PI2 = Math.PI * 2;
     const TILT = 25 * Math.PI / 180;
 
-    // ── SCROLL PROGRESS ───────────────────────────────────────────────────────
     let SP = 0;
-
     function onScroll() {
       const scrollTop    = scroller.scrollTop;
       const scrollHeight = track.offsetHeight - scroller.offsetHeight;
@@ -35,12 +33,7 @@ export default function OmniAnimation({ onProgress }) {
     scroller.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
 
-    // ── VISIBILITY OBSERVER ───────────────────────────────────────────────────
-    // Pause RAF loop when off-screen to save CPU cycles and avoid competing
-    // with Lenis/Framer Motion RAF loops.
     let isVisible = false;
-
-    // ── MATH ─────────────────────────────────────────────────────────────────
     function c01(v)       { return Math.max(0, Math.min(1, v)); }
     function ph(t,a,b)    { return c01((t-a)/(b-a)); }
     function eio(t)       { return t<.5?2*t*t:-1+(4-2*t)*t; }
@@ -75,7 +68,7 @@ export default function OmniAnimation({ onProgress }) {
       }
     }
 
-    // ── TICKER DATA ───────────────────────────────────────────────────────────
+
     const TICKER_SEGS = [
       {t:'NIFTY 50 ',c:'#1A3A5C'},{t:'▲ 8.2% ',c:'#16A34A'},{t:'  ·  ',c:'#94B8D0'},
       {t:'SENSEX ',c:'#1A3A5C'},{t:'▲ 6.1% ',c:'#16A34A'},{t:'  ·  ',c:'#94B8D0'},
@@ -92,7 +85,7 @@ export default function OmniAnimation({ onProgress }) {
       {t:'AXISBANK ',c:'#1A3A5C'},{t:'▼ 0.6% ',c:'#DC2626'},{t:'  ·  ',c:'#94B8D0'},
     ];
 
-    // ── CHART DATA ────────────────────────────────────────────────────────────
+
     const RAW = [
       0.00,0.04,0.09,0.05,0.14,0.10,0.19,0.15,
       0.24,0.20,0.30,0.26,0.36,0.32,0.43,0.39,
@@ -101,7 +94,7 @@ export default function OmniAnimation({ onProgress }) {
     ];
     const BENCH = RAW.map(v => v * 0.71 + 0.015);
 
-    // ── PARTICLES ─────────────────────────────────────────────────────────────
+
     const PARTICLES = Array.from({length:34},(_,i)=>({
       ang:  Math.random()*PI2,
       dist: 1.10+Math.random()*0.55,
@@ -123,7 +116,7 @@ export default function OmniAnimation({ onProgress }) {
       { label:'LSE',  val:'+1.2%',  ang: 0.16, dR:1.62, color:'#C084FC' },
     ];
 
-    // ── BACKGROUND CONSTELLATION NODES ───────────────────────────────────────
+
     const BG_NODES = Array.from({length:28},()=>({
       x:  Math.random()*W,
       y:  Math.random()*H,
@@ -148,7 +141,7 @@ export default function OmniAnimation({ onProgress }) {
     const CHAR_W = TICKER_CHARS.map(c => ctx.measureText(c.ch).width);
     const TOTAL_CHAR_W = CHAR_W.reduce((a,b)=>a+b,0);
 
-    // ── CACHED STATIC GRADIENTS (created once, reused every frame) ────────────
+
     const cachedCenterGlow = ctx.createRadialGradient(W*.5, H*.3, 0, W*.5, H*.5, W*.6);
     cachedCenterGlow.addColorStop(0, 'rgba(210,238,255,0.42)');
     cachedCenterGlow.addColorStop(1, 'rgba(237,245,251,0)');
@@ -157,13 +150,13 @@ export default function OmniAnimation({ onProgress }) {
     cachedVignette.addColorStop(0, 'rgba(237,245,251,0)');
     cachedVignette.addColorStop(1, 'rgba(210,228,244,0.18)');
 
-    // ── SPATIAL BUCKETING FOR CONSTELLATION (O(n²) → ~O(n)) ───────────────────
+
     const CELL = 110; // slightly larger than proximity threshold of 105
     const cols = Math.ceil(W / CELL);
     const rows = Math.ceil(H / CELL);
     const PROX_SQ = 105 * 105; // squared threshold for fast comparison
 
-    // ── ARC-LENGTH PARAMETERIZATION ───────────────────────────────────────────
+
     let _arcCache = { gr:-1, table:null, total:0 };
     function getArcTable(gr) {
       if (Math.abs(_arcCache.gr - gr) < 0.5) return _arcCache;
@@ -193,15 +186,13 @@ export default function OmniAnimation({ onProgress }) {
       return ac.table[lo].s;
     }
 
-    // ── DYNAMIC CHART DIMENSIONS ──────────────────────────────────────────────
+
     // The chart smoothly expands from globe-attached small → full-canvas large.
     // expandP goes 0→1 over scroll range 0.48..0.74
     function getChartDims(gx, gy, gr, s) {
       const expandP = eOut5(ph(s, 0.48, 0.74));
-      // Small: anchored to globe right-edge
       const attachX = gx + gr * Math.cos(TILT);
       const attachY = gy + gr * Math.sin(TILT);
-      // Large: fixed canvas layout (left margin = 58, chart width = 562)
       const tgtOX  = 58;
       const tgtOY  = H * 0.495;
       const tgtCHW = 562;
@@ -213,7 +204,7 @@ export default function OmniAnimation({ onProgress }) {
       return { ox, oy, chw, yBot, yTop, expandP };
     }
 
-    // ── BACKGROUND ────────────────────────────────────────────────────────────
+
     function drawBackground() {
       ctx.save();
       // Layer 1: solid base
@@ -312,7 +303,7 @@ export default function OmniAnimation({ onProgress }) {
       ctx.restore();
     }
 
-    // ── GLOBE ─────────────────────────────────────────────────────────────────
+
     function drawGlobe(gx,gy,gr,alpha) {
       if (alpha<.005||!finite(gx,gy,gr)||gr<=0) return;
       ctx.save(); ctx.globalAlpha=alpha;
@@ -538,21 +529,15 @@ export default function OmniAnimation({ onProgress }) {
       ctx.restore();
     }
 
-    // ── CHART ─────────────────────────────────────────────────────────────────
-    // FIX 1: Smooth line — no integer-step jumps. We interpolate a partial final
-    //         segment so the tip moves continuously every frame.
-    // FIX 2: Big chart — dimensions lerp from small/globe-attached to full canvas.
-    // FIX 3: Visual richness — glass panel, scan-line, staggered grid/volume bars.
+
     function drawChart(gx, gy, gr, progress, alpha, s) {
       if (alpha < .005 || progress <= 0 || !finite(gx,gy,gr) || gr <= 0) return;
       const { ox, chw, yBot, yTop, expandP } = getChartDims(gx, gy, gr, s);
 
-      // Recompute pts with current (possibly animated) dimensions
       const pts  = RAW.map( (v,i) => ({ x: ox + (i/(RAW.length-1))*chw,  y: yBot - v*(yBot-yTop) }));
       const bPts = BENCH.map((v,i) => ({ x: ox + (i/(BENCH.length-1))*chw, y: yBot - v*(yBot-yTop) }));
       const N = pts.length;
 
-      // ── Smooth partial segment interpolation ────────────────────────────────
       const raw_t  = c01(progress) * (N - 1);
       const nFull  = Math.min(N - 1, Math.floor(raw_t));
       const frac   = raw_t - nFull;
@@ -575,7 +560,6 @@ export default function OmniAnimation({ onProgress }) {
       const tip = vis[vis.length - 1];
       ctx.save(); ctx.globalAlpha = alpha;
 
-      // ── Glass panel — fades in as chart expands ─────────────────────────────
       if (expandP > 0.02) {
         const panelA = c01(expandP * 3.5) * 0.20;
         ctx.save(); ctx.globalAlpha = alpha * panelA;
@@ -590,7 +574,7 @@ export default function OmniAnimation({ onProgress }) {
         ctx.restore();
       }
 
-      // ── Staggered grid lines — appear one by one as chart draws ─────────────
+
       ctx.font = '400 8px "DM Sans",sans-serif';
       ['₹0','₹25K','₹50K','₹75K','₹1L'].forEach((lbl, i) => {
         const gy2 = yBot - (i/4) * (yBot - yTop);
@@ -607,7 +591,7 @@ export default function OmniAnimation({ onProgress }) {
         ctx.restore();
       });
 
-      // ── Volume bars — stagger-reveal as tip sweeps past ─────────────────────
+
       ctx.save();
       const bw2 = (chw / N) * 0.62;
       const volH = lerp(22, 40, expandP);
@@ -623,7 +607,7 @@ export default function OmniAnimation({ onProgress }) {
       });
       ctx.restore();
 
-      // ── Benchmark line ───────────────────────────────────────────────────────
+
       if (bVis.length >= 2) {
         ctx.save(); ctx.globalAlpha = alpha * 0.38;
         ctx.beginPath(); catmullRom(bVis);
@@ -637,7 +621,7 @@ export default function OmniAnimation({ onProgress }) {
         ctx.restore();
       }
 
-      // ── +340bps annotation ───────────────────────────────────────────────────
+
       if (progress > 0.68) {
         const midIdx = Math.min(Math.floor(vis.length * 0.66), bVis.length - 1);
         if (midIdx >= 0 && midIdx < vis.length) {
@@ -663,7 +647,7 @@ export default function OmniAnimation({ onProgress }) {
         }
       }
 
-      // ── Area fill under main line ────────────────────────────────────────────
+
       ctx.beginPath(); ctx.moveTo(vis[0].x, yBot);
       catmullRom(vis); ctx.lineTo(tip.x, yBot); ctx.closePath();
       const grd = ctx.createLinearGradient(0, yTop, 0, yBot);
@@ -672,16 +656,13 @@ export default function OmniAnimation({ onProgress }) {
       grd.addColorStop(1,   'rgba(34,197,94,0)');
       ctx.fillStyle = grd; ctx.fill();
 
-      // ── Main chart line ──────────────────────────────────────────────────────
+
       ctx.shadowColor = '#22C55E'; ctx.shadowBlur = 14;
       ctx.beginPath(); catmullRom(vis);
       ctx.strokeStyle = '#22C55E'; ctx.lineWidth = 2.8;
       ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.stroke();
       ctx.shadowBlur = 0;
 
-      // ── Scan line — glowing vertical curtain at the drawing front ────────────
-      // Fades in from zero, peaks mid-draw, fades at completion. This is the key
-      // visual that makes the "live drawing" feel smooth and intentional.
       const scanFade = Math.sin(c01(progress * 1.06) * Math.PI) * 0.72;
       if (scanFade > 0.01) {
         ctx.save(); ctx.globalAlpha = alpha * scanFade;
@@ -695,13 +676,13 @@ export default function OmniAnimation({ onProgress }) {
         ctx.restore();
       }
 
-      // ── Bottom axis ──────────────────────────────────────────────────────────
+
       ctx.save(); ctx.globalAlpha = alpha * 0.18;
       ctx.beginPath(); ctx.moveTo(ox, yBot); ctx.lineTo(ox + chw, yBot);
       ctx.strokeStyle = '#5BB8F5'; ctx.lineWidth = .5; ctx.stroke();
       ctx.restore();
 
-      // ── Floating price label at tip ──────────────────────────────────────────
+
       if (progress > 0.14) {
         const price = Math.round(progress * 240000);
         ctx.save(); ctx.globalAlpha = alpha * Math.min((progress-.14)/.14, 1);
@@ -719,7 +700,7 @@ export default function OmniAnimation({ onProgress }) {
         ctx.restore();
       }
 
-      // ── Pulsing tip dot ──────────────────────────────────────────────────────
+
       ctx.shadowBlur = 26;
       ctx.beginPath(); ctx.arc(tip.x, tip.y, 5.5, 0, PI2);
       ctx.fillStyle = '#22C55E'; ctx.fill(); ctx.shadowBlur = 0;
@@ -852,7 +833,7 @@ export default function OmniAnimation({ onProgress }) {
       });
     }
 
-    // ── RENDER LOOP (smooth 60fps for better scroll sync) ─────────────────────
+
     let rafId;
     let lastFrame = 0;
     const FRAME_INTERVAL = 1000 / 60; // 60fps for smooth scroll

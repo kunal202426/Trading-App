@@ -22,34 +22,25 @@ import {
 import { useNavigate } from 'react-router-dom';
 import Lottie from 'lottie-react';
 
-// Components eager-loaded (above-fold)
 import MagneticButton from '../components/ui/MagneticButton';
 import RotatingText   from '../components/ui/RotatingText';
 import OmniAnimation  from '../components/sections/animation';
 import { FiArrowRight, FiBarChart2, FiShield, FiTrendingUp, FiZap } from 'react-icons/fi';
 
-// Static CSS for ticker keyframes — replaces runtime document.createElement('style')
 import '../styles/ticker.css';
 
-// Hero parallax background image
 import heroImg from '../assets/main.png';
 import logo from '../assets/logo.png';
 
-// Tab Lottie animations for StepIntoInvesting
 import portfolioAnim from '../assets/lottie/openaccount.json';
 import analysisAnim  from '../assets/lottie/exploretools.json';
 import tradingAnim   from '../assets/lottie/learnmore.json';
 
-// ─── Lazy-loaded below-fold sections ─────────────────────────────────────────
-// Each produces its own JS chunk. Suspense boundaries hold fixed-height
-// skeletons so the page layout never shifts while loading (CLS = 0).
 const SignalTerminal     = lazy(() => import(/* webpackChunkName: "s-terminal" */     '../components/sections/SignalTerminal'));
 const HorizontalShowcase = lazy(() => import(/* webpackChunkName: "s-showcase" */    '../components/sections/HorizontalShowcase'));
 const SocialProof        = lazy(() => import(/* webpackChunkName: "s-social" */      '../components/sections/SocialProof'));
 const BigStatement       = lazy(() => import(/* webpackChunkName: "s-bigstatement" */'../components/sections/BigStatement'));
 const CTASection         = lazy(() => import(/* webpackChunkName: "s-cta" */         '../components/sections/CTASection'));
-
-// ─── Static data — live outside the component so they are never recreated ────
 
 const tickers = [
   { sym: 'RELIANCE',   price: '₹2,847',  change: '+1.2%', up: true  },
@@ -349,9 +340,9 @@ const HeroWithOmni = ({ navigate }) => {
 
   // Inline transforms (NOT Framer Motion springs - avoids double RAF)
   const leftY       = sp * -60;
-  const leftOpacity = Math.max(0, 1 - sp * 1.4);
+  const leftOpacity = 1; // Keep left rail fully visible (don't fade)
   const rightY      = sp * 60;
-  const rightOpacity = Math.max(0, 1 - sp * 1.4);
+  const rightOpacity = 1; // Keep right rail fully visible (don't fade)
 
   return (
     <>
