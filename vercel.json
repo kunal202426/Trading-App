@@ -15,14 +15,10 @@
     { "src": "/health", "dest": "backend/api.py" },
     { "src": "/predict/(.*)", "dest": "backend/api.py" },
     { "src": "/chart/(.*)", "dest": "backend/api.py" },
-    { "src": "/portfolio", "dest": "backend/api.py" },
     { "src": "/news/(.*)", "dest": "backend/api.py" },
     { "src": "/fundamentals/(.*)", "dest": "backend/api.py" },
 
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/index.html" }
-  ],
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
