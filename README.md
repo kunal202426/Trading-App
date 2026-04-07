@@ -2,11 +2,6 @@ AI-POWERED TRADING PLATFORM
 
 A comprehensive stock prediction and portfolio management platform with AI-powered signals, real-time analysis, and intelligent trading insights for the Indian stock market.
 
-![YES Securities](https://img.shields.io/badge/platform-NSE%20%7C%20BSE-blue)
-![React](https://img.shields.io/badge/React-18.x-61dafb)
-![Python](https://img.shields.io/badge/Python-3.8+-3776ab)
-![Firebase](https://img.shields.io/badge/Firebase-Auth%20%7C%20Firestore-orange)
-
 ## Features
 
 ### AI-Powered Intelligence
