@@ -338,11 +338,10 @@ const HeroWithOmni = ({ navigate }) => {
   const onSignup = useCallback(() => navigate('/signup'), [navigate]);
   const onLogin  = useCallback(() => navigate('/login'),  [navigate]);
 
-  // Inline transforms (NOT Framer Motion springs - avoids double RAF)
   const leftY       = sp * -60;
-  const leftOpacity = 1; // Keep left rail fully visible (don't fade)
+  const leftOpacity = 1;
   const rightY      = sp * 60;
-  const rightOpacity = 1; // Keep right rail fully visible (don't fade)
+  const rightOpacity = 1;
 
   return (
     <>

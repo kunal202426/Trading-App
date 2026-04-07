@@ -207,11 +207,10 @@ export default function OmniAnimation({ onProgress }) {
 
     function drawBackground() {
       ctx.save();
-      // Layer 1: solid base
       ctx.fillStyle = '#EDF5FB';
       ctx.fillRect(0, 0, W, H);
 
-      // Layer 2: aurora blobs — large animated radial glows
+      // animated aurora blobs
       [
         { gx:W*.26, gy:H*.17+Math.sin(time*.14    )*H*.068, r:270, rgb:'91,184,245',  a:.092 },
         { gx:W*.78, gy:H*.73+Math.sin(time*.11+1.5)*H*.054, r:215, rgb:'34,197,94',   a:.060 },
@@ -225,7 +224,7 @@ export default function OmniAnimation({ onProgress }) {
         ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
       });
 
-      // Layer 3: perspective radial grid
+      // perspective radial grid
       const VPX = W*.50, VPY = H*.50;
       const gridPulse = 0.032 + 0.010 * Math.sin(time*.18);
       ctx.lineWidth = .45;
