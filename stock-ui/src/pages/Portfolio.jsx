@@ -211,6 +211,7 @@ const COLORS = ["#6366f1","#22c55e","#f59e0b","#ef4444","#3b82f6","#06b6d4"];
               </span>
             </Tooltip>
             <Button
+              id="portfolio-transactions-btn"
               component={Link}
               to="/transactions"
               variant="contained"
@@ -235,7 +236,7 @@ const COLORS = ["#6366f1","#22c55e","#f59e0b","#ef4444","#3b82f6","#06b6d4"];
         )}
 
         
-        <Grid container spacing={{ xs: 1.5, sm: 2, md: 3 }} sx={{ mb: { xs: 3, md: 4 } }}>
+        <Grid container spacing={{ xs: 1.5, sm: 2, md: 3 }} sx={{ mb: { xs: 3, md: 4 } }} id="portfolio-stats-container">
           <Grid size={{ xs: 12, sm: 6, md: 4 }}>
             <StatCard label="Invested Amount" value={`₹${fmt(totals.invested)}`} />
           </Grid>
@@ -256,7 +257,7 @@ const COLORS = ["#6366f1","#22c55e","#f59e0b","#ef4444","#3b82f6","#06b6d4"];
         </Grid>
         
         <Grid container spacing={{ xs: 1.5, sm: 2, md: 3 }}>
-        <Grid size={{ xs: 12, lg: 8 }}>
+        <Grid size={{ xs: 12, lg: 8 }} id="portfolio-holdings-list">
         
         <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#0f172a', mb: { xs: 1, md: 1.5 }, fontSize: { xs: '0.95rem', sm: '1.1rem', md: '1.25rem' } }}>
           Holdings ({enriched.length})
@@ -346,7 +347,7 @@ const COLORS = ["#6366f1","#22c55e","#f59e0b","#ef4444","#3b82f6","#06b6d4"];
         )}
         </Grid>
         
-        <Grid sx={{borderColor: "black"}}size={{ xs: 12, lg: 4}}>
+        <Grid sx={{borderColor: "black"}}size={{ xs: 12, lg: 4}} id="portfolio-allocation-chart">
           
           <Paper
             elevation={0}

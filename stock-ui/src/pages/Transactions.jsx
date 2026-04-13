@@ -100,7 +100,7 @@ export default function Transactions() {
         </Stack>
 
         {/* Add form */}
-        <Paper elevation={0} sx={{ p: { xs: 2, sm: 2.5, md: 3 }, borderRadius: 2, border: '1px solid #e5e7eb', bgcolor: '#ffffff', mb: { xs: 2, md: 3 } }}>
+        <Paper elevation={0} sx={{ p: { xs: 2, sm: 2.5, md: 3 }, borderRadius: 2, border: '1px solid #e5e7eb', bgcolor: '#ffffff', mb: { xs: 2, md: 3 } }} id="transactions-form">
           <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600, color: '#0f172a', fontSize: { xs: '0.95rem', sm: '1rem', md: '1.1rem' } }}>
             Add Transaction
           </Typography>
@@ -159,44 +159,46 @@ export default function Transactions() {
         </Paper>
 
         {/* List */}
-        <Typography variant="subtitle1" sx={{ mb: { xs: 1, md: 1.5 }, fontWeight: 700, color: '#0f172a', fontSize: { xs: '0.95rem', sm: '1.05rem', md: '1.15rem' } }}>
-          All Holdings ({transactions.length})
-        </Typography>
+        <Box id="transactions-list-section">
+          <Typography variant="subtitle1" sx={{ mb: { xs: 1, md: 1.5 }, fontWeight: 700, color: '#0f172a', fontSize: { xs: '0.95rem', sm: '1.05rem', md: '1.15rem' } }}>
+            All Holdings ({transactions.length})
+          </Typography>
 
-        {loadingTx ? (
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-            <CircularProgress sx={{ color: '#1976d2' }} />
-          </Box>
-        ) : transactions.length === 0 ? (
-          <Paper elevation={0} sx={{ p: 4, borderRadius: 2, textAlign: "center", color: '#6b7280', border: '1px solid #e5e7eb' }}>
-            No transactions yet. Add your first holding above.
-          </Paper>
-        ) : (
-          <Stack spacing={{ xs: 1, sm: 1.5 }}>
-            {transactions.map((t) => (
-              <Paper key={t.id} elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, border: '1px solid #e5e7eb', bgcolor: '#ffffff' }}>
-                <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} spacing={{ xs: 1, sm: 2 }}>
-                  <Stack direction="row" spacing={{ xs: 1, sm: 2 }} alignItems={{ xs: 'flex-start', sm: 'center' }} sx={{ width: '100%', overflowX: 'auto' }}>
-                    <Typography variant="subtitle2" sx={{ fontFamily: '"JetBrains Mono", monospace', fontWeight: 700, color: '#0f172a', fontSize: { xs: '0.85rem', sm: '0.95rem' } }}>
-                      {t.symbol}
-                    </Typography>
-                    <Chip label="BUY" size="small" sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' }, height: { xs: 18, sm: 20 }, fontWeight: 600, bgcolor: '#dcfce7', color: '#16a34a' }} />
-                    <Typography variant="caption" sx={{ color: '#6b7280', fontSize: { xs: '0.65rem', sm: '0.75rem' }, whiteSpace: 'nowrap', overflow: 'auto' }}>
-                      Buy: ₹{Number(t.buyPrice).toLocaleString('en-IN')} &middot; Qty: {t.quantity} &middot; Total: ₹{(t.buyPrice * t.quantity).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </Typography>
+          {loadingTx ? (
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+              <CircularProgress sx={{ color: '#1976d2' }} />
+            </Box>
+          ) : transactions.length === 0 ? (
+            <Paper elevation={0} sx={{ p: 4, borderRadius: 2, textAlign: "center", color: '#6b7280', border: '1px solid #e5e7eb' }}>
+              No transactions yet. Add your first holding above.
+            </Paper>
+          ) : (
+            <Stack spacing={{ xs: 1, sm: 1.5 }}>
+              {transactions.map((t) => (
+                <Paper key={t.id} elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, border: '1px solid #e5e7eb', bgcolor: '#ffffff' }}>
+                  <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} spacing={{ xs: 1, sm: 2 }}>
+                    <Stack direction="row" spacing={{ xs: 1, sm: 2 }} alignItems={{ xs: 'flex-start', sm: 'center' }} sx={{ width: '100%', overflowX: 'auto' }}>
+                      <Typography variant="subtitle2" sx={{ fontFamily: '"JetBrains Mono", monospace', fontWeight: 700, color: '#0f172a', fontSize: { xs: '0.85rem', sm: '0.95rem' } }}>
+                        {t.symbol}
+                      </Typography>
+                      <Chip label="BUY" size="small" sx={{ fontSize: { xs: '0.65rem', sm: '0.75rem' }, height: { xs: 18, sm: 20 }, fontWeight: 600, bgcolor: '#dcfce7', color: '#16a34a' }} />
+                      <Typography variant="caption" sx={{ color: '#6b7280', fontSize: { xs: '0.65rem', sm: '0.75rem' }, whiteSpace: 'nowrap', overflow: 'auto' }}>
+                        Buy: ₹{Number(t.buyPrice).toLocaleString('en-IN')} &middot; Qty: {t.quantity} &middot; Total: ₹{(t.buyPrice * t.quantity).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </Typography>
+                    </Stack>
+                    <Button
+                      size="small" variant="outlined" color="error"
+                      onClick={() => handleDelete(t.id)}
+                      sx={{ textTransform: 'none', fontWeight: 600, width: { xs: '100%', sm: 'auto' } }}
+                    >
+                      Remove
+                    </Button>
                   </Stack>
-                  <Button
-                    size="small" variant="outlined" color="error"
-                    onClick={() => handleDelete(t.id)}
-                    sx={{ textTransform: 'none', fontWeight: 600, width: { xs: '100%', sm: 'auto' } }}
-                  >
-                    Remove
-                  </Button>
-                </Stack>
-              </Paper>
-            ))}
-          </Stack>
-        )}
+                </Paper>
+              ))}
+            </Stack>
+          )}
+        </Box>
       </Box>
     </motion.div>
   );

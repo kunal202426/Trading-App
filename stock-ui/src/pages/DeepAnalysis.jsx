@@ -220,7 +220,7 @@ export default function DeepAnalysis() {
         {/* ═══ TAB 0 — PRICE & TECHNICALS ═══ */}
         {activeTab === 0 && (
           <Box sx={{ px: { xs: 1.5, sm: 2, md: 3 }, pt: { xs: 1.5, sm: 2 }, pb: { xs: 2, md: 3 } }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 }, mb: { xs: 1.5, md: 2 }, flexWrap: 'wrap' }}>
+            <Box id="analysis-overlay-controls" sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 }, mb: { xs: 1.5, md: 2 }, flexWrap: 'wrap' }}>
               <Typography sx={{ fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' }, color: '#64748b', mr: { xs: 0.5, sm: 1 } }}>Overlays:</Typography>
               {overlayOpts.map((o) => {
                 const active = overlays.includes(o.key);
@@ -237,7 +237,7 @@ export default function DeepAnalysis() {
             </Box>
 
             
-            <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, mb: { xs: 1.5, md: 2 }, borderRadius: 2, bgcolor: '#ffffff', border: '1px solid #e5e7eb' }}>
+            <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, mb: { xs: 1.5, md: 2 }, borderRadius: 2, bgcolor: '#ffffff', border: '1px solid #e5e7eb' }} id="analysis-chart-container">
               <Typography variant="subtitle2" sx={{ color: '#0f172a', mb: 1, fontSize: { xs: '0.9rem', sm: '1rem' } }}>Price & Bands</Typography>
               <Box sx={{ height: { xs: 260, sm: 340, md: 420 } }}>
                 <ResponsiveContainer width="100%" height="100%">
@@ -396,7 +396,7 @@ export default function DeepAnalysis() {
 
             
             <Typography sx={{ fontSize: 13, fontWeight: 800, color: '#0f172a', mb: 1.5 }}>Horizon Matrix</Typography>
-            <Box sx={{ display: 'flex', gap: 1.5, mb: 3, flexWrap: 'wrap' }}>
+            <Box id="analysis-signals-grid" sx={{ display: 'flex', gap: 1.5, mb: 3, flexWrap: 'wrap' }}>
               {horizons.map(([key, data]) => {
                 const sc = signalColor(data.signal ?? 0);
                 return (

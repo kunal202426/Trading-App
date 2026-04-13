@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import {
   Box, CircularProgress, Drawer, List, ListItem, ListItemButton,
@@ -11,6 +11,8 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import PublicIcon from "@mui/icons-material/Public";
 import { AnimatePresence } from "framer-motion";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { TourOverlay } from "./tour/TourOverlay";
+import { useTour } from "./tour/useTour";
 import Navbar from "./components/layout/Navbar.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 
@@ -50,6 +52,42 @@ function AppRoutes() {
   const { user, logout } = useAuth();
   const [navSymbol, setNavSymbol] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const tour = useTour(true);
+
+  // Keyboard shortcuts for tour
+  useEffect(() => {
+    if (!tour.active) return;
+    const fn = (e) => {
+      if (e.key === "ArrowRight" || e.key === "Enter") {
+        e.preventDefault();
+        tour.next();
+      }
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        tour.prev();
+      }
+      if (tour.canSkip && e.key === "Escape") {
+        e.preventDefault();
+        tour.skip();
+      }
+    };
+    window.addEventListener("keydown", fn);
+    return () => window.removeEventListener("keydown", fn);
+  }, [tour.active, tour.canSkip, tour.next, tour.prev, tour.skip]);
+
+  // Keep tour steps on the correct page.
+  useEffect(() => {
+    if (!tour.active) return;
+    const stepRoute = tour.currentStep?.route;
+    if (!stepRoute || location.pathname === stepRoute) return;
+    navigate(stepRoute, { replace: true });
+  }, [tour.active, tour.currentStep?.route, location.pathname, navigate]);
+
+  // Auto-open drawer while introducing navigation.
+  useEffect(() => {
+    if (!tour.active) return;
+    setMobileOpen(tour.currentStep?.id === "navigation-panel");
+  }, [tour.active, tour.currentStep?.id]);
 
   const handleNavSearch = () => {
     if (navSymbol.trim()) {
@@ -63,6 +101,11 @@ function AppRoutes() {
     navigate("/", { replace: true });
   };
 
+  const handleRestartTour = () => {
+    tour.restart();
+    navigate("/portfolio", { replace: true });
+  };
+
   const isAuthPage = ["/login", "/signup", "/"].includes(location.pathname);
 
   return (
@@ -74,6 +117,7 @@ function AppRoutes() {
           open={mobileOpen}
           onClose={() => setMobileOpen(false)}
           ModalProps={{ keepMounted: true }}
+          PaperProps={{ id: "app-navigation-panel" }}
           sx={{
             '& .MuiDrawer-paper': {
               width: { xs: 260, sm: 300 },
@@ -123,6 +167,7 @@ function AppRoutes() {
           onSearch={handleNavSearch}
           onLogout={handleLogout}
           onMenuToggle={() => setMobileOpen(true)}
+          onRestartTour={handleRestartTour}
         />
       )}
 
@@ -148,6 +193,9 @@ function AppRoutes() {
           <Route path="*" element={<Navigate to="/portfolio" replace />} />
         </Routes>
       </AnimatePresence>
+
+      {/* Tour Overlay - only show for authenticated users on protected pages */}
+      {user && !isAuthPage && <TourOverlay tour={tour} pathKey={location.pathname} />}
     </Box>
   );
 }

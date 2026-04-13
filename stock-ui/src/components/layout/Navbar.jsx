@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   AppBar, Toolbar, Box, Typography, IconButton, Badge, Button,
-  Menu, MenuItem, InputBase, useMediaQuery, useTheme, Divider,
+  Menu, MenuItem, InputBase, useMediaQuery, useTheme, Divider, Tooltip,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
@@ -11,10 +11,11 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import PublicIcon from '@mui/icons-material/Public';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { motion } from 'framer-motion';
 import logo from '../../assets/logo.png';
 
-export default function Navbar({ symbol, onSymbolChange, onSearch, onLogout, onMenuToggle }) {
+export default function Navbar({ symbol, onSymbolChange, onSearch, onLogout, onMenuToggle, onRestartTour }) {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -65,7 +66,7 @@ export default function Navbar({ symbol, onSymbolChange, onSearch, onLogout, onM
             sx={{ display: 'flex', alignItems: 'center', gap: 1, cursor: 'pointer', userSelect: 'none' }}
             onClick={() => navigate('/dashboard')}
           >
-            <IconButton size="small" sx={{ color: '#0f172a' }} onClick={(e) => { e.stopPropagation(); onMenuToggle?.(); }}>
+            <IconButton id="navbar-menu-toggle" size="small" sx={{ color: '#0f172a' }} onClick={(e) => { e.stopPropagation(); onMenuToggle?.(); }}>
               <MenuIcon />
             </IconButton>
             <Box
@@ -160,6 +161,13 @@ export default function Navbar({ symbol, onSymbolChange, onSearch, onLogout, onM
                 </Badge>
               </IconButton>
 
+              {/* Tour Help */}
+              <Tooltip title="Restart tour">
+                <IconButton sx={{ color: '#52637a' }} onClick={() => onRestartTour?.()}>
+                  <HelpOutlineIcon />
+                </IconButton>
+              </Tooltip>
+
               {/* Profile */}
               <IconButton
                 sx={{ color: '#52637a' }}
@@ -208,6 +216,7 @@ export default function Navbar({ symbol, onSymbolChange, onSearch, onLogout, onM
                 <MenuItem onClick={() => { navigate('/dashboard'); setMobileAnchor(null); }}>Dashboard</MenuItem>
                 <MenuItem onClick={() => { navigate('/portfolio'); setMobileAnchor(null); }}>Portfolio</MenuItem>
                 <MenuItem onClick={() => { navigate('/macro'); setMobileAnchor(null); }}>Macro / Regime</MenuItem>
+                <MenuItem onClick={() => { onRestartTour?.(); setMobileAnchor(null); }}>Restart Tour</MenuItem>
                 <Divider />
                 <MenuItem onClick={() => setMobileAnchor(null)} sx={{ gap: 1 }}>
                   <AccountCircle fontSize="small" sx={{ color: '#52637a' }} /> Profile
