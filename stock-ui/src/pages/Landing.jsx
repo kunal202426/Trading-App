@@ -25,11 +25,11 @@ import Lottie from 'lottie-react';
 import MagneticButton from '../components/ui/MagneticButton';
 import RotatingText   from '../components/ui/RotatingText';
 import OmniAnimation  from '../components/sections/animation';
+import LoadingScreen  from '../components/ui/LoadingScreen';
 import { FiArrowRight, FiBarChart2, FiShield, FiTrendingUp, FiZap } from 'react-icons/fi';
 
 import '../styles/ticker.css';
 
-import heroImg from '../assets/main.png';
 import logo from '../assets/logo.png';
 
 import portfolioAnim from '../assets/lottie/openaccount.json';
@@ -171,6 +171,7 @@ const SectionSkeleton = ({ height = 600 }) => (
 
 export default function Landing() {
   const navigate = useNavigate();
+  const [showIntroLoader, setShowIntroLoader] = useState(true);
 
   return (
     // itemScope+itemType registers this page as a FinancialService in schema.org
@@ -179,6 +180,16 @@ export default function Landing() {
       itemType="https://schema.org/FinancialService"
       style={{ background: '#f5f7ff', color: '#0f1729', fontFamily: 'Inter, system-ui, sans-serif' }}
     >
+      <AnimatePresence>
+        {showIntroLoader && (
+          <LoadingScreen
+            duration={5000}
+            text="Loading portfolio..."
+            onLoadComplete={() => setShowIntroLoader(false)}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Skip link — first focusable element, satisfies WCAG 2.4.1 */}
       <a
         href="#main-content"
@@ -334,6 +345,27 @@ const AnimatedCounter = React.memo(function AnimatedCounter({ value, decimals, p
 
 const HeroWithOmni = ({ navigate }) => {
   const [sp, setSp] = useState(0);
+  const [isSmallScreen, setIsSmallScreen] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(max-width: 768px)').matches;
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const media = window.matchMedia('(max-width: 768px)');
+    const onChange = () => setIsSmallScreen(media.matches);
+
+    onChange();
+
+    if (media.addEventListener) {
+      media.addEventListener('change', onChange);
+      return () => media.removeEventListener('change', onChange);
+    }
+
+    media.addListener(onChange);
+    return () => media.removeListener(onChange);
+  }, []);
 
   const onSignup = useCallback(() => navigate('/signup'), [navigate]);
   const onLogin  = useCallback(() => navigate('/login'),  [navigate]);
@@ -361,8 +393,19 @@ const HeroWithOmni = ({ navigate }) => {
           .hero-rail-left { order: -1; padding-top: 40px !important; }
           .hero-rail-right { order: 1; padding-bottom: 40px !important; }
         }
-        @media (max-width: 600px) {
-          .hero-grid > div:nth-child(2) { height: 56vw !important; overflow: hidden !important; }
+        @media (max-width: 768px) {
+          .hero-grid {
+            grid-template-rows: auto auto !important;
+            gap: 8px !important;
+            padding-top: 32px !important;
+          }
+          .hero-grid > div:nth-child(2) {
+            display: none !important;
+          }
+          .hero-rail-right {
+            padding-top: 8px !important;
+            padding-bottom: 24px !important;
+          }
         }
       `}</style>
 
@@ -464,7 +507,7 @@ const HeroWithOmni = ({ navigate }) => {
 
           <div
             style={{
-              display: 'flex',
+              display: isSmallScreen ? 'none' : 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               maxWidth: 900,
@@ -495,32 +538,34 @@ const HeroWithOmni = ({ navigate }) => {
             }}
           >
             {/* Animated Logo */}
-            <motion.img
-              src={logo}
-              alt="YES Securities Logo"
-              initial={{
-                rotate: 0,
-                scale: 0.5,
-                opacity: 0,
-                y: -40
-              }}
-              animate={{
-                rotate: [0, 720, 720, 720],
-                scale: [0.5, 1.2, 0.9, 1.05, 1],
-                opacity: [0, 1, 1, 1, 1],
-                y: [-40, -20, -28, -22, -24]
-              }}
-              transition={{
-                duration: 1.8,
-                times: [0, 0.4, 0.6, 0.8, 1],
-                ease: [0.34, 1.56, 0.64, 1],
-              }}
-              style={{
-                width: 72,
-                height: 72,
-                marginBottom: 20,
-              }}
-            />
+            {!isSmallScreen && (
+              <motion.img
+                src={logo}
+                alt="YES Securities Logo"
+                initial={{
+                  rotate: 0,
+                  scale: 0.5,
+                  opacity: 0,
+                  y: -40
+                }}
+                animate={{
+                  rotate: [0, 720, 720, 720],
+                  scale: [0.5, 1.2, 0.9, 1.05, 1],
+                  opacity: [0, 1, 1, 1, 1],
+                  y: [-40, -20, -28, -22, -24]
+                }}
+                transition={{
+                  duration: 1.8,
+                  times: [0, 0.4, 0.6, 0.8, 1],
+                  ease: [0.34, 1.56, 0.64, 1],
+                }}
+                style={{
+                  width: 72,
+                  height: 72,
+                  marginBottom: 20,
+                }}
+              />
+            )}
 
             <MagneticButton onClick={onSignup} aria-label="Get started free — create account">
               Get Started Free &nbsp;<FiArrowRight aria-hidden="true" />

@@ -9,6 +9,7 @@ import {
   IconButton, Dialog, DialogTitle, DialogContent, Tooltip, Grid, Paper, Stack,
   Drawer, useMediaQuery, useTheme,
 } from '@mui/material';
+import { HashLoader } from 'react-spinners';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import ShieldIcon from '@mui/icons-material/Shield';
@@ -869,7 +870,7 @@ export default function Dashboard() {
               transition: 'all 0.2s ease',
             }}
           >
-            {predLoading ? <CircularProgress size={22} sx={{ color: '#fff' }} /> : `ANALYSE ${symbol}`}
+            {predLoading ? <HashLoader color="#ffffff" size={12} speedMultiplier={1.1} /> : `ANALYSE ${symbol}`}
           </Button>
 
           {/* Error */}
@@ -981,7 +982,7 @@ export default function Dashboard() {
         <DialogContent sx={{ p: 2.5, bgcolor: '#f8fafc' }}>
           {fundamentalLoading ? (
             <Box sx={{ py: 5, display: 'flex', justifyContent: 'center' }}>
-              <CircularProgress size={28} />
+              <HashLoader color="#E8570C" size={36} speedMultiplier={1.15} />
             </Box>
           ) : fundamentalData ? (
             <Grid container spacing={2}>

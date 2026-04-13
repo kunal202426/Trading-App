@@ -5,8 +5,8 @@ import {
   TextField,
   Typography,
   Button,
-  CircularProgress,
 } from "@mui/material";
+import { HashLoader } from "react-spinners";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
@@ -196,7 +196,7 @@ const Signup = () => {
             size="large"
             sx={{ mt: 2 }}
             disabled={loading}
-            startIcon={loading ? <CircularProgress size={18} /> : null}
+            startIcon={loading ? <HashLoader color="#ffffff" size={12} speedMultiplier={1.1} /> : null}
           >
             {loading ? "Creating account..." : "Create Account"}
           </Button>

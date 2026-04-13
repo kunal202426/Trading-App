@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import {
-  Box, CircularProgress, Drawer, List, ListItem, ListItemButton,
+  Box, Drawer, List, ListItem, ListItemButton,
   ListItemIcon, ListItemText, Toolbar, Divider, Typography,
   Grid,
 } from "@mui/material";
+import { HashLoader } from "react-spinners";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -32,7 +33,7 @@ const ProtectedRoute = ({ children }) => {
   if (authLoading) {
     return (
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', bgcolor: '#f3f4f6' }}>
-        <CircularProgress size={48} sx={{ color: '#1976d2' }} />
+        <HashLoader color="#E8570C" size={46} speedMultiplier={1.2} />
       </Box>
     );
   }

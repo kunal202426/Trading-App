@@ -4,8 +4,9 @@ import axios from "axios";
 
 import {
   Box, Button, Typography, Paper,
-  Grid, Stack, Chip, IconButton, Tooltip, CircularProgress,
+  Grid, Stack, Chip, IconButton, Tooltip,
 } from "@mui/material";
+import { HashLoader } from "react-spinners";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import TrendingDownIcon from "@mui/icons-material/TrendingDown";
@@ -206,7 +207,7 @@ const COLORS = ["#6366f1","#22c55e","#f59e0b","#ef4444","#3b82f6","#06b6d4"];
                   size="small"
                   sx={{ color: '#1976d2' }}
                 >
-                  {loading ? <CircularProgress size={20} /> : <RefreshIcon />}
+                  {loading ? <HashLoader color="#E8570C" size={14} speedMultiplier={1.1} /> : <RefreshIcon />}
                 </IconButton>
               </span>
             </Tooltip>
@@ -265,7 +266,7 @@ const COLORS = ["#6366f1","#22c55e","#f59e0b","#ef4444","#3b82f6","#06b6d4"];
 
         {loadingPos ? (
           <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-            <CircularProgress sx={{ color: '#1976d2' }} />
+            <HashLoader color="#E8570C" size={40} speedMultiplier={1.15} />
           </Box>
         ) : enriched.length === 0 ? (
           <Paper elevation={0} sx={{ p: 4, borderRadius: 2, textAlign: "center", color: '#6b7280', border: '1px solid #e5e7eb' }}>

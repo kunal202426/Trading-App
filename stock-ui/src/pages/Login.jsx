@@ -5,9 +5,9 @@ import {
   TextField,
   Typography,
   Button,
-  CircularProgress,
   Divider,
 } from "@mui/material";
+import { HashLoader } from "react-spinners";
 import {
   signInWithEmailAndPassword,
   GoogleAuthProvider,
@@ -215,7 +215,7 @@ const Login = () => {
             size="large"
             sx={{ mt: 2 }}
             disabled={loading}
-            startIcon={loading ? <CircularProgress size={18} /> : null}
+            startIcon={loading ? <HashLoader color="#ffffff" size={12} speedMultiplier={1.1} /> : null}
           >
             {loading ? "Logging in..." : "Log In"}
           </Button>

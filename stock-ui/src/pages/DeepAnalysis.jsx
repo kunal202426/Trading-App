@@ -8,9 +8,10 @@ import {
   ReferenceLine, Cell,
 } from 'recharts';
 import {
-  Box, Typography, Chip, IconButton, CircularProgress,
+  Box, Typography, Chip, IconButton,
   Tabs, Tab, Divider, LinearProgress, Paper, Grid, Stack,
 } from '@mui/material';
+import { HashLoader } from 'react-spinners';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
@@ -113,7 +114,7 @@ export default function DeepAnalysis() {
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         height: '100vh', flexDirection: 'column', gap: 2, bgcolor: '#f3f4f6',
       }}>
-        <CircularProgress size={48} sx={{ color: '#1976d2' }} />
+        <HashLoader color="#E8570C" size={46} speedMultiplier={1.2} />
         <Typography sx={{ color: '#64748b' }}>Loading {symbol} analysis...</Typography>
       </Box>
     );

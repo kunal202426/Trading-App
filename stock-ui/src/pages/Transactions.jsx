@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Box, Button, TextField,
-  Typography, Paper, Grid, Stack, Chip, CircularProgress,
+  Typography, Paper, Grid, Stack, Chip,
 } from "@mui/material";
 import { motion } from "framer-motion";
+import { HashLoader } from "react-spinners";
 import {
   collection, addDoc, deleteDoc,
   doc, onSnapshot, serverTimestamp, query, orderBy,
@@ -151,7 +152,7 @@ export default function Transactions() {
             <Button
               type="submit" variant="contained" size="small" sx={{ mt: 2, textTransform: 'none', fontWeight: 600, width: { xs: '100%', sm: 'auto' } }}
               disabled={saving}
-              startIcon={saving ? <CircularProgress size={16} /> : null}
+              startIcon={saving ? <HashLoader color="#E8570C" size={12} speedMultiplier={1.1} /> : null}
             >
               {saving ? "Saving..." : "Add Transaction"}
             </Button>
@@ -166,7 +167,7 @@ export default function Transactions() {
 
           {loadingTx ? (
             <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-              <CircularProgress sx={{ color: '#1976d2' }} />
+              <HashLoader color="#E8570C" size={40} speedMultiplier={1.15} />
             </Box>
           ) : transactions.length === 0 ? (
             <Paper elevation={0} sx={{ p: 4, borderRadius: 2, textAlign: "center", color: '#6b7280', border: '1px solid #e5e7eb' }}>
