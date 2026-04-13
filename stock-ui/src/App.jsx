@@ -13,6 +13,7 @@ import { AnimatePresence } from "framer-motion";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { TourOverlay } from "./tour/TourOverlay";
 import { useTour } from "./tour/useTour";
+import { TOUR_LOGIN_TRIGGER_KEY, hasDoneTour, clearQueuedTour } from "./tour/tourSteps";
 import Navbar from "./components/layout/Navbar.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 
@@ -52,7 +53,7 @@ function AppRoutes() {
   const { user, logout } = useAuth();
   const [navSymbol, setNavSymbol] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
-  const tour = useTour(true);
+  const tour = useTour(false);
 
   // Keyboard shortcuts for tour
   useEffect(() => {
@@ -97,6 +98,7 @@ function AppRoutes() {
   };
 
   const handleLogout = async () => {
+    clearQueuedTour();
     await logout();
     navigate("/", { replace: true });
   };
@@ -107,6 +109,16 @@ function AppRoutes() {
   };
 
   const isAuthPage = ["/login", "/signup", "/"].includes(location.pathname);
+
+  // Start onboarding only right after a successful login/signup event.
+  useEffect(() => {
+    if (!user || tour.active || hasDoneTour()) return;
+    const queued = sessionStorage.getItem(TOUR_LOGIN_TRIGGER_KEY) === "1";
+    if (!queued) return;
+
+    clearQueuedTour();
+    tour.restart();
+  }, [user, tour.active, tour.restart]);
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
@@ -190,7 +202,7 @@ function AppRoutes() {
           <Route path="/seasonality/:symbol" element={<ProtectedRoute><Seasonality /></ProtectedRoute>} />
 
           {/* Fallback */}
-          <Route path="*" element={<Navigate to="/portfolio" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AnimatePresence>
 

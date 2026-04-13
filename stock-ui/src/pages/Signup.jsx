@@ -10,6 +10,8 @@ import {
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
+import { markLoginSession, clearLoginSession } from "../contexts/AuthContext";
+import { queueTourAfterLogin, clearQueuedTour } from "../tour/tourSteps";
 import logo from "../assets/logo.png";
 import MagneticButton from "../components/ui/MagneticButton";
 
@@ -46,12 +48,16 @@ const Signup = () => {
 
     setLoading(true);
     try {
+      markLoginSession();
       const cred = await createUserWithEmailAndPassword(auth, email, password);
       if (name.trim()) {
         await updateProfile(cred.user, { displayName: name.trim() });
       }
+      queueTourAfterLogin();
       navigate("/portfolio");
     } catch (err) {
+      clearLoginSession();
+      clearQueuedTour();
       switch (err.code) {
         case "auth/email-already-in-use":
           setError("An account with this email already exists.");

@@ -123,6 +123,7 @@ export const TOUR_STEPS: TourStep[] = [
 ]
 
 export const TOUR_STORAGE_KEY = 'stock_predictor_tour_done'
+export const TOUR_LOGIN_TRIGGER_KEY = 'stock_predictor_tour_pending'
 
 export const hasDoneTour = () => {
   try {
@@ -141,5 +142,17 @@ export const markTourDone = () => {
 export const resetTour = () => {
   try {
     localStorage.removeItem(TOUR_STORAGE_KEY)
+  } catch {}
+}
+
+export const queueTourAfterLogin = () => {
+  try {
+    sessionStorage.setItem(TOUR_LOGIN_TRIGGER_KEY, '1')
+  } catch {}
+}
+
+export const clearQueuedTour = () => {
+  try {
+    sessionStorage.removeItem(TOUR_LOGIN_TRIGGER_KEY)
   } catch {}
 }

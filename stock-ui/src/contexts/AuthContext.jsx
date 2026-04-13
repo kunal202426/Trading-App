@@ -6,6 +6,18 @@ const AuthContext = createContext(null);
 const SESSION_DURATION = 2 * 60 * 1000; // 2 minutes
 const LOGIN_TIMESTAMP_KEY = "loginTimestamp";
 
+export function markLoginSession() {
+  try {
+    localStorage.setItem(LOGIN_TIMESTAMP_KEY, Date.now().toString());
+  } catch {}
+}
+
+export function clearLoginSession() {
+  try {
+    localStorage.removeItem(LOGIN_TIMESTAMP_KEY);
+  } catch {}
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser]               = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -13,24 +25,21 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
-        const loginTime = localStorage.getItem(LOGIN_TIMESTAMP_KEY);
+        const loginTimeRaw = localStorage.getItem(LOGIN_TIMESTAMP_KEY);
+        const loginTime = Number(loginTimeRaw);
         const now = Date.now();
 
-        // Check if session expired
-        if (loginTime && (now - parseInt(loginTime)) > SESSION_DURATION) {
+        // Require an explicit login session marker and enforce expiry.
+        if (!loginTimeRaw || Number.isNaN(loginTime) || (now - loginTime) > SESSION_DURATION) {
           signOut(auth);
-          localStorage.removeItem(LOGIN_TIMESTAMP_KEY);
+          clearLoginSession();
           setUser(null);
         } else {
           setUser(firebaseUser);
-          // Set/refresh login timestamp
-          if (!loginTime) {
-            localStorage.setItem(LOGIN_TIMESTAMP_KEY, now.toString());
-          }
         }
       } else {
         setUser(null);
-        localStorage.removeItem(LOGIN_TIMESTAMP_KEY);
+        clearLoginSession();
       }
       setAuthLoading(false);
     });
@@ -38,7 +47,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const logout = () => {
-    localStorage.removeItem(LOGIN_TIMESTAMP_KEY);
+    clearLoginSession();
     return signOut(auth);
   };
 
