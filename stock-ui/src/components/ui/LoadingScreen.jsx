@@ -5,7 +5,7 @@ import { HashLoader } from 'react-spinners'
 export default function LoadingScreen({
   onLoadComplete,
   duration = 5000,
-  text = 'Loading portfolio...',
+  text = 'Preparing your experience...',
 }) {
   const [isComplete, setIsComplete] = useState(false)
 

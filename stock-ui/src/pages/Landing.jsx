@@ -184,7 +184,7 @@ export default function Landing() {
         {showIntroLoader && (
           <LoadingScreen
             duration={5000}
-            text="Loading portfolio..."
+            text="Preparing your experience..."
             onLoadComplete={() => setShowIntroLoader(false)}
           />
         )}
