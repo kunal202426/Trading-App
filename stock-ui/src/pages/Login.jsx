@@ -21,10 +21,6 @@ const Login = () => {
   const navigate = useNavigate();
 
   const handleBack = () => {
-    if (window.history.length > 1) {
-      navigate(-1);
-      return;
-    }
     navigate("/");
   };
 

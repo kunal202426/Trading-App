@@ -24,6 +24,7 @@ import Lottie from 'lottie-react';
 import MagneticButton from '../components/ui/MagneticButton';
 import RotatingText   from '../components/ui/RotatingText';
 import { FlippingCard } from '../components/ui/flipping-card';
+import { GooeyText } from '../components/ui/gooey-text-morphing';
 import OmniAnimation  from '../components/sections/animation';
 import LoadingScreen  from '../components/ui/LoadingScreen';
 import { FiArrowRight, FiBarChart2, FiShield, FiTrendingUp, FiZap } from 'react-icons/fi';
@@ -390,6 +391,12 @@ const HeroWithOmni = ({ navigate }) => {
   const leftOpacity = 1;
   const rightY      = sp * 60;
   const rightOpacity = 1;
+  const primaryGooeyTextClass = isSmallScreen
+    ? '!left-0 !right-0 !w-full !whitespace-nowrap !text-center !text-[clamp(2.45rem,4vw,4rem)] !font-black !tracking-[-0.04em] !leading-[1.05] !text-[#0f1729]'
+    : '!left-0 !right-0 !w-full !whitespace-nowrap !text-right !text-[clamp(2.45rem,4vw,4rem)] !font-black !tracking-[-0.04em] !leading-[1.05] !text-[#0f1729]';
+  const secondaryGooeyTextClass = isSmallScreen
+    ? '!left-0 !right-0 !w-full !whitespace-nowrap !text-center !text-[clamp(2.2rem,3.55vw,3.55rem)] !font-black !tracking-[-0.04em] !leading-[1.05] !text-[#4361ee]'
+    : '!left-0 !right-0 !w-full !whitespace-nowrap !text-right !text-[clamp(2.2rem,3.55vw,3.55rem)] !font-black !tracking-[-0.04em] !leading-[1.05] !text-[#4361ee]';
 
   return (
     <>
@@ -412,15 +419,29 @@ const HeroWithOmni = ({ navigate }) => {
         @media (max-width: 768px) {
           .hero-grid {
             grid-template-rows: auto auto !important;
-            gap: 8px !important;
-            padding-top: 32px !important;
+            gap: 18px !important;
+            align-content: center !important;
+            justify-items: center !important;
+            padding: 28px 16px !important;
           }
           .hero-grid > div:nth-child(2) {
             display: none !important;
           }
+          .hero-rail {
+            width: 100% !important;
+            max-width: 360px !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            margin: 0 auto !important;
+          }
+          .hero-rail-left {
+            padding-top: 10px !important;
+            transform: none !important;
+          }
           .hero-rail-right {
-            padding-top: 8px !important;
-            padding-bottom: 24px !important;
+            padding-top: 0 !important;
+            padding-bottom: 6px !important;
+            transform: none !important;
           }
         }
       `}</style>
@@ -499,10 +520,34 @@ const HeroWithOmni = ({ navigate }) => {
                 color: '#0f1729',
                 letterSpacing: '-0.04em',
                 margin: 0,
+                width: '100%',
+                maxWidth: 340,
+                marginInline: isSmallScreen ? 'auto' : 0,
               }}
             >
-              Invest Karo.<br />
-              <span style={{ color: '#4361ee' }}>Apne Style Se.</span>
+              <span style={{ display: 'block', position: 'relative', height: 'clamp(2.6rem, 4.2vw, 4.2rem)' }} aria-hidden="true">
+                <GooeyText
+                  texts={['Invest Karo.', 'Grow Karo.']}
+                  morphTime={1.15}
+                  cooldownTime={1.1}
+                  className="h-full w-full"
+                  textClassName={primaryGooeyTextClass}
+                />
+              </span>
+
+              <span style={{ display: 'block', position: 'relative', height: 'clamp(2.35rem, 3.8vw, 3.8rem)', marginTop: 2 }} aria-hidden="true">
+                <GooeyText
+                  texts={['Apne Style Se.', 'Apne Style Se.']}
+                  morphTime={1.2}
+                  cooldownTime={1.25}
+                  className="h-full w-full"
+                  textClassName={secondaryGooeyTextClass}
+                />
+              </span>
+
+              <span style={{ position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', whiteSpace: 'nowrap', border: 0 }}>
+                Invest Karo. Apne Style Se.
+              </span>
             </h1>
 
             {/* Subtitle */}

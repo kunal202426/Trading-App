@@ -328,9 +328,9 @@ export function AuthCharactersScene({
           style={{
             left: "70px",
             width: "180px",
-            height: isTyping ? "440px" : "400px",
+            height: isTyping ? "450px" : "410px",
             backgroundColor: "#6C3FF5",
-            borderRadius: "10px 10px 0 0",
+            borderRadius: "3px 3px 0 0",
             zIndex: 1,
             transform: privateMode
               ? "skewX(0deg)"
@@ -382,7 +382,7 @@ export function AuthCharactersScene({
             width: "120px",
             height: "310px",
             backgroundColor: "#2D2D2D",
-            borderRadius: "8px 8px 0 0",
+            borderRadius: "18px 18px 0 0",
             zIndex: 2,
             transform: privateMode
               ? "skewX(0deg)"
@@ -436,7 +436,7 @@ export function AuthCharactersScene({
             width: "240px",
             height: "200px",
             zIndex: 3,
-            backgroundColor: "#FF9B6B",
+            backgroundColor: "#FFFFFF",
             borderRadius: "120px 120px 0 0",
             transform: privateMode ? "skewX(0deg)" : `skewX(${orangePos.bodySkew || 0}deg)`,
             transformOrigin: "bottom center",
@@ -477,7 +477,7 @@ export function AuthCharactersScene({
             left: "310px",
             width: "140px",
             height: "230px",
-            backgroundColor: "#E8D754",
+            backgroundColor: "#FECACA",
             borderRadius: "70px 70px 0 0",
             zIndex: 4,
             transform: privateMode ? "skewX(0deg)" : `skewX(${yellowPos.bodySkew || 0}deg)`,
