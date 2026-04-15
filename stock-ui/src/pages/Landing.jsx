@@ -25,14 +25,13 @@ import MagneticButton from '../components/ui/MagneticButton';
 import RotatingText   from '../components/ui/RotatingText';
 import { FlippingCard } from '../components/ui/flipping-card';
 import { GooeyText } from '../components/ui/gooey-text-morphing';
-import OmniAnimation  from '../components/sections/animation';
+import GlobeAnalytics from '../components/sections/GlobeAnalytics';
 import LoadingScreen  from '../components/ui/LoadingScreen';
 import { FiArrowRight, FiBarChart2, FiShield, FiTrendingUp, FiZap } from 'react-icons/fi';
 
 import '../styles/ticker.css';
 
 import logo from '../assets/logo.png';
-
 import portfolioAnim from '../assets/lottie/openaccount.json';
 import analysisAnim  from '../assets/lottie/exploretools.json';
 import tradingAnim   from '../assets/lottie/learnmore.json';
@@ -42,6 +41,8 @@ const HorizontalShowcase = lazy(() => import(/* webpackChunkName: "s-showcase" *
 const SocialProof        = lazy(() => import(/* webpackChunkName: "s-social" */      '../components/sections/SocialProof'));
 const BigStatement       = lazy(() => import(/* webpackChunkName: "s-bigstatement" */'../components/sections/BigStatement'));
 const CTASection         = lazy(() => import(/* webpackChunkName: "s-cta" */         '../components/sections/CTASection'));
+
+const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
 const tickers = [
   { sym: 'RELIANCE',   price: '₹2,847',  change: '+1.2%', up: true  },
@@ -227,7 +228,7 @@ export default function Landing() {
         {/* Ticker — decorative, aria-hidden */}
         <TickerStrip />
 
-        {/* Hero — OmniAnimation as centerpiece with parallax text rails */}
+        {/* Hero — interactive globe with parallax text rails */}
         <main id="main-content">
           <HeroWithOmni navigate={navigate} />
         </main>
@@ -361,6 +362,7 @@ const AnimatedCounter = React.memo(function AnimatedCounter({ value, decimals, p
 
 
 const HeroWithOmni = ({ navigate }) => {
+  const sectionRef = useRef(null);
   const [sp, setSp] = useState(0);
   const [isSmallScreen, setIsSmallScreen] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -384,257 +386,387 @@ const HeroWithOmni = ({ navigate }) => {
     return () => media.removeListener(onChange);
   }, []);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    const updateProgress = () => {
+      const section = sectionRef.current;
+
+      if (!section) {
+        return;
+      }
+
+      const rect = section.getBoundingClientRect();
+      const viewport = window.innerHeight || 1;
+      const distance = Math.max(rect.height - viewport, 1);
+      const travelled = clamp(-rect.top, 0, distance);
+      setSp(clamp(travelled / distance, 0, 1));
+    };
+
+    updateProgress();
+    window.addEventListener('scroll', updateProgress, { passive: true });
+    window.addEventListener('resize', updateProgress);
+
+    return () => {
+      window.removeEventListener('scroll', updateProgress);
+      window.removeEventListener('resize', updateProgress);
+    };
+  }, []);
+
   const onSignup = useCallback(() => navigate('/signup'), [navigate]);
   const onLogin  = useCallback(() => navigate('/login'),  [navigate]);
 
-  const leftY       = sp * -60;
+  const leftY = sp * (isSmallScreen ? -26 : -54);
   const leftOpacity = 1;
-  const rightY      = sp * 60;
-  const rightOpacity = 1;
+  const copySwapProgress = clamp((sp - 0.05) / 0.34, 0, 1);
+  const headlineOpacity = clamp(1 - copySwapProgress * 1.18, 0, 1);
+  const headlineLift = copySwapProgress * -68;
+  const subtitleOpacity = clamp(1 - copySwapProgress * 1.24, 0, 1);
+  const subtitleLift = copySwapProgress * -38;
+  const globeShiftX = sp * (isSmallScreen ? 20 : 110);
+  const globeShiftY = sp * (isSmallScreen ? -8 : -34);
+  const globeScale = 1 + sp * 0.42;
+  const ctaProgress = clamp((sp - 0.16) / 0.28, 0, 1);
+  const ctaTranslate = (1 - ctaProgress) * 48;
+  const headlineDepthProgress = clamp((sp - 0.03) / 0.34, 0, 1);
+  const headlineZoomScale = 1 + headlineDepthProgress * (isSmallScreen ? 0.28 : 0.42);
+  const headlineDepthZ = headlineDepthProgress * (isSmallScreen ? 52 : 86);
+  const headlineDepthBlur = headlineDepthProgress * 3;
+  const ctaDepthScale = 0.92 + ctaProgress * 0.16;
+  const ctaDepthZ = -20 + ctaProgress * 40;
+  const ctaDepthBlur = (1 - ctaProgress) * 3;
+  const parallaxFactor = isSmallScreen ? 0.45 : 1;
+  const storyParallax = clamp((sp - 0.02) / 0.8, 0, 1) * parallaxFactor;
+  const headlineParallaxX = storyParallax * 8;
+  const headlineParallaxY = storyParallax * -14;
+  const subtitleParallaxX = storyParallax * 6;
+  const subtitleParallaxY = storyParallax * -8;
+  const ctaParallaxX = storyParallax * 8;
+  const ctaParallaxY = storyParallax * -6;
+  const sectionScrollHeight = isSmallScreen ? '195svh' : '240vh';
+  const frameStyle = sp <= 0
+    ? { position: 'absolute', top: 0, left: 0, right: 0 }
+    : sp >= 1
+      ? { position: 'absolute', bottom: 0, left: 0, right: 0 }
+      : { position: 'fixed', top: 0, left: 0, right: 0 };
+
   const primaryGooeyTextClass = isSmallScreen
-    ? '!left-0 !right-0 !w-full !whitespace-nowrap !text-center !text-[clamp(2.45rem,4vw,4rem)] !font-black !tracking-[-0.04em] !leading-[1.05] !text-[#0f1729]'
-    : '!left-0 !right-0 !w-full !whitespace-nowrap !text-right !text-[clamp(2.45rem,4vw,4rem)] !font-black !tracking-[-0.04em] !leading-[1.05] !text-[#0f1729]';
+    ? '!left-0 !right-0 !w-full !whitespace-nowrap !text-center !text-[clamp(2.8rem,5.5vw,4.9rem)] !font-black !tracking-[-0.04em] !leading-[1.01] !text-[#0f1729]'
+    : '!left-0 !right-0 !w-full !whitespace-nowrap !text-left !text-[clamp(3.1rem,6.4vw,6.4rem)] !font-black !tracking-[-0.045em] !leading-[1.01] !text-[#0f1729]';
   const secondaryGooeyTextClass = isSmallScreen
-    ? '!left-0 !right-0 !w-full !whitespace-nowrap !text-center !text-[clamp(2.2rem,3.55vw,3.55rem)] !font-black !tracking-[-0.04em] !leading-[1.05] !text-[#4361ee]'
-    : '!left-0 !right-0 !w-full !whitespace-nowrap !text-right !text-[clamp(2.2rem,3.55vw,3.55rem)] !font-black !tracking-[-0.04em] !leading-[1.05] !text-[#4361ee]';
+    ? '!left-0 !right-0 !w-full !whitespace-nowrap !text-center !text-[clamp(2.45rem,4.8vw,4.2rem)] !font-black !tracking-[-0.04em] !leading-[1.01] !text-[#4361ee]'
+    : '!left-0 !right-0 !w-full !whitespace-nowrap !text-left !text-[clamp(2.75rem,5.5vw,5.35rem)] !font-black !tracking-[-0.045em] !leading-[1.01] !text-[#4361ee]';
 
   return (
     <>
       <style>{`
-        @media (max-width: 1320px) {
-          .hero-grid {
-            grid-template-columns: 280px minmax(0, 1fr) 260px !important;
-            padding: 0 20px !important;
-            box-sizing: border-box !important;
-          }
-          .hero-rail-left { padding-right: 0 !important; padding-left: 0 !important; }
-          .hero-rail-right { padding-right: 12px !important; }
+        .hero-scroll-stage {
+          position: relative;
         }
+
+        .hero-stage-frame {
+          position: absolute;
+          left: 0;
+          right: 0;
+          height: 100vh;
+          overflow: hidden;
+          background: #EDF5FB;
+          display: flex;
+          align-items: center;
+        }
+
+        .hero-split {
+          display: grid;
+          grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+          height: 100vh;
+          max-width: 1360px;
+          width: 100%;
+          margin: 0 auto;
+          padding: 46px 26px 22px;
+          box-sizing: border-box;
+          align-items: center;
+          gap: clamp(20px, 3.2vw, 42px);
+          position: relative;
+          z-index: 2;
+        }
+
+        @media (max-width: 1240px) {
+          .hero-split {
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            padding: 40px 20px 16px;
+          }
+        }
+
         @media (max-width: 1024px) {
-          .hero-grid { grid-template-columns: 1fr !important; grid-template-rows: auto 1fr auto; }
-          .hero-rail { padding: 24px 16px !important; text-align: center !important; align-items: center !important; }
-          .hero-rail-left { order: -1; padding-top: 40px !important; }
-          .hero-rail-right { order: 1; padding-bottom: 40px !important; }
+          .hero-split {
+            grid-template-columns: 1fr;
+            align-content: center;
+            justify-items: center;
+            padding: 30px 18px 24px;
+            gap: 20px;
+          }
+          .hero-copy {
+            text-align: center !important;
+            align-items: center !important;
+          }
+          .hero-copy p {
+            margin-left: auto;
+            margin-right: auto;
+          }
         }
+
         @media (max-width: 768px) {
-          .hero-grid {
-            grid-template-rows: auto auto !important;
-            gap: 18px !important;
-            align-content: center !important;
-            justify-items: center !important;
-            padding: 28px 16px !important;
+          .hero-split {
+            height: 100svh;
+            padding: 24px 14px 18px;
+            gap: 14px;
           }
-          .hero-grid > div:nth-child(2) {
-            display: none !important;
+
+          .hero-stage-frame {
+            height: 100svh;
           }
-          .hero-rail {
-            width: 100% !important;
-            max-width: 360px !important;
-            padding-left: 0 !important;
-            padding-right: 0 !important;
-            margin: 0 auto !important;
+
+          .hero-copy {
+            width: 100%;
+            max-width: 420px;
           }
-          .hero-rail-left {
-            padding-top: 10px !important;
-            transform: none !important;
+
+          .hero-story-swap {
+            min-height: 320px !important;
           }
-          .hero-rail-right {
-            padding-top: 0 !important;
-            padding-bottom: 6px !important;
-            transform: none !important;
+
+          .hero-visual {
+            width: 100%;
+            max-width: 430px;
           }
         }
       `}</style>
 
       <section
+        ref={sectionRef}
+        className="hero-scroll-stage"
         aria-label="Hero section with market intelligence animation"
         style={{
-          height: '100vh',
+          height: sectionScrollHeight,
           position: 'relative',
-          overflow: 'hidden',
-          background: '#EDF5FB',
         }}
       >
-
-        {/* 3-Column Grid */}
-        <div
-          className="hero-grid"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'minmax(280px, 340px) minmax(0, 1fr) minmax(240px, 320px)',
-            height: '100%',
-            maxWidth: 1440,
-            width: '100%',
-            padding: '60px 24px 0',
-            boxSizing: 'border-box',
-            margin: '0 auto',
-            position: 'relative',
-            zIndex: 2,
-          }}
-        >
-          {/* LEFT RAIL */}
+        <div className="hero-stage-frame" style={frameStyle}>
           <div
-            className="hero-rail hero-rail-left"
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'flex-start',
-              alignItems: 'flex-end',
-              paddingRight: 0,
-              paddingTop: 40,
-              textAlign: 'right',
-              transform: `translateX(22px) translateY(${leftY}px)`,
-              opacity: leftOpacity,
-              transition: 'opacity 0.1s ease-out',
-              position: 'relative',
-              zIndex: 3,
-            }}
+            className="hero-split"
           >
-            {/* Eyebrow badge */}
-            <span
+            <div
+              className="hero-copy"
               style={{
-                display: 'inline-block',
-                padding: '6px 20px',
-                borderRadius: 100,
-                background: 'rgba(255,255,255,0.85)',
-                backdropFilter: 'blur(12px)',
-                border: '1px solid rgba(67,97,238,0.25)',
-                fontSize: 11,
-                fontWeight: 700,
-                letterSpacing: '0.1em',
-                color: '#4361ee',
-                marginBottom: 24,
-                textTransform: 'uppercase',
-              }}
-            >
-              7.5 lakh+ investors and counting
-            </span>
-
-            {/* h1 */}
-            <h1
-              itemProp="name"
-              style={{
-                fontSize: 'clamp(2.4rem, 4vw, 4rem)',
-                fontWeight: 900,
-                lineHeight: 1.05,
-                color: '#0f1729',
-                letterSpacing: '-0.04em',
-                margin: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'flex-start',
+                textAlign: 'left',
+                maxWidth: 620,
                 width: '100%',
-                maxWidth: 340,
-                marginInline: isSmallScreen ? 'auto' : 0,
+                paddingTop: isSmallScreen ? 10 : 0,
+                transform: `translate3d(0, ${leftY}px, 0)`,
+                opacity: leftOpacity,
+                transition: 'opacity 0.15s ease-out',
+                position: 'relative',
+                zIndex: 3,
               }}
             >
-              <span style={{ display: 'block', position: 'relative', height: 'clamp(2.6rem, 4.2vw, 4.2rem)' }} aria-hidden="true">
-                <GooeyText
-                  texts={['Invest Karo.', 'Grow Karo.']}
-                  morphTime={1.15}
-                  cooldownTime={1.1}
-                  className="h-full w-full"
-                  textClassName={primaryGooeyTextClass}
-                />
-              </span>
-
-              <span style={{ display: 'block', position: 'relative', height: 'clamp(2.35rem, 3.8vw, 3.8rem)', marginTop: 2 }} aria-hidden="true">
-                <GooeyText
-                  texts={['Apne Style Se.', 'Apne Style Se.']}
-                  morphTime={1.2}
-                  cooldownTime={1.25}
-                  className="h-full w-full"
-                  textClassName={secondaryGooeyTextClass}
-                />
-              </span>
-
-              <span style={{ position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', whiteSpace: 'nowrap', border: 0 }}>
-                Invest Karo. Apne Style Se.
-              </span>
-            </h1>
-
-            {/* Subtitle */}
-            <p
-              itemProp="description"
-              style={{
-                fontSize: '1.1rem',
-                color: '#52637a',
-                marginTop: 16,
-                marginBottom: 0,
-                lineHeight: 1.6,
-                maxWidth: 340,
-              }}
-            >
-              Diversify your portfolio with insights from 30+ analysts and a seamless platform for empowered investing.
-            </p>
-          </div>
-
-          <div
-            style={{
-              display: isSmallScreen ? 'none' : 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              maxWidth: 900,
-              width: '100%',
-              margin: '-80px auto 0',
-              position: 'relative',
-              zIndex: 1,
-            }}
-          >
-            <OmniAnimation onProgress={setSp} />
-          </div>
-
-
-          <div
-            className="hero-rail hero-rail-right"
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              textAlign: 'center',
-              gap: 12,
-              transform: `translateY(${rightY}px)`,
-              opacity: rightOpacity,
-              transition: 'opacity 0.1s ease-out',
-              position: 'relative',
-              zIndex: 3,
-            }}
-          >
-            {/* Animated Logo */}
-            {!isSmallScreen && (
-              <motion.img
-                src={logo}
-                alt="YES Securities Logo"
-                initial={{
-                  rotate: 0,
-                  scale: 0.5,
-                  opacity: 0,
-                  y: -40
-                }}
-                animate={{
-                  rotate: [0, 720, 720, 720],
-                  scale: [0.5, 1.2, 0.9, 1.05, 1],
-                  opacity: [0, 1, 1, 1, 1],
-                  y: [-40, -20, -28, -22, -24]
-                }}
-                transition={{
-                  duration: 1.8,
-                  times: [0, 0.4, 0.6, 0.8, 1],
-                  ease: [0.34, 1.56, 0.64, 1],
-                }}
+              <div
+                className="hero-story-swap"
                 style={{
-                  width: 72,
-                  height: 72,
-                  marginBottom: 20,
+                  width: '100%',
+                  maxWidth: 600,
+                  minHeight: 420,
+                  position: 'relative',
+                  perspective: '1700px',
+                  transformStyle: 'preserve-3d',
+                  overflow: 'visible',
                 }}
-              />
-            )}
+              >
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: isSmallScreen ? 0 : -8,
+                    left: isSmallScreen ? '50%' : '22%',
+                    zIndex: 9,
+                    opacity: headlineOpacity,
+                    transform: `${isSmallScreen ? 'translateX(-50%) ' : ''}translate3d(${headlineParallaxX * 0.45}px, ${headlineLift * 0.2 + headlineParallaxY * 0.35}px, 0) translateZ(${headlineDepthZ + 100}px) scale(${1 + headlineDepthProgress * (isSmallScreen ? 0.06 : 0.12)})`,
+                    transition: 'opacity 0.12s linear, transform 0.12s linear',
+                    pointerEvents: 'none',
+                    willChange: 'transform, opacity',
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 10,
+                      padding: isSmallScreen ? '7px 11px' : '8px 13px',
+                      borderRadius: 999,
+                      background: 'rgba(255, 255, 255, 0.86)',
+                      border: '1px solid rgba(67, 97, 238, 0.24)',
+                      backdropFilter: 'blur(10px)',
+                      boxShadow: '0 10px 26px rgba(15, 23, 41, 0.12)',
+                      width: 'fit-content',
+                    }}
+                  >
+                    <img
+                      src={logo}
+                      alt="YES Securities logo"
+                      style={{
+                        width: isSmallScreen ? 22 : 28,
+                        height: isSmallScreen ? 22 : 28,
+                        objectFit: 'contain',
+                        display: 'block',
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontSize: isSmallScreen ? '0.72rem' : '0.82rem',
+                        fontWeight: 800,
+                        letterSpacing: '0.03em',
+                        color: '#0f1729',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      YES Securities
+                    </span>
+                  </div>
+                </div>
 
-            <MagneticButton onClick={onSignup} aria-label="Get started free — create account">
-              Get Started
-            </MagneticButton>
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    zIndex: 3,
+                    opacity: headlineOpacity,
+                    transform: `translate3d(${headlineParallaxX}px, ${headlineLift + headlineParallaxY}px, 0) translateZ(${headlineDepthZ}px) scale(${headlineZoomScale})`,
+                    transition: 'opacity 0.12s linear, transform 0.12s linear',
+                    pointerEvents: headlineOpacity > 0.2 ? 'auto' : 'none',
+                    filter: `blur(${headlineDepthBlur}px)`,
+                    transformStyle: 'preserve-3d',
+                    willChange: 'transform, opacity, filter',
+                  }}
+                >
+                  <h1
+                    itemProp="name"
+                    style={{
+                      fontSize: 'clamp(2.75rem, 5.45vw, 5.45rem)',
+                      fontWeight: 900,
+                      lineHeight: 1,
+                      color: '#0f1729',
+                      letterSpacing: '-0.045em',
+                      margin: isSmallScreen ? '58px 0 0' : '76px 0 0',
+                      width: '100%',
+                      maxWidth: 600,
+                      marginInline: isSmallScreen ? 'auto' : 0,
+                    }}
+                  >
+                    <span style={{ display: 'block', position: 'relative', height: 'clamp(3rem, 5.8vw, 5.8rem)' }} aria-hidden="true">
+                      <GooeyText
+                        texts={['Invest Karo.', 'Grow Karo.']}
+                        morphTime={1.15}
+                        cooldownTime={1.1}
+                        className="h-full w-full"
+                        textClassName={primaryGooeyTextClass}
+                      />
+                    </span>
 
-            <MagneticButton onClick={onLogin} aria-label="Log in to your existing account">
-              Log In
-            </MagneticButton>
+                    <span style={{ display: 'block', position: 'relative', height: 'clamp(2.7rem, 5.2vw, 5.1rem)', marginTop: 2 }} aria-hidden="true">
+                      <GooeyText
+                        texts={['Apne Style Se.', 'Apne Style Se.']}
+                        morphTime={1.2}
+                        cooldownTime={1.25}
+                        className="h-full w-full"
+                        textClassName={secondaryGooeyTextClass}
+                      />
+                    </span>
+
+                    <span style={{ position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', whiteSpace: 'nowrap', border: 0 }}>
+                      Invest Karo. Apne Style Se.
+                    </span>
+                  </h1>
+
+                  <p
+                    itemProp="description"
+                    style={{
+                      fontSize: '1.14rem',
+                      color: '#52637a',
+                      marginTop: 14,
+                      marginBottom: 0,
+                      lineHeight: 1.52,
+                      maxWidth: 520,
+                      opacity: subtitleOpacity,
+                      transform: `translate3d(${subtitleParallaxX}px, ${subtitleLift + subtitleParallaxY}px, 0)`,
+                      transition: 'opacity 0.12s linear, transform 0.12s linear',
+                    }}
+                  >
+                    Diversify your portfolio with insights from 30+ analysts and a seamless platform for empowered investing.
+                  </p>
+                </div>
+
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    zIndex: 2,
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    justifyContent: isSmallScreen ? 'center' : 'flex-start',
+                    opacity: ctaProgress,
+                    paddingTop: isSmallScreen ? 138 : 180,
+                    transform: `translate3d(${ctaParallaxX}px, ${ctaTranslate + ctaParallaxY}px, 0) translateZ(${ctaDepthZ}px) scale(${ctaDepthScale})`,
+                    transition: 'opacity 0.12s linear, transform 0.12s linear',
+                    pointerEvents: ctaProgress > 0.35 ? 'auto' : 'none',
+                    filter: `blur(${ctaDepthBlur}px)`,
+                    willChange: 'transform, opacity, filter',
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: 16,
+                    }}
+                  >
+                    <div style={{ transform: `scale(${isSmallScreen ? 1.03 : 1.08})`, transformOrigin: isSmallScreen ? 'center top' : 'left top' }}>
+                      <MagneticButton onClick={onSignup} aria-label="Get started free - create account">
+                        Get Started
+                      </MagneticButton>
+                    </div>
+
+                    <div style={{ transform: `scale(${isSmallScreen ? 1.03 : 1.08})`, transformOrigin: isSmallScreen ? 'center top' : 'left top' }}>
+                      <MagneticButton onClick={onLogin} aria-label="Log in to your existing account">
+                        Log In
+                      </MagneticButton>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div
+              className="hero-visual"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                maxWidth: 720,
+                width: '100%',
+                margin: '0 0 0 auto',
+                transform: `translate3d(${globeShiftX}px, ${globeShiftY}px, 0) scale(${globeScale})`,
+                transformOrigin: '55% 50%',
+                position: 'relative',
+                zIndex: 1,
+              }}
+            >
+              <GlobeAnalytics speed={0.0072} scrollProgress={sp} isActive={sp < 0.995} />
+            </div>
           </div>
         </div>
       </section>
