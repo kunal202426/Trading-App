@@ -3,6 +3,27 @@ import { useTour } from './useTour'
 
 const SPOT_PAD = 12
 
+const TOUR_THEME = {
+  overlay: 'rgba(15, 23, 42, 0.52)',
+  surface: '#ffffff',
+  surfaceBorder: '#e0e6f1',
+  text: '#0f1729',
+  textMuted: '#52637a',
+  primary: '#4361ee',
+  primaryStrong: '#3850d6',
+  primarySoft: 'rgba(67, 97, 238, 0.08)',
+  primarySoftHover: 'rgba(67, 97, 238, 0.14)',
+  primaryBorder: 'rgba(67, 97, 238, 0.22)',
+  brand: '#E8570C',
+  brandStrong: '#c9460a',
+  brandShadow: 'rgba(232, 87, 12, 0.34)',
+  success: 'rgba(22, 163, 74, 0.92)',
+  danger: 'rgba(220, 38, 38, 0.92)',
+  tipBg: 'rgba(255, 107, 53, 0.08)',
+  tipBorder: 'rgba(255, 107, 53, 0.22)',
+  tipText: 'rgba(162, 63, 18, 0.95)',
+}
+
 const getViewportSize = () => {
   const vv = window.visualViewport
   return {
@@ -190,19 +211,19 @@ export function TourOverlay({ tour, pathKey }) {
   const ARROW_BORDERS = {
     left: {
       width: '8px 8px 8px 0',
-      color: 'transparent rgba(255, 255, 255, 0.95) transparent transparent',
+      color: `transparent ${TOUR_THEME.surface} transparent transparent`,
     },
     right: {
       width: '8px 0 8px 8px',
-      color: 'transparent transparent transparent rgba(255, 255, 255, 0.95)',
+      color: `transparent transparent transparent ${TOUR_THEME.surface}`,
     },
     top: {
       width: '0 8px 8px 8px',
-      color: 'transparent transparent rgba(255, 255, 255, 0.95) transparent',
+      color: `transparent transparent ${TOUR_THEME.surface} transparent`,
     },
     bottom: {
       width: '8px 8px 0 8px',
-      color: 'rgba(255, 255, 255, 0.95) transparent transparent transparent',
+      color: `${TOUR_THEME.surface} transparent transparent transparent`,
     },
   }
 
@@ -248,7 +269,7 @@ export function TourOverlay({ tour, pathKey }) {
             <rect
               width="100%"
               height="100%"
-              fill="rgba(15, 23, 42, 0.55)"
+              fill={TOUR_THEME.overlay}
               mask="url(#tour-mask)"
             />
             <rect
@@ -258,10 +279,10 @@ export function TourOverlay({ tour, pathKey }) {
               height={spot.h}
               rx={10}
               fill="none"
-              stroke="#4361ee"
+              stroke={TOUR_THEME.primary}
               strokeWidth="2"
               style={{
-                filter: 'drop-shadow(0 0 12px rgba(67, 97, 238, 0.4))',
+                filter: `drop-shadow(0 0 12px ${TOUR_THEME.primaryBorder})`,
               }}
             />
           </svg>
@@ -270,7 +291,7 @@ export function TourOverlay({ tour, pathKey }) {
             style={{
               position: 'absolute',
               inset: 0,
-              background: 'rgba(15, 23, 42, 0.6)',
+              background: TOUR_THEME.overlay,
               backdropFilter: 'blur(3px)',
             }}
           />
@@ -301,14 +322,12 @@ export function TourOverlay({ tour, pathKey }) {
                   exiting ? '6px' : '0'
                 })`,
               }),
-          background: 'rgba(255, 255, 255, 0.98)',
-          backdropFilter: 'blur(16px) saturate(200%)',
-          border: '1px solid rgba(67, 97, 238, 0.2)',
-          borderRadius: isNarrow ? 14 : 16,
-          boxShadow:
-            '0 20px 60px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(67, 97, 238, 0.1)',
+          background: TOUR_THEME.surface,
+          border: `1px solid ${TOUR_THEME.surfaceBorder}`,
+          borderRadius: isNarrow ? 12 : 14,
+          boxShadow: '0 18px 48px rgba(15, 23, 42, 0.14)',
           padding: isNarrow ? '16px 14px 14px' : '20px 20px 16px',
-          color: '#0f1729',
+          color: TOUR_THEME.text,
           fontFamily: '"Inter", "Roboto", sans-serif',
           opacity: exiting ? 0 : 1,
           transition: 'opacity 0.18s ease, transform 0.18s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -348,7 +367,7 @@ export function TourOverlay({ tour, pathKey }) {
           style={{
             height: 2,
             borderRadius: 99,
-            background: 'rgba(67, 97, 238, 0.15)',
+            background: TOUR_THEME.primarySoft,
             marginBottom: 14,
             overflow: 'hidden',
           }}
@@ -358,7 +377,7 @@ export function TourOverlay({ tour, pathKey }) {
               height: '100%',
               borderRadius: 99,
               width: `${progress}%`,
-              background: 'linear-gradient(90deg, #4361ee, #5575f7)',
+              background: `linear-gradient(90deg, ${TOUR_THEME.primary}, ${TOUR_THEME.brand})`,
               transition: 'width 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
           />
@@ -371,7 +390,7 @@ export function TourOverlay({ tour, pathKey }) {
             fontWeight: 700,
             letterSpacing: '0.12em',
             textTransform: 'uppercase',
-            color: '#4361ee',
+            color: TOUR_THEME.primary,
             marginBottom: 8,
           }}
         >
@@ -393,8 +412,8 @@ export function TourOverlay({ tour, pathKey }) {
               height: 36,
               borderRadius: 10,
               flexShrink: 0,
-              background: 'rgba(67, 97, 238, 0.12)',
-              border: '1px solid rgba(67, 97, 238, 0.2)',
+              background: TOUR_THEME.primarySoft,
+              border: `1px solid ${TOUR_THEME.primaryBorder}`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -408,7 +427,7 @@ export function TourOverlay({ tour, pathKey }) {
               fontSize: isNarrow ? 14 : 15,
               fontWeight: 700,
               margin: 0,
-              color: '#0f1729',
+              color: TOUR_THEME.text,
               lineHeight: 1.3,
             }}
           >
@@ -422,7 +441,7 @@ export function TourOverlay({ tour, pathKey }) {
             fontSize: isNarrow ? 12 : 12.5,
             lineHeight: 1.65,
             margin: '0 0 10px',
-            color: 'rgba(15, 23, 42, 0.75)',
+            color: 'rgba(15, 23, 42, 0.78)',
           }}
         >
           {currentStep.description}
@@ -432,8 +451,8 @@ export function TourOverlay({ tour, pathKey }) {
         {(currentStep.increases || currentStep.decreases) && (
           <div
             style={{
-              background: 'rgba(67, 97, 238, 0.04)',
-              border: '1px solid rgba(67, 97, 238, 0.1)',
+              background: '#f8fafc',
+              border: '1px solid #e2e8f0',
               borderRadius: 10,
               padding: '9px 11px',
               marginBottom: 12,
@@ -455,7 +474,7 @@ export function TourOverlay({ tour, pathKey }) {
                   style={{
                     fontSize: 11,
                     lineHeight: 1.5,
-                    color: 'rgba(22, 163, 74, 0.85)',
+                    color: TOUR_THEME.success,
                   }}
                 >
                   {currentStep.increases}
@@ -475,7 +494,7 @@ export function TourOverlay({ tour, pathKey }) {
                   style={{
                     fontSize: 11,
                     lineHeight: 1.5,
-                    color: 'rgba(220, 38, 38, 0.85)',
+                    color: TOUR_THEME.danger,
                   }}
                 >
                   {currentStep.decreases}
@@ -494,8 +513,8 @@ export function TourOverlay({ tour, pathKey }) {
               alignItems: 'flex-start',
               marginBottom: 12,
               padding: '8px 10px',
-              background: 'rgba(217, 119, 6, 0.08)',
-              border: '1px solid rgba(217, 119, 6, 0.15)',
+              background: TOUR_THEME.tipBg,
+              border: `1px solid ${TOUR_THEME.tipBorder}`,
               borderRadius: 8,
             }}
           >
@@ -504,7 +523,7 @@ export function TourOverlay({ tour, pathKey }) {
               style={{
                 fontSize: 11,
                 lineHeight: 1.5,
-                color: 'rgba(180, 83, 9, 0.85)',
+                color: TOUR_THEME.tipText,
               }}
             >
               {currentStep.tip}
@@ -526,7 +545,7 @@ export function TourOverlay({ tour, pathKey }) {
               onClick={skip}
               style={{
                 fontSize: 11,
-                color: 'rgba(82, 99, 122, 0.6)',
+                color: 'rgba(82, 99, 122, 0.68)',
                 background: 'none',
                 border: 'none',
                 cursor: 'pointer',
@@ -534,9 +553,9 @@ export function TourOverlay({ tour, pathKey }) {
                 marginRight: 'auto',
                 transition: 'color 0.15s',
               }}
-              onMouseEnter={e => (e.currentTarget.style.color = '#526378')}
+              onMouseEnter={e => (e.currentTarget.style.color = TOUR_THEME.textMuted)}
               onMouseLeave={e =>
-                (e.currentTarget.style.color = 'rgba(82, 99, 122, 0.6)')
+                (e.currentTarget.style.color = 'rgba(82, 99, 122, 0.68)')
               }
             >
               Skip tour
@@ -545,7 +564,7 @@ export function TourOverlay({ tour, pathKey }) {
             <span
               style={{
                 fontSize: 11,
-                color: '#52637a',
+                color: TOUR_THEME.textMuted,
                 marginRight: 'auto',
                 fontWeight: 600,
               }}
@@ -561,19 +580,19 @@ export function TourOverlay({ tour, pathKey }) {
                 fontSize: 12,
                 fontWeight: 600,
                 cursor: 'pointer',
-                color: 'rgba(15, 23, 42, 0.6)',
-                background: 'rgba(67, 97, 238, 0.08)',
-                border: '1px solid rgba(67, 97, 238, 0.15)',
+                color: 'rgba(15, 23, 42, 0.75)',
+                background: TOUR_THEME.primarySoft,
+                border: `1px solid ${TOUR_THEME.primaryBorder}`,
                 borderRadius: 8,
                 padding: '7px 14px',
                 transition: 'all 0.15s',
                 flex: isNarrow ? '1 1 0' : '0 0 auto',
               }}
               onMouseEnter={e =>
-                (e.currentTarget.style.background = 'rgba(67, 97, 238, 0.12)')
+                (e.currentTarget.style.background = TOUR_THEME.primarySoftHover)
               }
               onMouseLeave={e =>
-                (e.currentTarget.style.background = 'rgba(67, 97, 238, 0.08)')
+                (e.currentTarget.style.background = TOUR_THEME.primarySoft)
               }
             >
               ← Back
@@ -586,22 +605,22 @@ export function TourOverlay({ tour, pathKey }) {
               fontSize: 12,
               fontWeight: 700,
               color: '#fff',
-              background: 'linear-gradient(135deg, #4361ee, #3850d6)',
+              background: `linear-gradient(135deg, ${TOUR_THEME.brand}, ${TOUR_THEME.brandStrong})`,
               border: 'none',
               borderRadius: 8,
               padding: '7px 18px',
               cursor: 'pointer',
-              boxShadow: '0 2px 12px rgba(67, 97, 238, 0.3)',
+              boxShadow: `0 2px 12px ${TOUR_THEME.brandShadow}`,
               transition: 'all 0.15s',
               flex: isNarrow ? '1 1 0' : '0 0 auto',
             }}
             onMouseEnter={e => {
               e.currentTarget.style.transform = 'translateY(-1px)'
-              e.currentTarget.style.boxShadow = '0 4px 20px rgba(67, 97, 238, 0.4)'
+              e.currentTarget.style.boxShadow = '0 4px 20px rgba(232, 87, 12, 0.4)'
             }}
             onMouseLeave={e => {
               e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 2px 12px rgba(67, 97, 238, 0.3)'
+              e.currentTarget.style.boxShadow = `0 2px 12px ${TOUR_THEME.brandShadow}`
             }}
           >
             {isLast ? '✅ Got it!' : 'Next →'}
@@ -618,7 +637,7 @@ export function TourOverlay({ tour, pathKey }) {
           transform: 'translateX(-50%)',
           zIndex: 9002,
           fontSize: 10,
-          color: 'rgba(82, 99, 122, 0.45)',
+          color: 'rgba(82, 99, 122, 0.55)',
           pointerEvents: 'none',
           letterSpacing: '0.05em',
         }}
