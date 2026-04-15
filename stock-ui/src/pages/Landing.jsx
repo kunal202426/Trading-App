@@ -16,7 +16,6 @@ import {
   useInView,
   useMotionValue,
   useSpring,
-  useTransform,
   animate,
 } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -24,6 +23,7 @@ import Lottie from 'lottie-react';
 
 import MagneticButton from '../components/ui/MagneticButton';
 import RotatingText   from '../components/ui/RotatingText';
+import { FlippingCard } from '../components/ui/flipping-card';
 import OmniAnimation  from '../components/sections/animation';
 import LoadingScreen  from '../components/ui/LoadingScreen';
 import { FiArrowRight, FiBarChart2, FiShield, FiTrendingUp, FiZap } from 'react-icons/fi';
@@ -71,33 +71,49 @@ const features = [
     icon: <FiZap size={28} aria-hidden="true" />,
     title: 'AI-Powered Signals',
     desc: '42-feature ML pipeline generating BUY/SELL signals with confidence scores across multiple timeframes.',
+    backDescription: 'Get confidence-scored, regime-aware signals built for fast decision loops and cleaner entries.',
+    buttonText: 'Explore Signals',
+    imageSrc: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=720&h=420&fit=crop',
+    imageAlt: 'Analytics dashboard with AI data visualizations',
     tag: 'Machine Learning',
     cardBg: '#c5ffe49a',
-    cardAccent: '#1fbe8c7a',
+    cardAccent: '#1fbe8c',
   },
   {
     icon: <FiTrendingUp size={28} aria-hidden="true" />,
     title: 'Real-Time Portfolio',
     desc: 'Live-linked holdings, P&L tracking, and drawdown analysis updated on every market tick.',
+    backDescription: 'Track allocation, gains, drawdowns, and live movements from one portfolio command surface.',
+    buttonText: 'View Portfolio',
+    imageSrc: 'https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=720&h=420&fit=crop',
+    imageAlt: 'Stock market chart on trading screen',
     tag: 'Live Data',
     cardBg: '#fff7eddd',
-    cardAccent: '#eac50c',
+    cardAccent: '#eab308',
   },
   {
     icon: <FiShield size={28} aria-hidden="true" />,
     title: 'Risk Intelligence',
     desc: 'Dynamic stop-loss, regime detection, and volatility-adjusted position sizing built in.',
+    backDescription: 'Protect capital with dynamic risk limits, smarter stop placement, and volatility-tuned sizing.',
+    buttonText: 'See Risk Engine',
+    imageSrc: 'https://images.unsplash.com/photo-1526378800651-c32d170fe6f8?w=720&h=420&fit=crop',
+    imageAlt: 'Cybersecurity and risk protection concept',
     tag: 'Risk Engine',
     cardBg: '#c5ffe49a',
-    cardAccent: '#1fbe8c7a',
+    cardAccent: '#1fbe8c',
   },
   {
     icon: <FiBarChart2 size={28} aria-hidden="true" />,
     title: 'Deep Analysis',
     desc: 'Full technical suite: MACD, RSI, BB, ADX, OBV, and India-specific macro indicators.',
+    backDescription: 'Break down every setup with layered technicals, macro context, and actionable dashboard views.',
+    buttonText: 'Open Analysis',
+    imageSrc: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=720&h=420&fit=crop',
+    imageAlt: 'Business intelligence and chart analytics display',
     tag: 'Technicals',
     cardBg: '#fff7eddd',
-    cardAccent: '#eac50c',
+    cardAccent: '#eab308',
   },
 ];
 
@@ -867,210 +883,96 @@ const PillCard = React.memo(function PillCard({ item, index, accent, bg }) {
 // FEATURES SECTION
 ///////////////////////////////////////////////////////////////////////////////
 
-const OutlineCard = React.memo(function OutlineCard({ icon, title, desc, tag, index, cardBg, cardAccent }) {
-  const [hovered, setHovered] = useState(false);
-  const navigate    = useNavigate();
+const OutlineCard = React.memo(function OutlineCard({
+  icon,
+  title,
+  desc,
+  tag,
+  index,
+  cardBg,
+  cardAccent,
+  imageSrc,
+  imageAlt,
+  backDescription,
+  buttonText,
+}) {
+  const navigate = useNavigate();
   const onLearnMore = useCallback(() => navigate('/login'), [navigate]);
-
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const rotateXRaw = useTransform(mouseY, [-45, 45], [5, -5]);
-  const rotateYRaw = useTransform(mouseX, [-45, 45], [-6, 6]);
-  const rotateX = useSpring(rotateXRaw, { stiffness: 220, damping: 22, mass: 0.6 });
-  const rotateY = useSpring(rotateYRaw, { stiffness: 220, damping: 22, mass: 0.6 });
-  const dynamicGlow = useTransform(
-    [mouseX, mouseY],
-    ([x, y]) => `radial-gradient(240px 170px at ${50 + x * 0.35}% ${35 + y * 0.35}%, ${cardAccent}2d 0%, transparent 70%)`
-  );
-
-  const handlePointerMove = useCallback((event) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-    const xPct = (x / rect.width) * 100;
-    const yPct = (y / rect.height) * 100;
-
-    mouseX.set(((xPct - 50) / 50) * 45);
-    mouseY.set(((yPct - 50) / 50) * 45);
-  }, [mouseX, mouseY]);
-
-  const resetPointer = useCallback(() => {
-    mouseX.set(0);
-    mouseY.set(0);
-    setHovered(false);
-  }, [mouseX, mouseY]);
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 40 }}
+      initial={{ opacity: 0, y: 34 }}
       whileInView={{ opacity: 1, y: 0 }}
-      animate={{ y: [0, -2, 0] }}
       viewport={{ once: true }}
-      transition={{
-        opacity: { delay: index * 0.1, duration: 0.6 },
-        y: { delay: index * 0.1, duration: 0.6 },
-        default: { duration: 6.4, repeat: Infinity, ease: 'easeInOut', delay: index * 0.25 },
-      }}
-      whileHover={{ scale: 1.02, y: -8 }}
-      whileTap={{ scale: 1.005 }}
-      onHoverStart={() => setHovered(true)}
-      onHoverEnd={resetPointer}
-      onMouseMove={handlePointerMove}
-      style={{
-        position: 'relative',
-        padding: 'clamp(22px, 3vw, 30px) clamp(20px, 4vw, 36px)',
-        backgroundImage: hovered
-          ? `linear-gradient(145deg, #ffffff 0%, ${cardBg} 100%)`
-          : `linear-gradient(145deg, ${cardBg} 0%, #ffffff 100%)`,
-        backgroundSize: '140% 140%',
-        backgroundPosition: hovered ? '22% 30%' : '50% 50%',
-        borderRadius: 50,
-
-        border: `1.5px solid ${hovered ? cardAccent + '40' : cardAccent + '20'}`,
-        outline: hovered ? '2.5px solid #000000' : '2.5px solid transparent',
-        outlineOffset: '10px',
-        cursor: 'default',
-        transition: 'outline-color 0.42s ease, background 0.55s ease, background-position 0.55s ease, box-shadow 0.42s ease, border-color 0.38s ease',
-        boxShadow: hovered
-          ? `0 26px 58px -28px ${cardAccent}80, 0 12px 24px -16px rgba(15,23,41,0.3)`
-          : '0 10px 26px -18px rgba(15,23,41,0.22), 0 2px 8px rgba(15,23,41,0.08)',
-        overflow: 'hidden',
-        transformStyle: 'preserve-3d',
-        willChange: 'transform, box-shadow, background-position',
-        maxWidth: 420,
-        margin: '0 auto',
-      }}
+      transition={{ duration: 0.55, delay: index * 0.09 }}
+      style={{ display: 'flex', justifyContent: 'center' }}
     >
-      <motion.div
-        aria-hidden="true"
-        animate={{ opacity: hovered ? 0.8 : 0.35 }}
-        transition={{ duration: 0.45, ease: 'easeOut' }}
-        style={{
-          position: 'absolute',
-          inset: -2,
-          borderRadius: 52,
-          background: `radial-gradient(120% 80% at 10% 0%, ${cardAccent}1f 0%, transparent 56%)`,
-          pointerEvents: 'none',
-        }}
+      <FlippingCard
+        width={240}
+        height={360}
+        className="border-[1.5px] border-[#e0e6f1] shadow-[0_12px_30px_-20px_rgba(15,23,41,0.35)]"
+        frontContent={(
+          <div
+            className="flex h-full w-full flex-col rounded-[inherit] p-4"
+            style={{ background: `linear-gradient(160deg, #ffffff 0%, ${cardBg} 100%)` }}
+          >
+            <img
+              src={imageSrc}
+              alt={imageAlt}
+              className="h-[132px] w-full rounded-md object-cover"
+              loading="lazy"
+              decoding="async"
+            />
+
+            <div className="mt-3 flex-1">
+              <div
+                className="mb-2 inline-flex h-9 w-9 items-center justify-center rounded-[10px] border"
+                style={{ borderColor: `${cardAccent}55`, color: cardAccent, background: '#ffffff' }}
+                aria-hidden="true"
+              >
+                {icon}
+              </div>
+
+              <p
+                className="mb-1 text-[11px] font-bold uppercase tracking-[0.14em]"
+                style={{ color: cardAccent }}
+              >
+                {tag}
+              </p>
+
+              <h3 className="text-[1.04rem] font-semibold leading-[1.25] text-[#0f1729]">{title}</h3>
+              <p className="mt-2 text-[0.9rem] leading-[1.62] text-[#4a5b74]">{desc}</p>
+            </div>
+          </div>
+        )}
+        backContent={(
+          <div
+            className="flex h-full w-full flex-col items-center justify-center rounded-[inherit] p-6 text-center"
+            style={{ background: `linear-gradient(160deg, #ffffff 0%, ${cardBg} 100%)` }}
+          >
+            <p
+              className="mb-2 text-[11px] font-bold uppercase tracking-[0.14em]"
+              style={{ color: cardAccent }}
+            >
+              {tag}
+            </p>
+
+            <h3 className="text-[1rem] font-semibold text-[#0f1729]">{title}</h3>
+            <p className="mt-3 text-[0.93rem] leading-[1.65] text-[#4a5b74]">{backDescription}</p>
+
+            <button
+              type="button"
+              onClick={onLearnMore}
+              aria-label={`Learn more about ${title}`}
+              className="mt-5 inline-flex h-9 items-center justify-center gap-1 rounded-md px-4 text-[13px] font-semibold text-white transition-transform duration-200 hover:-translate-y-[1px]"
+              style={{ background: cardAccent }}
+            >
+              {buttonText}
+              <FiArrowRight size={14} aria-hidden="true" />
+            </button>
+          </div>
+        )}
       />
-
-      <motion.div
-        aria-hidden="true"
-        animate={{ opacity: hovered ? 1 : 0 }}
-        transition={{ duration: 0.35, ease: 'easeOut' }}
-        style={{
-          position: 'absolute',
-          inset: 0,
-          borderRadius: 50,
-          pointerEvents: 'none',
-          background: 'radial-gradient(220px 150px at 50% 15%, rgba(255,255,255,0.45), rgba(255,255,255,0) 70%)',
-        }}
-      />
-
-      <motion.div
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          inset: 0,
-          borderRadius: 50,
-          pointerEvents: 'none',
-          opacity: hovered ? 1 : 0,
-          background: dynamicGlow,
-        }}
-      />
-
-      <motion.div style={{ rotateX, rotateY, transformPerspective: 1100, position: 'relative', zIndex: 2 }}>
-      <motion.div
-        animate={hovered
-          ? { y: -4, rotate: -4, scale: 1.06 }
-          : { y: [0, -1.5, 0], rotate: [0, -1.5, 0], scale: 1 }
-        }
-        transition={hovered
-          ? { duration: 0.32, ease: 'easeOut' }
-          : { duration: 3.5, repeat: Infinity, ease: 'easeInOut' }
-        }
-        aria-hidden="true"
-        style={{
-          width: 56,
-          height: 56,
-          border: `1.5px solid ${hovered ? cardAccent : cardAccent + '40'}`,
-          borderRadius: 16,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginBottom: 20,
-          color: cardAccent,
-          background: hovered
-            ? `linear-gradient(145deg, #ffffff 0%, ${cardAccent}18 100%)`
-            : '#ffffff',
-          boxShadow: hovered
-            ? `0 14px 26px -16px ${cardAccent}88`
-            : '0 7px 14px -10px rgba(15,23,41,0.2)',
-          transition: 'border-color 0.32s ease, background 0.32s ease, box-shadow 0.32s ease',
-          transform: 'translateZ(26px)',
-        }}
-      >
-        {icon}
-      </motion.div>
-
-      <motion.span
-        animate={{ opacity: hovered ? 1 : 0.74, y: hovered ? -1 : 0 }}
-        transition={{ duration: 0.3, ease: 'easeOut' }}
-        style={{
-          display: 'inline-block',
-          fontSize: 12,
-          fontWeight: 800,
-          letterSpacing: '0.14em',
-          color: cardAccent,
-          textTransform: 'uppercase',
-          marginBottom: 10,
-          transform: 'translateZ(22px)',
-        }}
-      >
-        {tag}
-      </motion.span>
-
-      <h3 style={{ fontSize: 'clamp(1.05rem, 2.2vw, 1.28rem)', fontWeight: 760, color: '#0f1729', marginBottom: 11, lineHeight: 1.25, letterSpacing: '-0.015em', transform: 'translateZ(28px)' }}>
-        {title}
-      </h3>
-
-      <p style={{ fontSize: 'clamp(0.9rem, 1.4vw, 0.96rem)', color: '#4a5b74', lineHeight: 1.7, margin: 0, maxWidth: 320, transform: 'translateZ(16px)' }}>
-        {desc}
-      </p>
-
-      <motion.button
-        type="button"
-        animate={{ opacity: hovered ? 1 : 0.78, x: hovered ? 0 : -5, y: hovered ? 0 : 1 }}
-        transition={{ duration: 0.24, ease: 'easeOut' }}
-        onClick={onLearnMore}
-        aria-label={`Learn more about ${title}`}
-        style={{
-          marginTop: 22,
-          background: 'none',
-          border: 'none',
-          padding: 0,
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 6,
-          fontSize: 13,
-          fontWeight: 700,
-          color: cardAccent,
-          cursor: 'pointer',
-          userSelect: 'none',
-          transform: 'translateZ(30px)',
-        }}
-      >
-        Learn more
-        <motion.span
-          aria-hidden="true"
-          animate={{ x: hovered ? 2 : 0 }}
-          transition={{ duration: 0.25, ease: 'easeOut' }}
-          style={{ display: 'inline-flex' }}
-        >
-          <FiArrowRight size={14} aria-hidden="true" />
-        </motion.span>
-      </motion.button>
-      </motion.div>
     </motion.div>
   );
 });
@@ -1110,7 +1012,7 @@ const FeaturesSection = () => (
       </h2>
     </motion.div>
 
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 30 }}>
+    <div className="grid grid-cols-1 justify-items-center gap-6 sm:grid-cols-2 lg:grid-cols-4">
       {features.map((f, i) => (
         <OutlineCard key={f.title} {...f} index={i} />
       ))}
