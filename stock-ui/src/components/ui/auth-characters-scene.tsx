@@ -155,17 +155,42 @@ export function AuthCharactersScene({
   privateMode = false,
   className,
 }: AuthCharactersSceneProps) {
+  const BASE_WIDTH = 550;
+  const BASE_HEIGHT = 450;
+  const COMPACT_SCALE = 0.62;
+
   const [mouseX, setMouseX] = useState<number>(0);
   const [mouseY, setMouseY] = useState<number>(0);
   const [isPurpleBlinking, setIsPurpleBlinking] = useState(false);
   const [isBlackBlinking, setIsBlackBlinking] = useState(false);
   const [isLookingAtEachOther, setIsLookingAtEachOther] = useState(false);
   const [isPurplePeeking, setIsPurplePeeking] = useState(false);
+  const [hostWidth, setHostWidth] = useState(0);
+
+  const hostRef = useRef<HTMLDivElement>(null);
 
   const purpleRef = useRef<HTMLDivElement>(null);
   const blackRef = useRef<HTMLDivElement>(null);
   const yellowRef = useRef<HTMLDivElement>(null);
   const orangeRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const updateWidth = () => {
+      if (!hostRef.current) return;
+      setHostWidth(hostRef.current.getBoundingClientRect().width);
+    };
+
+    updateWidth();
+
+    if (typeof ResizeObserver !== "undefined") {
+      const observer = new ResizeObserver(() => updateWidth());
+      if (hostRef.current) observer.observe(hostRef.current);
+      return () => observer.disconnect();
+    }
+
+    window.addEventListener("resize", updateWidth);
+    return () => window.removeEventListener("resize", updateWidth);
+  }, []);
 
   useEffect(() => {
     const syncPointer = (x: number, y: number) => {
@@ -308,17 +333,26 @@ export function AuthCharactersScene({
   const yellowPos = calculatePosition(yellowRef);
   const orangePos = calculatePosition(orangeRef);
 
-  const scale = compact ? 0.62 : 1;
-  const frameWidth = Math.round(550 * scale);
-  const frameHeight = Math.round(400 * scale);
+  const targetScale = compact ? COMPACT_SCALE : 1;
+  const maxDisplayWidth = Math.round(BASE_WIDTH * targetScale);
+  const widthFitScale = hostWidth > 0 ? Math.min(1, hostWidth / BASE_WIDTH) : 1;
+  const scale = Math.min(targetScale, widthFitScale);
+  const frameHeight = Math.round(BASE_HEIGHT * scale);
 
   return (
-    <div className={cn("relative", className)} style={{ width: `${frameWidth}px`, height: `${frameHeight}px` }}>
+    <div
+      ref={hostRef}
+      className={cn("relative w-full", className)}
+      style={{
+        maxWidth: `${maxDisplayWidth}px`,
+        height: `${frameHeight}px`,
+      }}
+    >
       <div
         className="absolute left-0 top-0 origin-top-left"
         style={{
-          width: "550px",
-          height: "400px",
+          width: `${BASE_WIDTH}px`,
+          height: `${BASE_HEIGHT}px`,
           transform: `scale(${scale})`,
         }}
       >

@@ -590,8 +590,8 @@ const HeroWithOmni = ({ navigate }) => {
                 <div
                   style={{
                     position: 'absolute',
-                    top: isSmallScreen ? 0 : -8,
-                    left: isSmallScreen ? '50%' : '22%',
+                    top: isSmallScreen ? -8 : -20,
+                    left: isSmallScreen ? '50%' : '38%',
                     zIndex: 9,
                     opacity: headlineOpacity,
                     transform: `${isSmallScreen ? 'translateX(-50%) ' : ''}translate3d(${headlineParallaxX * 0.45}px, ${headlineLift * 0.2 + headlineParallaxY * 0.35}px, 0) translateZ(${headlineDepthZ + 100}px) scale(${1 + headlineDepthProgress * (isSmallScreen ? 0.06 : 0.12)})`,
@@ -600,42 +600,17 @@ const HeroWithOmni = ({ navigate }) => {
                     willChange: 'transform, opacity',
                   }}
                 >
-                  <div
+                  <img
+                    src={logo}
+                    alt="YES Securities logo"
                     style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 10,
-                      padding: isSmallScreen ? '7px 11px' : '8px 13px',
-                      borderRadius: 999,
-                      background: 'rgba(255, 255, 255, 0.86)',
-                      border: '1px solid rgba(67, 97, 238, 0.24)',
-                      backdropFilter: 'blur(10px)',
-                      boxShadow: '0 10px 26px rgba(15, 23, 41, 0.12)',
-                      width: 'fit-content',
+                      width: isSmallScreen ? 36 : 48,
+                      height: isSmallScreen ? 36 : 48,
+                      objectFit: 'contain',
+                      display: 'block',
+                      filter: 'drop-shadow(0 8px 18px rgba(15, 23, 41, 0.18))',
                     }}
-                  >
-                    <img
-                      src={logo}
-                      alt="YES Securities logo"
-                      style={{
-                        width: isSmallScreen ? 22 : 28,
-                        height: isSmallScreen ? 22 : 28,
-                        objectFit: 'contain',
-                        display: 'block',
-                      }}
-                    />
-                    <span
-                      style={{
-                        fontSize: isSmallScreen ? '0.72rem' : '0.82rem',
-                        fontWeight: 800,
-                        letterSpacing: '0.03em',
-                        color: '#0f1729',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      YES Securities
-                    </span>
-                  </div>
+                  />
                 </div>
 
                 <div
@@ -660,7 +635,7 @@ const HeroWithOmni = ({ navigate }) => {
                       lineHeight: 1,
                       color: '#0f1729',
                       letterSpacing: '-0.045em',
-                      margin: isSmallScreen ? '58px 0 0' : '76px 0 0',
+                      margin: isSmallScreen ? '40px 0 0' : '54px 0 0',
                       width: '100%',
                       maxWidth: 600,
                       marginInline: isSmallScreen ? 'auto' : 0,
@@ -730,18 +705,31 @@ const HeroWithOmni = ({ navigate }) => {
                     style={{
                       display: 'flex',
                       flexDirection: 'column',
-                      alignItems: 'center',
+                      alignItems: isSmallScreen ? 'center' : 'flex-start',
                       gap: 16,
+                      width: isSmallScreen ? '100%' : 292,
                     }}
                   >
-                    <div style={{ transform: `scale(${isSmallScreen ? 1.03 : 1.08})`, transformOrigin: isSmallScreen ? 'center top' : 'left top' }}>
-                      <MagneticButton onClick={onSignup} aria-label="Get started free - create account">
+                    <div style={{ transform: `scale(${isSmallScreen ? 1.04 : 1.09})`, transformOrigin: isSmallScreen ? 'center top' : 'left top', width: isSmallScreen ? '100%' : 268 }}>
+                      <MagneticButton
+                        onClick={onSignup}
+                        aria-label="Get started free - create account"
+                        width="100%"
+                        padding={isSmallScreen ? '16px 24px' : '17px 30px'}
+                        fontSize={isSmallScreen ? '1.02rem' : '1.08rem'}
+                      >
                         Get Started
                       </MagneticButton>
                     </div>
 
-                    <div style={{ transform: `scale(${isSmallScreen ? 1.03 : 1.08})`, transformOrigin: isSmallScreen ? 'center top' : 'left top' }}>
-                      <MagneticButton onClick={onLogin} aria-label="Log in to your existing account">
+                    <div style={{ transform: `scale(${isSmallScreen ? 1.04 : 1.09})`, transformOrigin: isSmallScreen ? 'center top' : 'left top', width: isSmallScreen ? '100%' : 268 }}>
+                      <MagneticButton
+                        onClick={onLogin}
+                        aria-label="Log in to your existing account"
+                        width="100%"
+                        padding={isSmallScreen ? '16px 24px' : '17px 30px'}
+                        fontSize={isSmallScreen ? '1.02rem' : '1.08rem'}
+                      >
                         Log In
                       </MagneticButton>
                     </div>

@@ -6,6 +6,10 @@ const MagneticButton = ({
   onClick,
   rotate = false,        // if true, button rotates continuously
   size = 'normal',       // 'normal' | 'round-large'
+  width,
+  height,
+  padding,
+  fontSize,
   'aria-label': ariaLabel,
 }) => {
   const ref  = useRef(null);
@@ -48,10 +52,10 @@ const MagneticButton = ({
           alignItems: 'center',
           justifyContent: 'center',
           gap: isRound ? 0 : 10,
-          width:  isRound ? 180 : 'auto',
-          height: isRound ? 180 : 'auto',
-          padding: isRound ? 0 : '15px 40px',
-          fontSize: isRound ? '0.85rem' : '1rem',
+          width:  isRound ? 180 : (width ?? 'auto'),
+          height: isRound ? 180 : (height ?? 'auto'),
+          padding: isRound ? 0 : (padding ?? '15px 40px'),
+          fontSize: isRound ? '0.85rem' : (fontSize ?? '1rem'),
           fontWeight: 700,
           letterSpacing: '0.06em',
           color: '#ffffff',
