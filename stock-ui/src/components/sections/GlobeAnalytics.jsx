@@ -215,6 +215,55 @@ function GlobeAnalytics({ markers = DEFAULT_STOCKS, className = '', speed = 0.00
   const [stocks, setStocks] = useState(() => normalizeStocks(markers));
   const stocksRef = useRef(normalizeStocks(markers));
   const [labelPoints, setLabelPoints] = useState([]);
+  const [isTouchScreen, setIsTouchScreen] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia('(hover: none) and (pointer: coarse)');
+    const detectTouchScreen = () => {
+      const hasTouch = navigator.maxTouchPoints > 0;
+      setIsTouchScreen(mediaQuery.matches || hasTouch);
+    };
+
+    detectTouchScreen();
+
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', detectTouchScreen);
+    } else if (typeof mediaQuery.addListener === 'function') {
+      mediaQuery.addListener(detectTouchScreen);
+    }
+
+    window.addEventListener('resize', detectTouchScreen);
+
+    return () => {
+      if (typeof mediaQuery.removeEventListener === 'function') {
+        mediaQuery.removeEventListener('change', detectTouchScreen);
+      } else if (typeof mediaQuery.removeListener === 'function') {
+        mediaQuery.removeListener(detectTouchScreen);
+      }
+
+      window.removeEventListener('resize', detectTouchScreen);
+    };
+  }, []);
+
+  const interactionEnabled = !isTouchScreen;
+
+  useEffect(() => {
+    if (interactionEnabled) {
+      return;
+    }
+
+    isDraggingRef.current = false;
+    pointerStartRef.current = null;
+    dragOffsetRef.current = { phi: 0, theta: 0 };
+
+    if (canvasRef.current) {
+      canvasRef.current.style.cursor = 'default';
+    }
+  }, [interactionEnabled]);
 
   useEffect(() => {
     const normalized = normalizeStocks(markers);
@@ -250,7 +299,7 @@ function GlobeAnalytics({ markers = DEFAULT_STOCKS, className = '', speed = 0.00
   }, []);
 
   const handlePointerDown = (event) => {
-    if (!canvasRef.current) {
+    if (!interactionEnabled || !canvasRef.current) {
       return;
     }
 
@@ -265,7 +314,7 @@ function GlobeAnalytics({ markers = DEFAULT_STOCKS, className = '', speed = 0.00
   };
 
   const handlePointerMove = (event) => {
-    if (!isDraggingRef.current || !pointerStartRef.current) {
+    if (!interactionEnabled || !isDraggingRef.current || !pointerStartRef.current) {
       return;
     }
 
@@ -279,7 +328,7 @@ function GlobeAnalytics({ markers = DEFAULT_STOCKS, className = '', speed = 0.00
   };
 
   const handlePointerUp = (event) => {
-    if (!isDraggingRef.current) {
+    if (!interactionEnabled || !isDraggingRef.current) {
       return;
     }
 
@@ -351,7 +400,7 @@ function GlobeAnalytics({ markers = DEFAULT_STOCKS, className = '', speed = 0.00
       });
 
       canvas.style.opacity = '1';
-      canvas.style.cursor = 'grab';
+      canvas.style.cursor = interactionEnabled ? 'grab' : 'default';
     };
 
     const animate = (timestamp) => {
@@ -473,11 +522,15 @@ function GlobeAnalytics({ markers = DEFAULT_STOCKS, className = '', speed = 0.00
         <canvas
           ref={canvasRef}
           className="globe-analytics-canvas"
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerCancel={handlePointerUp}
-          onPointerLeave={handlePointerUp}
+          onPointerDown={interactionEnabled ? handlePointerDown : undefined}
+          onPointerMove={interactionEnabled ? handlePointerMove : undefined}
+          onPointerUp={interactionEnabled ? handlePointerUp : undefined}
+          onPointerCancel={interactionEnabled ? handlePointerUp : undefined}
+          onPointerLeave={interactionEnabled ? handlePointerUp : undefined}
+          style={{
+            touchAction: interactionEnabled ? 'none' : 'pan-y',
+            cursor: interactionEnabled ? 'grab' : 'default'
+          }}
           aria-label="Interactive stock globe"
           role="img"
         />
