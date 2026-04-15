@@ -225,7 +225,8 @@ function GlobeAnalytics({ markers = DEFAULT_STOCKS, className = '', speed = 0.00
     const mediaQuery = window.matchMedia('(hover: none) and (pointer: coarse)');
     const detectTouchScreen = () => {
       const hasTouch = navigator.maxTouchPoints > 0;
-      setIsTouchScreen(mediaQuery.matches || hasTouch);
+      const smallViewport = window.innerWidth <= 1024;
+      setIsTouchScreen(mediaQuery.matches || (hasTouch && smallViewport));
     };
 
     detectTouchScreen();
