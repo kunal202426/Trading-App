@@ -584,7 +584,7 @@ const HeroWithOmni = ({ navigate }) => {
             )}
 
             <MagneticButton onClick={onSignup} aria-label="Get started free — create account">
-              Get Started Free &nbsp;<FiArrowRight aria-hidden="true" />
+              Get Started
             </MagneticButton>
 
             <MagneticButton onClick={onLogin} aria-label="Log in to your existing account">
