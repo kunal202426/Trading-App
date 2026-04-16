@@ -394,7 +394,7 @@ function GlobeAnalytics({ markers = DEFAULT_STOCKS, className = '', speed = 0.00
         mapBrightness: 2.4,
         baseColor: [0.95, 0.97, 1],
         markerColor: [0.19, 0.5, 0.91],
-        glowColor: [1, 1, 1],
+        glowColor: [0.93, 0.96, 0.98],
         markerElevation: 0.02,
         markers: toGlobeMarkers(stocksRef.current),
         arcs: []

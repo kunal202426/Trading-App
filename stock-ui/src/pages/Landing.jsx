@@ -24,7 +24,6 @@ import Lottie from 'lottie-react';
 import MagneticButton from '../components/ui/MagneticButton';
 import RotatingText   from '../components/ui/RotatingText';
 import { FlippingCard } from '../components/ui/flipping-card';
-import { GooeyText } from '../components/ui/gooey-text-morphing';
 import GlobeAnalytics from '../components/sections/GlobeAnalytics';
 import LoadingScreen  from '../components/ui/LoadingScreen';
 import { FiArrowRight, FiBarChart2, FiShield, FiTrendingUp, FiZap } from 'react-icons/fi';
@@ -452,13 +451,6 @@ const HeroWithOmni = ({ navigate }) => {
       ? { position: 'absolute', bottom: 0, left: 0, right: 0 }
       : { position: 'fixed', top: 0, left: 0, right: 0 };
 
-  const primaryGooeyTextClass = isSmallScreen
-    ? '!left-0 !right-0 !w-full !whitespace-nowrap !text-center !text-[clamp(2.8rem,5.5vw,4.9rem)] !font-black !tracking-[-0.04em] !leading-[1.01] !text-[#0f1729]'
-    : '!left-0 !right-0 !w-full !whitespace-nowrap !text-left !text-[clamp(3.1rem,6.4vw,6.4rem)] !font-black !tracking-[-0.045em] !leading-[1.01] !text-[#0f1729]';
-  const secondaryGooeyTextClass = isSmallScreen
-    ? '!left-0 !right-0 !w-full !whitespace-nowrap !text-center !text-[clamp(2.45rem,4.8vw,4.2rem)] !font-black !tracking-[-0.04em] !leading-[1.01] !text-[#4361ee]'
-    : '!left-0 !right-0 !w-full !whitespace-nowrap !text-left !text-[clamp(2.75rem,5.5vw,5.35rem)] !font-black !tracking-[-0.045em] !leading-[1.01] !text-[#4361ee]';
-
   return (
     <>
       <style>{`
@@ -641,24 +633,38 @@ const HeroWithOmni = ({ navigate }) => {
                       marginInline: isSmallScreen ? 'auto' : 0,
                     }}
                   >
-                    <span style={{ display: 'block', position: 'relative', height: 'clamp(3rem, 5.8vw, 5.8rem)' }} aria-hidden="true">
-                      <GooeyText
-                        texts={['Invest Karo.', 'Grow Karo.']}
-                        morphTime={1.15}
-                        cooldownTime={1.1}
-                        className="h-full w-full"
-                        textClassName={primaryGooeyTextClass}
-                      />
+                    <span
+                      aria-hidden="true"
+                      style={{
+                        display: 'block',
+                        whiteSpace: 'nowrap',
+                        textAlign: isSmallScreen ? 'center' : 'left',
+                        lineHeight: 1.01,
+                        letterSpacing: isSmallScreen ? '-0.04em' : '-0.045em',
+                        fontSize: isSmallScreen
+                          ? 'clamp(2.8rem,5.5vw,4.9rem)'
+                          : 'clamp(3.1rem,6.4vw,6.4rem)',
+                      }}
+                    >
+                      Invest Karo.
                     </span>
 
-                    <span style={{ display: 'block', position: 'relative', height: 'clamp(2.7rem, 5.2vw, 5.1rem)', marginTop: 2 }} aria-hidden="true">
-                      <GooeyText
-                        texts={['Apne Style Se.', 'Apne Style Se.']}
-                        morphTime={1.2}
-                        cooldownTime={1.25}
-                        className="h-full w-full"
-                        textClassName={secondaryGooeyTextClass}
-                      />
+                    <span
+                      aria-hidden="true"
+                      style={{
+                        display: 'block',
+                        whiteSpace: 'nowrap',
+                        textAlign: isSmallScreen ? 'center' : 'left',
+                        lineHeight: 1.01,
+                        letterSpacing: isSmallScreen ? '-0.04em' : '-0.045em',
+                        fontSize: isSmallScreen
+                          ? 'clamp(2.45rem,4.8vw,4.2rem)'
+                          : 'clamp(2.75rem,5.5vw,5.35rem)',
+                        color: '#4361ee',
+                        marginTop: 2,
+                      }}
+                    >
+                      Apne Style Se.
                     </span>
 
                     <span style={{ position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', whiteSpace: 'nowrap', border: 0 }}>
