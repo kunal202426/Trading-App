@@ -16,10 +16,10 @@ import {
   useInView,
   useMotionValue,
   useSpring,
+  useReducedMotion,
   animate,
 } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import Lottie from 'lottie-react';
 
 import MagneticButton from '../components/ui/MagneticButton';
 import RotatingText   from '../components/ui/RotatingText';
@@ -35,11 +35,18 @@ import portfolioAnim from '../assets/lottie/openaccount.json';
 import analysisAnim  from '../assets/lottie/exploretools.json';
 import tradingAnim   from '../assets/lottie/learnmore.json';
 
-const SignalTerminal     = lazy(() => import(/* webpackChunkName: "s-terminal" */     '../components/sections/SignalTerminal'));
-const HorizontalShowcase = lazy(() => import(/* webpackChunkName: "s-showcase" */    '../components/sections/HorizontalShowcase'));
-const SocialProof        = lazy(() => import(/* webpackChunkName: "s-social" */      '../components/sections/SocialProof'));
-const BigStatement       = lazy(() => import(/* webpackChunkName: "s-bigstatement" */'../components/sections/BigStatement'));
-const CTASection         = lazy(() => import(/* webpackChunkName: "s-cta" */         '../components/sections/CTASection'));
+const loadSignalTerminal = () => import(/* webpackChunkName: "s-terminal" */ '../components/sections/SignalTerminal');
+const loadHorizontalShowcase = () => import(/* webpackChunkName: "s-showcase" */ '../components/sections/HorizontalShowcase');
+const loadSocialProof = () => import(/* webpackChunkName: "s-social" */ '../components/sections/SocialProof');
+const loadBigStatement = () => import(/* webpackChunkName: "s-bigstatement" */ '../components/sections/BigStatement');
+const loadCTASection = () => import(/* webpackChunkName: "s-cta" */ '../components/sections/CTASection');
+
+const SignalTerminal     = lazy(loadSignalTerminal);
+const HorizontalShowcase = lazy(loadHorizontalShowcase);
+const SocialProof        = lazy(loadSocialProof);
+const BigStatement       = lazy(loadBigStatement);
+const CTASection         = lazy(loadCTASection);
+const LottiePlayer       = lazy(() => import('lottie-react'));
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
@@ -188,7 +195,79 @@ const SectionSkeleton = ({ height = 600 }) => (
 
 export default function Landing() {
   const navigate = useNavigate();
+  const prefersReducedMotion = useReducedMotion();
   const [showIntroLoader, setShowIntroLoader] = useState(true);
+  const [performanceMode, setPerformanceMode] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
+    const lowCpu = typeof navigator.hardwareConcurrency === 'number' && navigator.hardwareConcurrency <= 4;
+    const lowMemory = typeof navigator.deviceMemory === 'number' && navigator.deviceMemory <= 4;
+
+    setPerformanceMode(prefersReducedMotion || coarsePointer || lowCpu || lowMemory);
+  }, [prefersReducedMotion]);
+
+  useEffect(() => {
+    if (!showIntroLoader) {
+      return;
+    }
+
+    // Preload below-fold lazy chunks while the loader is visible.
+    void Promise.allSettled([
+      loadSignalTerminal(),
+      loadHorizontalShowcase(),
+      loadSocialProof(),
+      loadBigStatement(),
+      loadCTASection(),
+    ]);
+  }, [showIntroLoader]);
+
+  const pageContent = (
+    <>
+      {/* Ticker — decorative, aria-hidden */}
+      <TickerStrip />
+
+      {/* Hero — interactive globe with parallax text rails */}
+      <main id="main-content">
+        <HeroWithOmni navigate={navigate} performanceMode={performanceMode} />
+      </main>
+
+      {/* Stats — restored as standalone section */}
+      <StatsBar />
+
+      {/* Near-fold — eagerly rendered */}
+      <StepIntoInvesting />
+
+      <FeaturesSection />
+
+      {/* Below-fold — each lazy-loaded into its own JS chunk */}
+      <Suspense fallback={<SectionSkeleton height={680} />}>
+        <SignalTerminal />
+      </Suspense>
+
+      <Suspense fallback={<SectionSkeleton height="580vh" />}>
+        <HorizontalShowcase />
+      </Suspense>
+
+      <Suspense fallback={<SectionSkeleton height={420} />}>
+        <SocialProof />
+      </Suspense>
+
+      <Suspense fallback={<SectionSkeleton height={360} />}>
+        <BigStatement />
+      </Suspense>
+
+      <Suspense fallback={<SectionSkeleton height={560} />}>
+        <CTASection />
+      </Suspense>
+
+      <Footer />
+    </>
+  );
 
   return (
     // itemScope+itemType registers this page as a FinancialService in schema.org
@@ -222,47 +301,11 @@ export default function Landing() {
         Skip to main content
       </a>
 
-      <ReactLenis root options={{ lerp: 0.07 }}>
-
-        {/* Ticker — decorative, aria-hidden */}
-        <TickerStrip />
-
-        {/* Hero — interactive globe with parallax text rails */}
-        <main id="main-content">
-          <HeroWithOmni navigate={navigate} />
-        </main>
-
-        {/* Stats — restored as standalone section */}
-        <StatsBar />
-
-        {/* Near-fold — eagerly rendered */}
-        <StepIntoInvesting />
-
-        <FeaturesSection />
-
-        {/* Below-fold — each lazy-loaded into its own JS chunk */}
-        <Suspense fallback={<SectionSkeleton height={680} />}>
-          <SignalTerminal />
-        </Suspense>
-
-        <Suspense fallback={<SectionSkeleton height="580vh" />}>
-          <HorizontalShowcase />
-        </Suspense>
-
-        <Suspense fallback={<SectionSkeleton height={420} />}>
-          <SocialProof />
-        </Suspense>
-
-        <Suspense fallback={<SectionSkeleton height={360} />}>
-          <BigStatement />
-        </Suspense>
-
-        <Suspense fallback={<SectionSkeleton height={560} />}>
-          <CTASection />
-        </Suspense>
-
-        <Footer />
-      </ReactLenis>
+      {!showIntroLoader && (
+        performanceMode
+          ? pageContent
+          : <ReactLenis root options={{ lerp: 0.07 }}>{pageContent}</ReactLenis>
+      )}
     </div>
   );
 }
@@ -360,7 +403,7 @@ const AnimatedCounter = React.memo(function AnimatedCounter({ value, decimals, p
 });
 
 
-const HeroWithOmni = ({ navigate }) => {
+const HeroWithOmni = ({ navigate, performanceMode = false }) => {
   const sectionRef = useRef(null);
   const [sp, setSp] = useState(0);
   const [isSmallScreen, setIsSmallScreen] = useState(() => {
@@ -390,6 +433,8 @@ const HeroWithOmni = ({ navigate }) => {
       return undefined;
     }
 
+    let rafId = 0;
+
     const updateProgress = () => {
       const section = sectionRef.current;
 
@@ -401,16 +446,33 @@ const HeroWithOmni = ({ navigate }) => {
       const viewport = window.innerHeight || 1;
       const distance = Math.max(rect.height - viewport, 1);
       const travelled = clamp(-rect.top, 0, distance);
-      setSp(clamp(travelled / distance, 0, 1));
+      const nextProgress = clamp(travelled / distance, 0, 1);
+
+      setSp((prev) => (Math.abs(prev - nextProgress) < 0.001 ? prev : nextProgress));
+    };
+
+    const scheduleProgressUpdate = () => {
+      if (rafId) {
+        return;
+      }
+
+      rafId = window.requestAnimationFrame(() => {
+        rafId = 0;
+        updateProgress();
+      });
     };
 
     updateProgress();
-    window.addEventListener('scroll', updateProgress, { passive: true });
-    window.addEventListener('resize', updateProgress);
+    window.addEventListener('scroll', scheduleProgressUpdate, { passive: true });
+    window.addEventListener('resize', scheduleProgressUpdate);
 
     return () => {
-      window.removeEventListener('scroll', updateProgress);
-      window.removeEventListener('resize', updateProgress);
+      if (rafId) {
+        window.cancelAnimationFrame(rafId);
+      }
+
+      window.removeEventListener('scroll', scheduleProgressUpdate);
+      window.removeEventListener('resize', scheduleProgressUpdate);
     };
   }, []);
 
@@ -759,7 +821,12 @@ const HeroWithOmni = ({ navigate }) => {
                 zIndex: 1,
               }}
             >
-              <GlobeAnalytics speed={0.0072} scrollProgress={sp} isActive={sp < 0.995} />
+              <GlobeAnalytics
+                speed={performanceMode ? 0.0052 : 0.0072}
+                scrollProgress={sp}
+                isActive={sp < 0.995}
+                performanceMode={performanceMode}
+              />
             </div>
           </div>
         </div>
@@ -941,25 +1008,40 @@ const StepIntoInvesting = () => {
                         justifyContent: 'center',
                       }}
                     >
-                      <Lottie
-                        key={`anim-${activeTab}`}
-                        animationData={
-                          activeTab === 'new'
-                            ? portfolioAnim
-                            : activeTab === 'experienced'
-                            ? analysisAnim
-                            : tradingAnim
+                      <Suspense
+                        fallback={
+                          <div
+                            aria-hidden="true"
+                            style={{
+                              width: lottieSize,
+                              height: lottieSize,
+                              maxWidth: 420,
+                              borderRadius: '50%',
+                              background: 'radial-gradient(circle, rgba(255,255,255,0.28), rgba(255,255,255,0))',
+                            }}
+                          />
                         }
-                        loop={false}
-                        autoplay
-                        style={{
-                          width: lottieSize,
-                          height: lottieSize,
-                          maxWidth: 420,
-                          position: 'relative',
-                          zIndex: 1,
-                        }}
-                      />
+                      >
+                        <LottiePlayer
+                          key={`anim-${activeTab}`}
+                          animationData={
+                            activeTab === 'new'
+                              ? portfolioAnim
+                              : activeTab === 'experienced'
+                              ? analysisAnim
+                              : tradingAnim
+                          }
+                          loop={false}
+                          autoplay
+                          style={{
+                            width: lottieSize,
+                            height: lottieSize,
+                            maxWidth: 420,
+                            position: 'relative',
+                            zIndex: 1,
+                          }}
+                        />
+                      </Suspense>
                     </motion.div>
                     <div aria-hidden="true" style={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: 60, background: `linear-gradient(to right, transparent, ${content.accent})`, pointerEvents: 'none' }} />
                   </div>

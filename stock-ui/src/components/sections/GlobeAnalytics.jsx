@@ -191,7 +191,14 @@ const projectMarker = (stock, phi, theta, size) => {
   };
 };
 
-function GlobeAnalytics({ markers = DEFAULT_STOCKS, className = '', speed = 0.003, scrollProgress = 0, isActive = true }) {
+function GlobeAnalytics({
+  markers = DEFAULT_STOCKS,
+  className = '',
+  speed = 0.003,
+  scrollProgress = 0,
+  isActive = true,
+  performanceMode = false,
+}) {
   const canvasRef = useRef(null);
   const shellRef = useRef(null);
   const globeRef = useRef(null);
@@ -292,12 +299,12 @@ function GlobeAnalytics({ markers = DEFAULT_STOCKS, className = '', speed = 0.00
           };
         });
       });
-    }, 1600);
+    }, performanceMode ? 2200 : 1600);
 
     return () => {
       window.clearInterval(intervalId);
     };
-  }, []);
+  }, [performanceMode]);
 
   const handlePointerDown = (event) => {
     if (!interactionEnabled || !canvasRef.current) {
@@ -366,7 +373,9 @@ function GlobeAnalytics({ markers = DEFAULT_STOCKS, className = '', speed = 0.00
 
     const updateSize = () => {
       sizeRef.current = shell.offsetWidth || 0;
-      const qualityScale = window.innerWidth < 900 ? 1.05 : 1.25;
+      const qualityScale = performanceMode
+        ? (window.innerWidth < 900 ? 1 : 1.08)
+        : (window.innerWidth < 900 ? 1.05 : 1.25);
       renderSizeRef.current = Math.max(280, Math.round(sizeRef.current * qualityScale));
 
       if (globeRef.current && sizeRef.current > 0) {
@@ -390,7 +399,7 @@ function GlobeAnalytics({ markers = DEFAULT_STOCKS, className = '', speed = 0.00
         theta: 0.2,
         dark: 0,
         diffuse: 1.2,
-        mapSamples: 6400,
+        mapSamples: performanceMode ? 3600 : 6400,
         mapBrightness: 2.4,
         baseColor: [0.95, 0.97, 1],
         markerColor: [0.19, 0.5, 0.91],
@@ -408,7 +417,9 @@ function GlobeAnalytics({ markers = DEFAULT_STOCKS, className = '', speed = 0.00
       const globe = globeRef.current;
       const currentSize = sizeRef.current;
 
-      const frameGap = isActiveRef.current ? 22 : 130;
+      const frameGap = isActiveRef.current
+        ? (performanceMode ? 34 : 22)
+        : 130;
 
       if (timestamp - lastFrameTimeRef.current < frameGap) {
         animationIdRef.current = window.requestAnimationFrame(animate);
@@ -455,7 +466,11 @@ function GlobeAnalytics({ markers = DEFAULT_STOCKS, className = '', speed = 0.00
           scale: scaleRef.current
         });
 
-        if (timestamp - lastLabelUpdateRef.current > (isDraggingRef.current ? 90 : 120)) {
+        const labelUpdateGap = performanceMode
+          ? (isDraggingRef.current ? 130 : 170)
+          : (isDraggingRef.current ? 90 : 120);
+
+        if (timestamp - lastLabelUpdateRef.current > labelUpdateGap) {
           const projected = stocksRef.current
             .map((stock) => projectMarker(stock, currentPhi, currentTheta, currentSize))
             .filter(Boolean)
@@ -494,7 +509,7 @@ function GlobeAnalytics({ markers = DEFAULT_STOCKS, className = '', speed = 0.00
         globeRef.current = null;
       }
     };
-  }, [speed]);
+  }, [speed, performanceMode, interactionEnabled]);
 
   useEffect(() => {
     stocksRef.current = stocks;

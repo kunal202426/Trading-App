@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import {
   Box, Drawer, List, ListItem, ListItemButton,
@@ -16,17 +16,31 @@ import { TourOverlay } from "./tour/TourOverlay";
 import { useTour } from "./tour/useTour";
 import { TOUR_LOGIN_TRIGGER_KEY, hasDoneTour, clearQueuedTour } from "./tour/tourSteps";
 import Navbar from "./components/layout/Navbar.jsx";
-import Dashboard from "./pages/Dashboard.jsx";
 
-import Portfolio from "./pages/Portfolio.jsx";
-import ModelHealth from "./pages/ModelHealth.jsx";
-import DeepAnalysis from "./pages/DeepAnalysis.jsx";
-import MacroDashboard from "./pages/MacroDashboard";
-import Seasonality from "./pages/Seasonality";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import Transactions from "./pages/Transactions";
-import Landing from "./pages/Landing";
+const Dashboard = lazy(() => import("./pages/Dashboard.jsx"));
+const Portfolio = lazy(() => import("./pages/Portfolio.jsx"));
+const ModelHealth = lazy(() => import("./pages/ModelHealth.jsx"));
+const DeepAnalysis = lazy(() => import("./pages/DeepAnalysis.jsx"));
+const MacroDashboard = lazy(() => import("./pages/MacroDashboard"));
+const Seasonality = lazy(() => import("./pages/Seasonality"));
+const Login = lazy(() => import("./pages/Login"));
+const Signup = lazy(() => import("./pages/Signup"));
+const Transactions = lazy(() => import("./pages/Transactions"));
+const Landing = lazy(() => import("./pages/Landing"));
+
+const RouteLoader = () => (
+  <Box
+    sx={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      height: "100vh",
+      bgcolor: "#f3f4f6",
+    }}
+  >
+    <HashLoader color="#E8570C" size={44} speedMultiplier={1.05} />
+  </Box>
+);
 
 const ProtectedRoute = ({ children }) => {
   const { user, authLoading } = useAuth();
@@ -186,25 +200,27 @@ function AppRoutes() {
 
       {/* Page content */}
       <AnimatePresence mode="wait">
-        <Routes location={location} key={location.pathname}>
-          {/* Public routes */}
-          <Route path="/" element={<Landing />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
+        <Suspense fallback={<RouteLoader />}>
+          <Routes location={location} key={location.pathname}>
+            {/* Public routes */}
+            <Route path="/" element={<Landing />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
 
-          {/* Protected routes */}
-          <Route path="/portfolio" element={<ProtectedRoute><Portfolio /></ProtectedRoute>} />
-          <Route path="/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
-          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          
-          <Route path="/analysis/:symbol" element={<ProtectedRoute><DeepAnalysis /></ProtectedRoute>} />
-          <Route path="/health" element={<ProtectedRoute><ModelHealth /></ProtectedRoute>} />
-          <Route path="/macro" element={<ProtectedRoute><MacroDashboard /></ProtectedRoute>} />
-          <Route path="/seasonality/:symbol" element={<ProtectedRoute><Seasonality /></ProtectedRoute>} />
+            {/* Protected routes */}
+            <Route path="/portfolio" element={<ProtectedRoute><Portfolio /></ProtectedRoute>} />
+            <Route path="/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 
-          {/* Fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+            <Route path="/analysis/:symbol" element={<ProtectedRoute><DeepAnalysis /></ProtectedRoute>} />
+            <Route path="/health" element={<ProtectedRoute><ModelHealth /></ProtectedRoute>} />
+            <Route path="/macro" element={<ProtectedRoute><MacroDashboard /></ProtectedRoute>} />
+            <Route path="/seasonality/:symbol" element={<ProtectedRoute><Seasonality /></ProtectedRoute>} />
+
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
       </AnimatePresence>
 
       {/* Tour Overlay - only show for authenticated users on protected pages */}
