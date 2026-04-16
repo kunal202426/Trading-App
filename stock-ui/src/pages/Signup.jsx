@@ -70,9 +70,9 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen bg-[#f5f7ff]">
       <div className="grid min-h-screen lg:grid-cols-2">
-        <div className="relative hidden overflow-hidden bg-gradient-to-br from-[#f2662d] via-[#e8570c] to-[#bc4308] p-12 text-white lg:flex lg:flex-col lg:justify-between">
+        <div className="relative hidden overflow-hidden bg-gradient-to-br from-[#5f7bff] via-[#4361ee] to-[#2f46c6] p-12 text-white lg:flex lg:flex-col lg:justify-between">
           <div className="relative z-20 flex items-center gap-3 text-lg font-semibold">
             <div className="flex size-9 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm">
               <img src={logo} alt="YISIL" className="size-7 rounded-sm object-contain" />
@@ -123,7 +123,7 @@ const Signup = () => {
           </Button>
 
           <div className="w-full max-w-[440px] rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-            <div className="mb-6 overflow-hidden rounded-2xl bg-gradient-to-br from-[#f2662d] via-[#e8570c] to-[#bc4308] p-3 text-white shadow-sm lg:hidden">
+            <div className="mb-6 overflow-hidden rounded-2xl bg-gradient-to-br from-[#5f7bff] via-[#4361ee] to-[#2f46c6] p-3 text-white shadow-sm lg:hidden">
               <div className="mb-3 flex items-center gap-2 text-base font-semibold">
                 <div className="flex size-8 items-center justify-center rounded-lg bg-white/20">
                   <img src={logo} alt="YISIL" className="size-6 rounded-sm object-contain" />

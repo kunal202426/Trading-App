@@ -38,7 +38,7 @@ const RouteLoader = () => (
       bgcolor: "#f3f4f6",
     }}
   >
-    <HashLoader color="#E8570C" size={44} speedMultiplier={1.05} />
+    <HashLoader color="#4361EE" size={44} speedMultiplier={1.05} />
   </Box>
 );
 
@@ -47,7 +47,7 @@ const ProtectedRoute = ({ children }) => {
   if (authLoading) {
     return (
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', bgcolor: '#f3f4f6' }}>
-        <HashLoader color="#E8570C" size={46} speedMultiplier={1.2} />
+        <HashLoader color="#4361EE" size={46} speedMultiplier={1.2} />
       </Box>
     );
   }

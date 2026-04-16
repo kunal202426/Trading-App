@@ -41,14 +41,14 @@ export default function LoadingScreen({
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#F5F0E8',
+        backgroundColor: '#f5f7ff',
       }}
     >
-      <HashLoader color="#E8570C" size={50} speedMultiplier={1.2} />
+      <HashLoader color="#4361EE" size={50} speedMultiplier={1.2} />
 
       <p
         style={{
-          color: '#9B8B70',
+          color: '#52637a',
           marginTop: 32,
           fontSize: 14,
           letterSpacing: '0.04em',

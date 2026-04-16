@@ -23,6 +23,11 @@ export default defineConfig({
           // Framer Motion into its own vendor chunk
           if (id.includes('framer-motion')) return 'vendor-framer';
 
+          // MUI and emotion styling runtime
+          if (id.includes('node_modules/@mui/') || id.includes('node_modules/@emotion/')) {
+            return 'vendor-mui';
+          }
+
           // React ecosystem
           if (
             id.includes('node_modules/react/') ||
@@ -30,22 +35,34 @@ export default defineConfig({
             id.includes('node_modules/react-router')
           ) return 'vendor-react';
 
+          // Firebase SDK
+          if (id.includes('node_modules/firebase/')) return 'vendor-firebase';
+
+          // Charting stack
+          if (id.includes('node_modules/recharts/')) return 'vendor-recharts';
+          if (
+            id.includes('node_modules/highcharts/') ||
+            id.includes('node_modules/highcharts-react-official/')
+          ) {
+            return 'vendor-highcharts';
+          }
+          if (id.includes('node_modules/lightweight-charts/')) return 'vendor-lightweight';
+
           // Lenis smooth scroll
           if (id.includes('lenis')) return 'vendor-lenis';
+
+          // Lottie animation runtime
+          if (id.includes('lottie-react') || id.includes('lottie-web')) return 'vendor-lottie';
 
           // React Icons
           if (id.includes('react-icons')) return 'vendor-icons';
 
           // Section chunks — each below-fold section lazy-loaded by Landing.jsx
-          if (id.includes('sections/HowItWorks'))         return 's-howitworks';
           if (id.includes('sections/SignalTerminal'))      return 's-terminal';
           if (id.includes('sections/HorizontalShowcase'))  return 's-showcase';
           if (id.includes('sections/SocialProof'))         return 's-social';
           if (id.includes('sections/BigStatement'))        return 's-bigstatement';
           if (id.includes('sections/CTASection'))          return 's-cta';
-
-          // BounceCards — also lazy inside HorizontalShowcase
-          if (id.includes('components/BounceCards'))       return 'bounce-cards';
         },
       },
     },

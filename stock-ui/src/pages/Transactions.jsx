@@ -152,7 +152,7 @@ export default function Transactions() {
             <Button
               type="submit" variant="contained" size="small" sx={{ mt: 2, textTransform: 'none', fontWeight: 600, width: { xs: '100%', sm: 'auto' } }}
               disabled={saving}
-              startIcon={saving ? <HashLoader color="#E8570C" size={12} speedMultiplier={1.1} /> : null}
+              startIcon={saving ? <HashLoader color="#4361EE" size={12} speedMultiplier={1.1} /> : null}
             >
               {saving ? "Saving..." : "Add Transaction"}
             </Button>
@@ -167,7 +167,7 @@ export default function Transactions() {
 
           {loadingTx ? (
             <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-              <HashLoader color="#E8570C" size={40} speedMultiplier={1.15} />
+              <HashLoader color="#4361EE" size={40} speedMultiplier={1.15} />
             </Box>
           ) : transactions.length === 0 ? (
             <Paper elevation={0} sx={{ p: 4, borderRadius: 2, textAlign: "center", color: '#6b7280', border: '1px solid #e5e7eb' }}>

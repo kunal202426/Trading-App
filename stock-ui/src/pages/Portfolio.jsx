@@ -207,7 +207,7 @@ const COLORS = ["#6366f1","#22c55e","#f59e0b","#ef4444","#3b82f6","#06b6d4"];
                   size="small"
                   sx={{ color: '#1976d2' }}
                 >
-                  {loading ? <HashLoader color="#E8570C" size={14} speedMultiplier={1.1} /> : <RefreshIcon />}
+                  {loading ? <HashLoader color="#4361EE" size={14} speedMultiplier={1.1} /> : <RefreshIcon />}
                 </IconButton>
               </span>
             </Tooltip>
@@ -266,7 +266,7 @@ const COLORS = ["#6366f1","#22c55e","#f59e0b","#ef4444","#3b82f6","#06b6d4"];
 
         {loadingPos ? (
           <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-            <HashLoader color="#E8570C" size={40} speedMultiplier={1.15} />
+            <HashLoader color="#4361EE" size={40} speedMultiplier={1.15} />
           </Box>
         ) : enriched.length === 0 ? (
           <Paper elevation={0} sx={{ p: 4, borderRadius: 2, textAlign: "center", color: '#6b7280', border: '1px solid #e5e7eb' }}>

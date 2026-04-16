@@ -363,7 +363,7 @@ export function AuthCharactersScene({
             left: "70px",
             width: "180px",
             height: isTyping ? "450px" : "410px",
-            backgroundColor: "#6C3FF5",
+            backgroundColor: "#dc2626",
             borderRadius: "3px 3px 0 0",
             zIndex: 1,
             transform: privateMode

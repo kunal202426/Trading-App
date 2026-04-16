@@ -982,7 +982,7 @@ export default function Dashboard() {
         <DialogContent sx={{ p: 2.5, bgcolor: '#f8fafc' }}>
           {fundamentalLoading ? (
             <Box sx={{ py: 5, display: 'flex', justifyContent: 'center' }}>
-              <HashLoader color="#E8570C" size={36} speedMultiplier={1.15} />
+              <HashLoader color="#4361EE" size={36} speedMultiplier={1.15} />
             </Box>
           ) : fundamentalData ? (
             <Grid container spacing={2}>

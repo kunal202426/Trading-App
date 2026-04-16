@@ -14,14 +14,14 @@ const TOUR_THEME = {
   primarySoft: 'rgba(67, 97, 238, 0.08)',
   primarySoftHover: 'rgba(67, 97, 238, 0.14)',
   primaryBorder: 'rgba(67, 97, 238, 0.22)',
-  brand: '#E8570C',
-  brandStrong: '#c9460a',
-  brandShadow: 'rgba(232, 87, 12, 0.34)',
+  brand: '#4361ee',
+  brandStrong: '#2f46c6',
+  brandShadow: 'rgba(67, 97, 238, 0.34)',
   success: 'rgba(22, 163, 74, 0.92)',
   danger: 'rgba(220, 38, 38, 0.92)',
-  tipBg: 'rgba(255, 107, 53, 0.08)',
-  tipBorder: 'rgba(255, 107, 53, 0.22)',
-  tipText: 'rgba(162, 63, 18, 0.95)',
+  tipBg: 'rgba(67, 97, 238, 0.08)',
+  tipBorder: 'rgba(67, 97, 238, 0.22)',
+  tipText: 'rgba(47, 70, 198, 0.95)',
 }
 
 const getViewportSize = () => {

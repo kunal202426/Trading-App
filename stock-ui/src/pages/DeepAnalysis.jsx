@@ -114,7 +114,7 @@ export default function DeepAnalysis() {
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         height: '100vh', flexDirection: 'column', gap: 2, bgcolor: '#f3f4f6',
       }}>
-        <HashLoader color="#E8570C" size={46} speedMultiplier={1.2} />
+        <HashLoader color="#4361EE" size={46} speedMultiplier={1.2} />
         <Typography sx={{ color: '#64748b' }}>Loading {symbol} analysis...</Typography>
       </Box>
     );

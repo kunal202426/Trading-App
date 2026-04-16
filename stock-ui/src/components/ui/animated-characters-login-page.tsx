@@ -43,9 +43,9 @@ export function AnimatedCharactersLoginPage({
   const privateMode = password.length > 0 && showPassword;
 
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen bg-[#f5f7ff]">
       <div className="grid min-h-screen lg:grid-cols-2">
-        <div className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-[#f2662d] via-[#e8570c] to-[#bc4308] p-12 text-white lg:flex">
+        <div className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-[#5f7bff] via-[#4361ee] to-[#2f46c6] p-12 text-white lg:flex">
           <div className="relative z-20 flex items-center gap-3 text-lg font-semibold">
             <div className="flex size-9 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm">
               {logoSrc ? (
@@ -85,7 +85,7 @@ export function AnimatedCharactersLoginPage({
           <div className="absolute bottom-1/4 left-1/4 size-96 rounded-full bg-white/5 blur-3xl" />
         </div>
 
-        <div className="relative flex items-center justify-center bg-background p-6 sm:p-8">
+        <div className="relative flex items-center justify-center bg-[#f5f7ff] p-6 sm:p-8">
           {onBack && (
             <Button
               type="button"
@@ -100,7 +100,7 @@ export function AnimatedCharactersLoginPage({
           )}
 
           <div className="w-full max-w-[430px]">
-            <div className="mb-6 overflow-hidden rounded-2xl bg-gradient-to-br from-[#f2662d] via-[#e8570c] to-[#bc4308] p-3 text-white shadow-sm lg:hidden">
+            <div className="mb-6 overflow-hidden rounded-2xl bg-gradient-to-br from-[#5f7bff] via-[#4361ee] to-[#2f46c6] p-3 text-white shadow-sm lg:hidden">
               <div className="mb-3 flex items-center gap-2 text-base font-semibold">
                 <div className="flex size-8 items-center justify-center rounded-lg bg-white/20">
                   {logoSrc ? (
