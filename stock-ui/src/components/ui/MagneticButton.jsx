@@ -27,6 +27,8 @@ const MagneticButton = ({
   const reset = () => setPos({ x: 0, y: 0 });
 
   const isRound = size === 'round-large';
+  const resolvedWidth = isRound ? 180 : (width ?? 'auto');
+  const resolvedHeight = isRound ? 180 : (height ?? 'auto');
 
   return (
     <motion.div
@@ -35,7 +37,7 @@ const MagneticButton = ({
       onMouseLeave={reset}
       animate={{ x: pos.x * 0.35, y: pos.y * 0.35 }}
       transition={{ type: 'spring', stiffness: 150, damping: 15, mass: 0.1 }}
-      style={{ display: 'inline-block', position: 'relative' }}
+      style={{ display: 'inline-block', position: 'relative', width: resolvedWidth, height: resolvedHeight }}
     >
       <motion.button
         type="button"
@@ -52,8 +54,8 @@ const MagneticButton = ({
           alignItems: 'center',
           justifyContent: 'center',
           gap: isRound ? 0 : 10,
-          width:  isRound ? 180 : (width ?? 'auto'),
-          height: isRound ? 180 : (height ?? 'auto'),
+          width:  isRound ? 180 : (width ? '100%' : 'auto'),
+          height: isRound ? 180 : (height ? '100%' : 'auto'),
           padding: isRound ? 0 : (padding ?? '15px 40px'),
           fontSize: isRound ? '0.85rem' : (fontSize ?? '1rem'),
           fontWeight: 700,

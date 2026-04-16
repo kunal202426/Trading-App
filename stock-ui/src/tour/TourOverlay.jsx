@@ -96,26 +96,36 @@ export function TourOverlay({ tour, pathKey }) {
       return
     }
 
-    const el = document.querySelector(currentStep.target)
-    if (!el) {
-      setSpot(null)
-      setArrowSide(null)
-      return
-    }
-
     let rafA = 0
     let rafB = 0
     let settleTimer = 0
+    let retryTimer = 0
+    let retryCount = 0
+    let disposed = false
+    let targetEl = null
 
     const measure = () => {
-      const { w: vw, h: vh } = getViewportSize()
-      const r = el.getBoundingClientRect()
-      const spotPad = isNarrow ? 6 : SPOT_PAD
+      if (disposed) return
 
-      const spotLeft = Math.max(6, r.left - spotPad)
-      const spotTop = Math.max(6, r.top - spotPad)
-      const spotRight = Math.min(vw - 6, r.right + spotPad)
-      const spotBottom = Math.min(vh - 6, r.bottom + spotPad)
+      if (!targetEl || !targetEl.isConnected) {
+        targetEl = document.querySelector(currentStep.target)
+      }
+
+      if (!targetEl) {
+        setSpot(null)
+        setArrowSide(null)
+        return
+      }
+
+      const { w: vw, h: vh } = getViewportSize()
+      const r = targetEl.getBoundingClientRect()
+      const spotPad = isNarrow ? 6 : SPOT_PAD
+      const edgeInset = currentStep.id === 'navigation-panel' ? 0 : 6
+
+      const spotLeft = Math.max(edgeInset, r.left - spotPad)
+      const spotTop = Math.max(edgeInset, r.top - spotPad)
+      const spotRight = Math.min(vw - edgeInset, r.right + spotPad)
+      const spotBottom = Math.min(vh - edgeInset, r.bottom + spotPad)
 
       setSpot({
         top: spotTop,
@@ -170,23 +180,46 @@ export function TourOverlay({ tour, pathKey }) {
     }
 
     const maybeScrollTargetIntoView = () => {
+      if (!targetEl) return
+
       const { h: vh } = getViewportSize()
-      const r = el.getBoundingClientRect()
+      const r = targetEl.getBoundingClientRect()
       const outOfView = r.top < 16 || r.bottom > vh - 16
       if (!outOfView) return
 
-      el.scrollIntoView({
+      targetEl.scrollIntoView({
         behavior: isNarrow ? 'auto' : 'smooth',
         block: isNarrow ? 'center' : 'nearest',
         inline: 'nearest',
       })
     }
 
-    maybeScrollTargetIntoView()
-    rafA = window.requestAnimationFrame(() => {
-      rafB = window.requestAnimationFrame(measure)
-    })
-    settleTimer = window.setTimeout(measure, isNarrow ? 80 : 220)
+    const scheduleInitialMeasure = () => {
+      rafA = window.requestAnimationFrame(() => {
+        rafB = window.requestAnimationFrame(measure)
+      })
+      settleTimer = window.setTimeout(measure, isNarrow ? 120 : 320)
+    }
+
+    const findTargetWithRetry = () => {
+      if (disposed) return
+
+      targetEl = document.querySelector(currentStep.target)
+      if (targetEl) {
+        maybeScrollTargetIntoView()
+        scheduleInitialMeasure()
+        return
+      }
+
+      setSpot(null)
+      setArrowSide(null)
+
+      if (retryCount >= 35) return
+      retryCount += 1
+      retryTimer = window.setTimeout(findTargetWithRetry, 120)
+    }
+
+    findTargetWithRetry()
 
     window.addEventListener('resize', measure)
     window.addEventListener('scroll', measure, true)
@@ -194,9 +227,11 @@ export function TourOverlay({ tour, pathKey }) {
     window.visualViewport?.addEventListener('scroll', measure)
 
     return () => {
+      disposed = true
       window.cancelAnimationFrame(rafA)
       window.cancelAnimationFrame(rafB)
       window.clearTimeout(settleTimer)
+      window.clearTimeout(retryTimer)
       window.removeEventListener('resize', measure)
       window.removeEventListener('scroll', measure, true)
       window.visualViewport?.removeEventListener('resize', measure)

@@ -124,16 +124,23 @@ function AppRoutes() {
   };
 
   const isAuthPage = ["/login", "/signup", "/"].includes(location.pathname);
+  const isTourNavStep = tour.active && tour.currentStep?.id === "navigation-panel";
 
-  // Start onboarding only right after a successful login/signup event.
+  // Start onboarding after login queue, and also auto-start on first portfolio entry.
   useEffect(() => {
-    if (!user || tour.active || hasDoneTour()) return;
-    const queued = sessionStorage.getItem(TOUR_LOGIN_TRIGGER_KEY) === "1";
-    if (!queued) return;
+    if (!user || tour.active) return;
 
-    clearQueuedTour();
+    const queued = sessionStorage.getItem(TOUR_LOGIN_TRIGGER_KEY) === "1";
+    const shouldAutoStartOnPortfolio = !hasDoneTour() && location.pathname === "/portfolio";
+
+    if (!queued && !shouldAutoStartOnPortfolio) return;
+
+    if (queued) {
+      clearQueuedTour();
+    }
+
     tour.restart();
-  }, [user, tour.active, tour.restart]);
+  }, [user, tour.active, tour.restart, location.pathname]);
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
@@ -147,7 +154,7 @@ function AppRoutes() {
           PaperProps={{ id: "app-navigation-panel" }}
           sx={{
             '& .MuiDrawer-paper': {
-              width: { xs: 260, sm: 300 },
+              width: { xs: isTourNavStep ? 286 : 260, sm: isTourNavStep ? 324 : 300 },
               boxSizing: 'border-box',
               bgcolor: '#ffffff',
             },

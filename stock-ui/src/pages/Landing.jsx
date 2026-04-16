@@ -489,24 +489,19 @@ const HeroWithOmni = ({ navigate, performanceMode = false }) => {
   const globeShiftX = sp * (isSmallScreen ? 20 : 110);
   const globeShiftY = sp * (isSmallScreen ? -8 : -34);
   const globeScale = 1 + sp * 0.42;
-  const ctaProgress = clamp((sp - 0.16) / 0.28, 0, 1);
-  const ctaTranslate = (1 - ctaProgress) * 48;
+  const heroCopyBaseLift = isSmallScreen ? -10 : -72;
   const headlineDepthProgress = clamp((sp - 0.03) / 0.34, 0, 1);
   const headlineZoomScale = 1 + headlineDepthProgress * (isSmallScreen ? 0.28 : 0.42);
   const headlineDepthZ = headlineDepthProgress * (isSmallScreen ? 52 : 86);
   const headlineDepthBlur = headlineDepthProgress * 3;
-  const ctaDepthScale = 0.92 + ctaProgress * 0.16;
-  const ctaDepthZ = -20 + ctaProgress * 40;
-  const ctaDepthBlur = (1 - ctaProgress) * 3;
   const parallaxFactor = isSmallScreen ? 0.45 : 1;
   const storyParallax = clamp((sp - 0.02) / 0.8, 0, 1) * parallaxFactor;
   const headlineParallaxX = storyParallax * 8;
   const headlineParallaxY = storyParallax * -14;
   const subtitleParallaxX = storyParallax * 6;
   const subtitleParallaxY = storyParallax * -8;
-  const ctaParallaxX = storyParallax * 8;
-  const ctaParallaxY = storyParallax * -6;
-  const sectionScrollHeight = isSmallScreen ? '195svh' : '240vh';
+  const scrollCueOpacity = clamp(1 - sp * 10, 0, 1);
+  const sectionScrollHeight = isSmallScreen ? '188svh' : '240vh';
   const frameStyle = sp <= 0
     ? { position: 'absolute', top: 0, left: 0, right: 0 }
     : sp >= 1
@@ -575,7 +570,7 @@ const HeroWithOmni = ({ navigate, performanceMode = false }) => {
           .hero-split {
             height: 100svh;
             padding: 24px 14px 18px;
-            gap: 14px;
+            gap: 10px;
           }
 
           .hero-stage-frame {
@@ -588,7 +583,7 @@ const HeroWithOmni = ({ navigate, performanceMode = false }) => {
           }
 
           .hero-story-swap {
-            min-height: 320px !important;
+            min-height: 278px !important;
           }
 
           .hero-visual {
@@ -622,7 +617,7 @@ const HeroWithOmni = ({ navigate, performanceMode = false }) => {
                 maxWidth: 620,
                 width: '100%',
                 paddingTop: isSmallScreen ? 10 : 0,
-                transform: `translate3d(0, ${leftY}px, 0)`,
+                transform: `translate3d(0, ${leftY + heroCopyBaseLift}px, 0)`,
                 opacity: leftOpacity,
                 transition: 'opacity 0.15s ease-out',
                 position: 'relative',
@@ -644,7 +639,7 @@ const HeroWithOmni = ({ navigate, performanceMode = false }) => {
                 <div
                   style={{
                     position: 'absolute',
-                    top: isSmallScreen ? -8 : -20,
+                    top: isSmallScreen ? -2 : -34,
                     left: isSmallScreen ? '50%' : '38%',
                     zIndex: 9,
                     opacity: headlineOpacity,
@@ -689,7 +684,7 @@ const HeroWithOmni = ({ navigate, performanceMode = false }) => {
                       lineHeight: 1,
                       color: '#0f1729',
                       letterSpacing: '-0.045em',
-                      margin: isSmallScreen ? '40px 0 0' : '54px 0 0',
+                      margin: isSmallScreen ? '18px 0 0' : '24px 0 0',
                       width: '100%',
                       maxWidth: 600,
                       marginInline: isSmallScreen ? 'auto' : 0,
@@ -752,80 +747,174 @@ const HeroWithOmni = ({ navigate, performanceMode = false }) => {
                   </p>
                 </div>
 
+              </div>
+
+              {isSmallScreen && (
                 <div
                   style={{
-                    position: 'absolute',
-                    inset: 0,
-                    zIndex: 2,
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    justifyContent: isSmallScreen ? 'center' : 'flex-start',
-                    opacity: ctaProgress,
-                    paddingTop: isSmallScreen ? 138 : 180,
-                    transform: `translate3d(${ctaParallaxX}px, ${ctaTranslate + ctaParallaxY}px, 0) translateZ(${ctaDepthZ}px) scale(${ctaDepthScale})`,
-                    transition: 'opacity 0.12s linear, transform 0.12s linear',
-                    pointerEvents: ctaProgress > 0.35 ? 'auto' : 'none',
-                    filter: `blur(${ctaDepthBlur}px)`,
-                    willChange: 'transform, opacity, filter',
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                    alignItems: 'stretch',
+                    gap: 8,
+                    width: '100%',
+                    maxWidth: 360,
+                    marginTop: 12,
+                    marginInline: 'auto',
+                    position: 'relative',
+                    zIndex: 4,
                   }}
                 >
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: isSmallScreen ? 'center' : 'flex-start',
-                      gap: 16,
-                      width: isSmallScreen ? '100%' : 292,
-                    }}
-                  >
-                    <div style={{ transform: `scale(${isSmallScreen ? 1.04 : 1.09})`, transformOrigin: isSmallScreen ? 'center top' : 'left top', width: isSmallScreen ? '100%' : 268 }}>
-                      <MagneticButton
-                        onClick={onSignup}
-                        aria-label="Get started free - create account"
-                        width="100%"
-                        padding={isSmallScreen ? '16px 24px' : '17px 30px'}
-                        fontSize={isSmallScreen ? '1.02rem' : '1.08rem'}
-                      >
-                        Get Started
-                      </MagneticButton>
-                    </div>
+                  <div style={{ minWidth: 0 }}>
+                    <MagneticButton
+                      onClick={onSignup}
+                      aria-label="Get started free - create account"
+                      width="100%"
+                      height={48}
+                      padding="12px 10px"
+                      fontSize="0.94rem"
+                    >
+                      Get Started
+                    </MagneticButton>
+                  </div>
 
-                    <div style={{ transform: `scale(${isSmallScreen ? 1.04 : 1.09})`, transformOrigin: isSmallScreen ? 'center top' : 'left top', width: isSmallScreen ? '100%' : 268 }}>
-                      <MagneticButton
-                        onClick={onLogin}
-                        aria-label="Log in to your existing account"
-                        width="100%"
-                        padding={isSmallScreen ? '16px 24px' : '17px 30px'}
-                        fontSize={isSmallScreen ? '1.02rem' : '1.08rem'}
-                      >
-                        Log In
-                      </MagneticButton>
-                    </div>
+                  <div style={{ minWidth: 0 }}>
+                    <MagneticButton
+                      onClick={onLogin}
+                      aria-label="Log in to your existing account"
+                      width="100%"
+                      height={48}
+                      padding="12px 10px"
+                      fontSize="0.94rem"
+                    >
+                      Log In
+                    </MagneticButton>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
 
             <div
               className="hero-visual"
               style={{
                 display: 'flex',
-                alignItems: 'center',
+                flexDirection: 'column',
+                alignItems: isSmallScreen ? 'center' : 'flex-end',
                 justifyContent: 'flex-end',
                 maxWidth: 720,
                 width: '100%',
                 margin: '0 0 0 auto',
-                transform: `translate3d(${globeShiftX}px, ${globeShiftY}px, 0) scale(${globeScale})`,
-                transformOrigin: '55% 50%',
                 position: 'relative',
                 zIndex: 1,
+                gap: isSmallScreen ? 0 : 14,
               }}
             >
-              <GlobeAnalytics
-                speed={performanceMode ? 0.0052 : 0.0072}
-                scrollProgress={sp}
-                isActive={sp < 0.995}
-                performanceMode={performanceMode}
+              <div
+                style={{
+                  display: isSmallScreen ? 'none' : 'grid',
+                  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                  alignItems: 'stretch',
+                  justifyContent: 'center',
+                  gap: 10,
+                  width: '100%',
+                  maxWidth: 420,
+                  zIndex: 3,
+                  marginBottom: 12,
+                }}
+              >
+                <div style={{ minWidth: 0 }}>
+                  <MagneticButton
+                    onClick={onSignup}
+                    aria-label="Get started free - create account"
+                    width="100%"
+                    height={isSmallScreen ? 48 : 52}
+                    padding={isSmallScreen ? '12px 10px' : '12px 12px'}
+                    fontSize={isSmallScreen ? '0.94rem' : '1rem'}
+                  >
+                    Get Started
+                  </MagneticButton>
+                </div>
+
+                <div style={{ minWidth: 0 }}>
+                  <MagneticButton
+                    onClick={onLogin}
+                    aria-label="Log in to your existing account"
+                    width="100%"
+                    height={isSmallScreen ? 48 : 52}
+                    padding={isSmallScreen ? '12px 10px' : '12px 12px'}
+                    fontSize={isSmallScreen ? '0.94rem' : '1rem'}
+                  >
+                    Log In
+                  </MagneticButton>
+                </div>
+              </div>
+
+              <div
+                style={{
+                  transform: `translate3d(${globeShiftX}px, ${globeShiftY}px, 0) scale(${globeScale})`,
+                  transformOrigin: '55% 50%',
+                  width: '100%',
+                  display: 'flex',
+                  justifyContent: isSmallScreen ? 'center' : 'flex-end',
+                }}
+              >
+                <GlobeAnalytics
+                  speed={performanceMode ? 0.0052 : 0.0072}
+                  scrollProgress={sp}
+                  isActive={sp < 0.995}
+                  performanceMode={performanceMode}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div
+            style={{
+              position: 'absolute',
+              left: '50%',
+              bottom: isSmallScreen ? 68 : 86,
+              transform: 'translateX(-50%)',
+              opacity: scrollCueOpacity,
+              pointerEvents: 'none',
+              zIndex: 7,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 8,
+            }}
+            aria-hidden="true"
+          >
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                color: '#52637a',
+              }}
+            >
+              Scroll
+            </span>
+            <div
+              style={{
+                width: 24,
+                height: 38,
+                borderRadius: 999,
+                border: '1.5px solid rgba(82, 99, 122, 0.5)',
+                display: 'flex',
+                justifyContent: 'center',
+                paddingTop: 6,
+              }}
+            >
+              <motion.span
+                style={{
+                  width: 4,
+                  height: 8,
+                  borderRadius: 999,
+                  background: '#4361ee',
+                  display: 'block',
+                }}
+                animate={{ y: [0, 11, 0], opacity: [0.45, 1, 0.45] }}
+                transition={{ repeat: Infinity, duration: 1.4, ease: 'easeInOut' }}
               />
             </div>
           </div>
