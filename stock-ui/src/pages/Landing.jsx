@@ -410,22 +410,42 @@ const HeroWithOmni = ({ navigate, performanceMode = false }) => {
     if (typeof window === 'undefined') return false;
     return window.matchMedia('(max-width: 768px)').matches;
   });
+  const [needsCompactHeroSpacing, setNeedsCompactHeroSpacing] = useState(() => {
+    if (typeof window === 'undefined') return false;
+
+    const isAndroid = /Android/i.test(window.navigator.userAgent || '');
+    return isAndroid && window.matchMedia('(max-width: 430px) and (max-height: 940px)').matches;
+  });
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     const media = window.matchMedia('(max-width: 768px)');
-    const onChange = () => setIsSmallScreen(media.matches);
+    const compactMedia = window.matchMedia('(max-width: 430px) and (max-height: 940px)');
+    const isAndroid = /Android/i.test(window.navigator.userAgent || '');
+
+    const onChange = () => {
+      setIsSmallScreen(media.matches);
+      setNeedsCompactHeroSpacing(isAndroid && compactMedia.matches);
+    };
 
     onChange();
 
-    if (media.addEventListener) {
+    if (media.addEventListener && compactMedia.addEventListener) {
       media.addEventListener('change', onChange);
-      return () => media.removeEventListener('change', onChange);
+      compactMedia.addEventListener('change', onChange);
+      return () => {
+        media.removeEventListener('change', onChange);
+        compactMedia.removeEventListener('change', onChange);
+      };
     }
 
     media.addListener(onChange);
-    return () => media.removeListener(onChange);
+    compactMedia.addListener(onChange);
+    return () => {
+      media.removeListener(onChange);
+      compactMedia.removeListener(onChange);
+    };
   }, []);
 
   useEffect(() => {
@@ -489,7 +509,7 @@ const HeroWithOmni = ({ navigate, performanceMode = false }) => {
   const globeShiftX = sp * (isSmallScreen ? 20 : 110);
   const globeShiftY = sp * (isSmallScreen ? -8 : -34);
   const globeScale = 1 + sp * 0.42;
-  const heroCopyBaseLift = isSmallScreen ? -10 : -72;
+  const heroCopyBaseLift = needsCompactHeroSpacing ? 8 : (isSmallScreen ? -10 : -72);
   const headlineDepthProgress = clamp((sp - 0.03) / 0.34, 0, 1);
   const headlineZoomScale = 1 + headlineDepthProgress * (isSmallScreen ? 0.28 : 0.42);
   const headlineDepthZ = headlineDepthProgress * (isSmallScreen ? 52 : 86);
@@ -616,7 +636,7 @@ const HeroWithOmni = ({ navigate, performanceMode = false }) => {
                 textAlign: 'left',
                 maxWidth: 620,
                 width: '100%',
-                paddingTop: isSmallScreen ? 10 : 0,
+                paddingTop: needsCompactHeroSpacing ? 24 : (isSmallScreen ? 10 : 0),
                 transform: `translate3d(0, ${leftY + heroCopyBaseLift}px, 0)`,
                 opacity: leftOpacity,
                 transition: 'opacity 0.15s ease-out',
@@ -639,7 +659,7 @@ const HeroWithOmni = ({ navigate, performanceMode = false }) => {
                 <div
                   style={{
                     position: 'absolute',
-                    top: isSmallScreen ? -2 : -34,
+                    top: needsCompactHeroSpacing ? 12 : (isSmallScreen ? -2 : -34),
                     left: isSmallScreen ? '50%' : '38%',
                     zIndex: 9,
                     opacity: headlineOpacity,
@@ -653,8 +673,8 @@ const HeroWithOmni = ({ navigate, performanceMode = false }) => {
                     src={logo}
                     alt="YES Securities logo"
                     style={{
-                      width: isSmallScreen ? 36 : 48,
-                      height: isSmallScreen ? 36 : 48,
+                      width: needsCompactHeroSpacing ? 34 : (isSmallScreen ? 36 : 48),
+                      height: needsCompactHeroSpacing ? 34 : (isSmallScreen ? 36 : 48),
                       objectFit: 'contain',
                       display: 'block',
                       filter: 'drop-shadow(0 8px 18px rgba(15, 23, 41, 0.18))',
@@ -684,7 +704,7 @@ const HeroWithOmni = ({ navigate, performanceMode = false }) => {
                       lineHeight: 1,
                       color: '#0f1729',
                       letterSpacing: '-0.045em',
-                      margin: isSmallScreen ? '18px 0 0' : '24px 0 0',
+                      margin: needsCompactHeroSpacing ? '44px 0 0' : (isSmallScreen ? '18px 0 0' : '24px 0 0'),
                       width: '100%',
                       maxWidth: 600,
                       marginInline: isSmallScreen ? 'auto' : 0,
