@@ -45,6 +45,7 @@ export function ContainerScroll({ titleComponent, children, className = '' }: Co
   const containerRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
   const [isMobile, setIsMobile] = useState(false);
+  const [isCompactTablet, setIsCompactTablet] = useState(false);
   const [isSettled, setIsSettled] = useState(false);
   const [isInMiddle, setIsInMiddle] = useState(false);
   const settledRef = useRef(false);
@@ -57,7 +58,11 @@ export function ContainerScroll({ titleComponent, children, className = '' }: Co
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+
+      setIsMobile(width <= 768);
+      setIsCompactTablet(width > 768 && width <= 1024 && height <= 860);
     };
 
     checkMobile();
@@ -93,7 +98,7 @@ export function ContainerScroll({ titleComponent, children, className = '' }: Co
   const translateY = useTransform(
     scrollYProgress,
     [0, settleAt],
-    prefersReducedMotion ? [0, 0] : (isMobile ? [-12, 42] : [-32, 150])
+    prefersReducedMotion ? [0, 0] : (isMobile ? [-12, 42] : [-32, isCompactTablet ? 104 : 150])
   );
 
   const scale = useTransform(
@@ -135,7 +140,7 @@ export function ContainerScroll({ titleComponent, children, className = '' }: Co
   return (
     <div
       ref={containerRef}
-      className={`relative flex h-[40rem] items-start justify-center px-3 py-0 sm:h-[45rem] md:h-[52rem] md:px-8 md:py-1 ${className}`}
+      className={`relative isolate flex min-h-[40rem] items-start justify-center px-3 pt-0 pb-10 sm:min-h-[45rem] sm:pb-12 md:min-h-[52rem] md:px-8 md:pt-1 md:pb-20 ${className}`}
     >
       <div className="relative w-full max-w-[1280px] px-1 sm:px-4" style={{ perspective: isMobile ? '1400px' : '1900px' }}>
         <Header
