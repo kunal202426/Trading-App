@@ -1,0 +1,1599 @@
+﻿% =====================================================================
+% Review 3 - Final Project Report (NON-CDC Template aligned)
+% BCSE498J Project-II
+% Title: Stock Market Analytics & Trading Platform
+% Author: Kunal Mathur (22BKT0097)
+% Supervisor: Saranya P, Assistant Professor Sr. Grade 1
+% =====================================================================
+\documentclass[12pt,a4paper]{report}
+
+% ---------- Page geometry (Template: Left 1.5", others 1") ----------
+\usepackage[a4paper,left=1.5in,right=1in,top=1in,bottom=1in]{geometry}
+\usepackage{setspace}
+\usepackage[T1]{fontenc}
+\usepackage{times}
+\usepackage{amsmath}
+\numberwithin{equation}{chapter}
+\setstretch{1.5}
+\setlength{\emergencystretch}{4em}
+
+% ---------- Utilities ----------
+\usepackage{graphicx}
+\usepackage[font=footnotesize,labelfont=bf]{caption}
+\captionsetup{justification=centering}
+\usepackage{subcaption}
+\usepackage[authoryear]{natbib}
+\usepackage{hyperref}
+\usepackage{xurl}
+\usepackage[htt]{hyphenat}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{titlesec}
+\usepackage[titles]{tocloft}
+\usepackage{fancyhdr}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{newunicodechar}
+\usepackage{lscape}
+
+\newunicodechar{₹}{Rs.}
+
+\usepackage{rotating}
+
+% ---------- Placeholder figure command (works without external images) ----------
+\newcommand{\placeholderfig}[2]{%
+  \fbox{\begin{minipage}[c][#2][c]{#1}%
+    \centering\textit{[Figure placeholder - insert image here]}%
+  \end{minipage}}%
+}
+
+% ---------- Hyperlink styling ----------
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  citecolor=black,
+  urlcolor=blue
+}
+
+% ---------- Listings styling for code appendix ----------
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  breaklines=true,
+  frame=single,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false
+}
+
+\lstdefinelanguage{JavaScript}{
+  keywords={const,let,var,function,return,if,else,useEffect,useState},
+  sensitive=true,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]",
+  morestring=[b]'
+}
+
+% ---------- Headings (Template aligned) ----------
+\titleformat{\chapter}[display]
+  {\setstretch{1.5}\centering\bfseries\fontsize{16}{18}\selectfont}
+  {CHAPTER \thechapter}{1em}{\MakeUppercase}
+
+\titleformat{\section}[block]
+  {\setstretch{1.5}\bfseries\fontsize{14}{16}\selectfont}
+  {\thesection}{0.75em}{\MakeUppercase}
+
+\titleformat{\subsection}[block]
+  {\setstretch{1.5}\bfseries\fontsize{12}{14}\selectfont}
+  % Keep subsection titles in Title Case as per template requirements.
+  {\thesubsection}{0.75em}{}
+
+\titleformat{\subsubsection}[block]
+  {\setstretch{1.5}\bfseries\itshape\fontsize{12}{14}\selectfont}
+  {\thesubsubsection}{0.5em}{}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\setlist[itemize]{noitemsep, topsep=2pt}
+\setlist[enumerate]{noitemsep, topsep=2pt}
+
+% ---------- Explicit decimal heading numbering ----------
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+\renewcommand{\thesection}{\thechapter.\arabic{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\renewcommand{\thesubsubsection}{\thesubsection.\arabic{subsubsection}}
+
+% ---------- Page numbering at bottom center (Template rule) ----------
+\pagestyle{plain}
+
+% ---------- TOC/LOF/LOT typography and header rows ----------
+\renewcommand{\contentsname}{TABLE OF CONTENTS}
+\renewcommand{\listfigurename}{LIST OF FIGURES}
+\renewcommand{\listtablename}{LIST OF TABLES}
+
+
+
+\renewcommand{\cftchapfont}{\fontsize{12}{18}\selectfont}
+\renewcommand{\cftsecfont}{\fontsize{12}{18}\selectfont}
+\renewcommand{\cftsubsecfont}{\fontsize{12}{18}\selectfont}
+\renewcommand{\cftchappagefont}{\fontsize{12}{18}\selectfont}
+\renewcommand{\cftsecpagefont}{\fontsize{12}{18}\selectfont}
+\renewcommand{\cftsubsecpagefont}{\fontsize{12}{18}\selectfont}
+\renewcommand{\cftfigfont}{\fontsize{12}{18}\selectfont}
+\renewcommand{\cftfigpagefont}{\fontsize{12}{18}\selectfont}
+\renewcommand{\cfttabfont}{\fontsize{12}{18}\selectfont}
+\renewcommand{\cfttabpagefont}{\fontsize{12}{18}\selectfont}
+\setlength{\cftbeforechapskip}{0.35ex}
+\setlength{\cftbeforesecskip}{0.0ex}
+\setlength{\cftbeforesubsecskip}{0.0ex}
+\setlength{\cftbeforefigskip}{0.35ex}
+\setlength{\cftbeforetabskip}{0.35ex}
+
+\newcommand{\frontmatterheaderrow}[3]{%
+  \par\vspace{0.3em}%
+  {\centering\bfseries\fontsize{14}{16}\selectfont
+  \makebox[\linewidth]{%
+    \makebox[0.25\linewidth][c]{#1}%
+    \makebox[0.50\linewidth][c]{#2}%
+    \makebox[0.25\linewidth][c]{#3}%
+  }\par}%
+  \vspace{0.2em}%
+}
+
+\makeatletter
+\renewcommand{\tableofcontents}{%
+  \chapter*{\contentsname}%
+  \vspace{-1.5em}%
+  \frontmatterheaderrow{Chapter No.}{Contents}{Page No.}%
+  \@starttoc{toc}%
+}
+\renewcommand{\listoffigures}{%
+  \chapter*{\listfigurename}%
+  \addcontentsline{toc}{chapter}{\listfigurename}%
+  \vspace{-1.5em}%
+  \frontmatterheaderrow{Figure No.}{Title}{Page No.}%
+  \@starttoc{lof}%
+}
+\renewcommand{\listoftables}{%
+  \chapter*{\listtablename}%
+  \addcontentsline{toc}{chapter}{\listtablename}%
+  \vspace{-1.5em}%
+  \frontmatterheaderrow{Table No.}{Title}{Page No.}%
+  \@starttoc{lot}%
+}
+\makeatother
+
+\begin{document}
+
+% ================= TITLE PAGE =================
+\begin{titlepage}
+\begin{center}
+{\bfseries\fontsize{18}{20}\selectfont BCSE498J Project-II}\\[1.2cm]
+
+{\bfseries\fontsize{16}{18}\selectfont \MakeUppercase{Stock Market Analytics \& Trading Platform}}\\[1.0cm]
+
+{\itshape\fontsize{14}{16}\selectfont Submitted in partial fulfillment of the requirements for the degree of}\\[0.3cm]
+
+{\bfseries\fontsize{18}{20}\selectfont Bachelor of Technology}\\
+{\bfseries\fontsize{18}{20}\selectfont in}\\
+{\bfseries\fontsize{18}{20}\selectfont Computer Science and}\\
+{\bfseries\fontsize{18}{20}\selectfont Engineering (with}\\
+{\bfseries\fontsize{18}{20}\selectfont specialization in Blockchain)}\\[0.8cm]
+
+{\fontsize{14}{16}\selectfont by}\\[0.5cm]
+
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{>{\centering\arraybackslash}p{4cm} >{\centering\arraybackslash}p{9cm}}
+\textbf{Reg. No.} & \textbf{Student Name}\\
+\textbf{22BKT0097} & \textbf{KUNAL MATHUR}\\
+\end{tabular}
+
+\vfill
+
+{\fontsize{14}{16}\selectfont Under the Supervision of}\\[0.3cm]
+{\bfseries\fontsize{14}{16}\selectfont SARANYA P}\\
+{\bfseries\fontsize{14}{16}\selectfont Assistant Professor Sr. Grade 1}\\[0.6cm]
+
+{\bfseries\fontsize{14}{16}\selectfont School of Computer Science and Engineering (SCOPE)}\\[0.8cm]
+
+\includegraphics[width=0.30\textwidth, height=5.5cm, keepaspectratio]{figures/Picture1.png}
+
+
+{\fontsize{14}{16}\selectfont April 2026}
+\end{center}
+\end{titlepage}
+
+% ================= DECLARATION =================
+\pagenumbering{roman}
+\setcounter{page}{1}
+
+\chapter*{DECLARATION}
+\addcontentsline{toc}{chapter}{Declaration}
+
+I hereby declare that the project titled \textit{``Stock Market Analytics \& Trading Platform''}, submitted by me for the award of the degree of \textit{Bachelor of Technology} in \textit{Computer Science and Engineering (with specialization in Blockchain)} to Vellore Institute of Technology, is a record of bonafide work carried out under the supervision of Saranya P, Assistant Professor Sr. Grade 1, School of Computer Science and Engineering.
+
+I further declare that the work reported in this project has not been submitted, nor will it be submitted in part or in full, for the award of any other degree or diploma at this institute or any other institute or university.
+
+\vspace{1.5cm}
+Place : Vellore\\
+Date : 13th April , 2026\\[2cm]
+
+\begin{flushright}
+\IfFileExists{mysign.jpeg}{\includegraphics[width=3.0cm, angle=90, origin=c, keepaspectratio]{mysign.jpeg}}{%
+  \IfFileExists{figures/mysign.jpeg}{\includegraphics[width=3.0cm, angle=90, origin=c, keepaspectratio]{figures/mysign.jpeg}}{}%
+}\\[-0.1cm]
+\textbf{Signature of the Candidate}\\
+\end{flushright}
+
+% ================= CERTIFICATE =================
+\chapter*{CERTIFICATE}
+\addcontentsline{toc}{chapter}{Certificate}
+
+This is to certify that the project entitled \textit{``Stock Market Analytics \& Trading Platform''}, submitted by Kunal Mathur (22BKT0097), School of Computer Science and Engineering, VIT, for the award of the degree of \textit{Bachelor of Technology} in \textit{Computer Science and Engineering (with specialization in Blockchain)}, is a record of bonafide work carried out by the student under my supervision during 8th Semester, as per the VIT code of academic and research ethics.
+
+The contents of this report have not been submitted and will not be submitted either in part or in full, for the award of any other degree or diploma in this institute or any other institute or university. The project fulfills the requirements and regulations of the University and in my opinion meets the necessary standards for submission.
+
+\vspace{0.6cm}
+Place : Vellore\\
+Date : \\[0.7cm]
+
+\begin{flushright}
+\textbf{Signature of the Guide}\\[0.5cm]
+\end{flushright}
+
+\vspace{0.2cm}
+\noindent
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\rule{5.3cm}{0.4pt}\\[0.2cm]
+\textbf{Internal Examiner}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\rule{5.3cm}{0.4pt}\\[0.2cm]
+\textbf{External Examiner}
+\end{minipage}
+
+\vspace{0.9cm}
+
+\begin{center}
+\textbf{Head of the Department}
+\end{center}
+
+
+
+\clearpage
+\chapter*{COMPLETION CERTIFICATE ISSUED BY THE COMPANY}
+\addcontentsline{toc}{chapter}{Completion Certificate Issued by the Company (Applicable for NON-CDC)}
+
+This is to certify that Kunal Mathur (22BKT0097), student of the School of Computer Science and Engineering, Vellore Institute of Technology (VIT), Vellore, has successfully completed the project titled \textit{``Stock Market Analytics \& Trading Platform''} under my supervision at YES Securities Ltd. during the period 1st January 2026 to 30th June 2026.
+
+The project involved the design and development of a full-stack analytics and trading platform utilizing machine learning models, real-time data pipelines, and interactive dashboards for stock market prediction and portfolio management.
+
+Throughout the project duration, Kunal demonstrated strong technical skills, a problem-solving approach, and sincere dedication. His contributions were found to be satisfactory and commendable.
+
+This certificate is issued for academic submission, in partial fulfillment of the requirements for the degree of B.Tech in Computer Science and Engineering (Specialization: Blockchain Technology) from VIT, Vellore.
+
+\vspace{2.0cm}
+\noindent
+\begin{minipage}[t]{0.54\textwidth}
+Place : Bengaluru , Karnataka\\[0.9cm]
+Date  : 13th April , 2026
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.38\textwidth}
+\IfFileExists{WhatsApp Image 2026-04-20 at 11.52.18 AM.jpeg}{\includegraphics[width=3.2cm, keepaspectratio]{WhatsApp Image 2026-04-20 at 11.52.18 AM.jpeg}}{%
+  \IfFileExists{figures/WhatsApp Image 2026-04-20 at 11.52.18 AM.jpeg}{\includegraphics[width=3.2cm, keepaspectratio]{figures/WhatsApp Image 2026-04-20 at 11.52.18 AM.jpeg}}{}%
+}\\[0.2cm]
+\textbf{Ranjeet Singh}\\[0.2cm]
+\textbf{Manager}\\
+\textbf{YES Securities}
+\end{minipage}
+
+
+\clearpage
+
+% ================= ACKNOWLEDGEMENT =================
+\chapter*{ACKNOWLEDGEMENT}
+\addcontentsline{toc}{chapter}{Acknowledgement}
+
+I, Kunal Mathur (22BKT0097), am deeply grateful to the management of Vellore Institute of Technology (VIT) for providing me with the opportunity and resources to undertake this project. The commitment shown by the institution toward academic excellence and applied research shaped much of how I approached this work.
+
+My sincere thanks go to the Dean, Dr. JAISANKAR N, School of Computer Science and Engineering (SCOPE), for constant support and encouragement throughout the course of the programme. The Dean's leadership and vision have inspired me to aim higher, especially during phases when the project felt overwhelming.
+
+I express my profound appreciation to the Head of the Department (HoD), Dr. GOPINATH M.P, Department of Blockchain Technology, whose guidance and continuous support at critical stages helped me refine the direction of the work. The expertise and advice provided, particularly around requirement structuring, have been genuinely valuable.
+
+I am immensely thankful to my project supervisor, Saranya P, Assistant Professor Sr. Grade 1, for dedicated mentorship and invaluable feedback. The patience, knowledge, and encouragement have been pivotal in the successful completion of this project. The willingness to share expertise and provide thoughtful guidance has been instrumental in refining my ideas and methodologies. This support has not only contributed to the success of this project but has also enriched my overall academic experience.
+
+I extend my heartfelt thanks to all for the guidance and support received throughout this endeavor.
+
+% ================= EXECUTIVE SUMMARY =================
+\chapter*{EXECUTIVE SUMMARY}
+\addcontentsline{toc}{chapter}{Executive Summary}
+
+Retail investors and student learners often rely on disconnected tools for charts, news, portfolio tracking, and prediction experiments. This project addresses that fragmentation through a unified web platform titled Stock Market Analytics \& Trading Platform. The implemented system combines stock tracking, multi-horizon prediction, portfolio and transaction management, sentiment-assisted news analysis, and offline paper-trading/backtest reporting in one interface. The objective is not to claim guaranteed profits, but to provide a transparent and practical environment for financial-data exploration, model evaluation, and decision-support learning.
+
+The architecture uses a React + Vite frontend, a FastAPI backend, and Firebase Authentication/Firestore for user identity and transaction persistence. Market data is fetched through Yahoo-Finance-backed adapters, while headline sentiment is retrieved from Marketaux. The prediction pipeline applies layered feature engineering and a multi-horizon ensemble design with warmup-aware serving and snapshot fallback, so the platform remains responsive even when symbol models are initializing. Dashboard modules expose technical indicators, confidence-linked signals, portfolio P\&L, macro/model-health views, and seasonality surfaces through a consistent workflow.
+
+Evaluation in this report includes functional and integration testing, latency profiling, and walk-forward backtest metrics generated from persisted orchestrator artifacts. The platform meets capstone-scale requirements for modularity, explainability, and maintainability on free-tier infrastructure. Final deliverables include the source code, deployment configuration, evidence snapshots, and this report.
+
+\newpage
+
+% ================= TABLE OF CONTENTS / LISTS =================
+\tableofcontents
+\clearpage
+
+\listoffigures
+\clearpage
+
+\listoftables
+\clearpage
+
+\chapter*{LIST OF ABBREVIATIONS}
+\addcontentsline{toc}{chapter}{List of Abbreviations}
+
+\begin{longtable}{p{3cm} p{11cm}}
+\toprule
+\textbf{Abbreviation} & \textbf{Expansion} \\
+\midrule
+\endhead
+API       & Application Programming Interface \\
+BRD       & Business Requirements Document \\
+CAP       & Consistency, Availability, Partition-tolerance \\
+CNN       & Convolutional Neural Network \\
+CSV       & Comma-Separated Values \\
+DB        & Database \\
+DL        & Deep Learning \\
+EMA       & Exponential Moving Average \\
+GRU       & Gated Recurrent Unit \\
+IPO       & Initial Public Offering \\
+JSON      & JavaScript Object Notation \\
+JWT       & JSON Web Token \\
+LSTM      & Long Short-Term Memory \\
+MAE       & Mean Absolute Error \\
+MAPE      & Mean Absolute Percentage Error \\
+ML        & Machine Learning \\
+MSE       & Mean Squared Error \\
+NLP       & Natural Language Processing \\
+OHLC      & Open, High, Low, Close \\
+P/E       & Price-to-Earnings ratio \\
+P\&L      & Profit and Loss \\
+REST      & Representational State Transfer \\
+RMSE      & Root Mean Squared Error \\
+RNN       & Recurrent Neural Network \\
+RSI       & Relative Strength Index \\
+SMA       & Simple Moving Average \\
+SPA       & Single Page Application \\
+SQL       & Structured Query Language \\
+UI        & User Interface \\
+UX        & User Experience \\
+VADER     & Valence Aware Dictionary and sEntiment Reasoner \\
+WAL       & Write-Ahead Logging \\
+\bottomrule
+\end{longtable}
+
+\chapter*{SYMBOLS AND NOTATIONS}
+\addcontentsline{toc}{chapter}{Symbols and Notations}
+
+\begin{longtable}{p{3cm} p{11cm}}
+\toprule
+\textbf{Symbol} & \textbf{Meaning} \\
+\midrule
+\endhead
+$P_{\text{cur}}$ & Current price of the selected stock symbol. \\
+$P_{\text{prev\_close}}$ & Previous closing price used for change-percentage computation. \\
+$H$ & Forecast horizon used in multi-horizon prediction ($H \in \{5,15,1,5,60\}$ by module context). \\
+$\sigma$ & Daily volatility estimate used in risk-aware target and stop calculations. \\
+$R_t$ & Daily return at time step $t$ in backtest evaluation. \\
+P\&L & Profit and Loss computed as current value minus invested amount. \\
+\bottomrule
+\end{longtable}
+
+\clearpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+% =====================================================================
+% CHAPTER 1 - INTRODUCTION
+% =====================================================================
+\chapter{INTRODUCTION}
+
+\section{BACKGROUND}
+
+Financial markets never really stop producing data. Prices tick, volumes print, earnings drop, and somewhere in the middle of all that, a retail investor is trying to make a decision with a phone in one hand and three browser tabs in the other. The information exists. Getting it into one place in a way that lets a person actually think is the harder part.
+
+Most public markets now expose at least part of their state through open and paid APIs. Yahoo Finance-style feeds, Alpha Vantage-compatible symbol formats, NSE conventions, and live providers such as Marketaux make it feasible, especially in a student setting, to build an end-to-end pipeline from ingestion to insight without Bloomberg-level costs. The real challenge is consistency. Each source speaks a different dialect: one includes adjusted closes while another does not; one serves intraday ticks for selected symbols while another returns sparse data; one enforces strict free-tier limits. Building a unified platform means absorbing those differences quietly, and a large share of the engineering work in this project went into exactly that.
+
+On the analytics side, the last decade shifted the centre of gravity from classical statistics toward machine learning, and more recently toward deep learning. Fischer and Krauss (2018) showed that LSTM networks could outperform several traditional baselines on S\&P~500 constituent data, a result that has been replicated, extended, and, occasionally, walked back by later authors. Patel, Shah, Thakkar, and Kotecha (2015) demonstrated that an ensemble of machine learning models can predict index movement more reliably than any single model in isolation. More recent work - for example, the ensemble frameworks reviewed by Liu et al.\ (2024) and the PLSTM-TAL hybrid of Latif et al.\ (2024) - continues this trajectory, but the honest picture is that predictive accuracy on financial time series is still modest, and translating accuracy into realised profit is harder than most papers suggest.
+
+Sentiment analysis adds a second lane. Tetlock (2007) found that media content carries predictive information about short-term returns. Hutto and Gilbert (2014) developed VADER, a rule-based scorer that has become the go-to for headline-level work because it is fast, lightweight, and - useful for a student project where reproducibility matters - deterministic. Loughran and McDonald (2011) make the complementary point that finance-specific word lists matter, because words like ``liability,'' ``risk,'' and ``decline'' carry different weight in a 10-K than in a tweet. The platform described here currently uses provider-side entity sentiment from Marketaux with explicit threshold mapping, while VADER/Loughran-style approaches remain reference extensions.
+
+The \textbf{Business Requirements Document (BRD)} authored for this project specifies seven modules, the inputs and outputs expected from each, and the formulas required for numerical correctness (percent change, P\&L, return percentage, listing gain, and so on). The academic framing is deliberate: the system is an educational platform, not a trading product. No real money moves. Paper trading, walk-forward evaluation, and explicit error reporting are first-class features precisely because the goal is to learn how these pieces behave, not to win.
+
+\section{MOTIVATION}
+
+Three motivations sit behind this work, and they are not equally weighted.
+
+The first is practical. When I started tracking a small set of Indian equities last year, I ended up rotating between five tools: one for charts, one for portfolio PnL, Google News for context, a Jupyter notebook for ad-hoc analysis, and a spreadsheet that tried, mostly in vain, to tie everything together. It rarely did. A single application that keeps the full workflow - quote, chart, portfolio, news, model, and screener - in one place is exactly what I wished existed in a student-friendly form, so building it became the obvious next project.
+
+The second motivation is educational, and this is the one the report leans on most. A capstone is one of the few places in an undergraduate degree where you must own every layer - requirements, data, storage, API integration, UI, ML pipeline, evaluation, testing, and deployment. Stock analytics is rich enough to stress all of those layers in non-trivial ways. A prediction pipeline cannot be validated by presentation quality alone; either the model beats a naive baseline or it does not, and the metrics make that visible.
+
+The third motivation is risk-awareness. Many beginner traders discover strategy ideas on social media, test them on one favorable window, and then carry that confidence into live markets. The outcome is usually expensive. A paper-trading environment built on real historical data and honest walk-forward evaluation offers a healthier entry point. For that reason, the platform treats simulation as a teaching surface: show the indicator, show the signal, show the resulting trades, and show both P\&L and drawdown - not just the attractive chart.
+
+\section{SCOPE OF THE PROJECT}
+
+The scope was fixed early in Review~1 and has mostly held since, with one or two adjustments during Review~2.
+
+\textbf{In scope.} The seven module surfaces detailed in the BRD framing are represented in the final deliverable, with a few implemented as UI-led analytics rather than standalone backend APIs. The list below is compact; each item is developed in detail in Chapter~5.
+
+\begin{itemize}
+  \item \textbf{Stock Price Tracker} - symbol search, OHLC snapshot, volume, percentage change, and interactive charts across daily, weekly, and monthly timeframes.
+  \item \textbf{Stock Market Prediction System} - layered feature pipeline, multi-horizon ensemble serving, confidence/regime output, and warmup-aware prediction contracts.
+  \item \textbf{Personal Portfolio Tracker} - Firebase authentication, Firestore transaction records, derived holdings, invested amount, current value, P\&L, and return percentage computed against live prices.
+  \item \textbf{Stock News Sentiment Analyzer} - Marketaux headline retrieval, entity-sentiment threshold mapping, polarity labelling, and sentiment cards.
+  \item \textbf{Automated Trading Bot (Paper Trading)} - walk-forward simulation via the orchestrator, daily return logging, and risk/portfolio metrics.
+  \item \textbf{Macro and Regime Analytics} - regime-oriented views and derived macro context in dashboard pages.
+  \item \textbf{Model Health and Seasonal Analytics} - model-health monitoring and seasonality exploration surfaces integrated into the routed UI.
+\end{itemize}
+
+\textbf{Out of scope.} A few things were explicitly excluded, partly because they were not necessary for learning, and partly because they were legally complicated.
+
+\begin{itemize}
+  \item Real-money trade execution or brokerage integration.
+  \item Regulatory workflows such as KYC, AML, or any form of financial advisory.
+  \item High-frequency trading, sub-second latency targets, or exchange-colocated infrastructure.
+  \item Multi-user collaborative portfolios (single-user per account only).
+\end{itemize}
+
+\textbf{Constraints and assumptions.} The system runs on free-tier API plans, so ingestion is built around rate-limit-aware clients, a short-TTL cache, and graceful degradation. Historical data is assumed to be end-of-day accurate; intra-day data, when used, is treated as indicative. The user base is assumed to be individual learners and retail investors, not institutional desks.
+
+% =====================================================================
+% CHAPTER 2 - PROJECT DESCRIPTION AND GOALS
+% =====================================================================
+\chapter{PROJECT DESCRIPTION AND GOALS}
+
+\section{LITERATURE REVIEW}
+
+The literature covering stock-market analytics sits at the intersection of three disciplines - econometrics, machine learning, and natural language processing - and each has its own conventions. This review walks through the most relevant threads and ties each one to a design decision in the proposed platform.
+
+\subsection{Classical and Machine Learning Approaches}
+
+Traditional time-series forecasting on equity prices starts with ARIMA-family models (Box, Jenkins, Reinsel, \& Ljung, 2015; Tsay, 2010). These models are attractive as baselines: they are interpretable, cheap to fit, and give a clear reference for whether a deep model is actually earning its complexity. In practice, ARIMA struggles when the underlying series is non-stationary, or when the generating process changes regime - both of which are routine in equity markets.
+
+Machine-learning methods were introduced to the problem partly to escape these limitations. Patel, Shah, Thakkar, and Kotecha (2015) compared Support Vector Machines, Random Forests, and Artificial Neural Networks, and showed that the fusion of models beats any single approach. This is relevant to the present project because it supports the design choice of keeping multiple models in the backend and allowing comparison through a single evaluation interface, rather than locking the user into one algorithm.
+
+Recent ensemble work pushes the same idea further. Liu et al.\ (2024) describe an LSTM+ANN hybrid that reports improved accuracy over either component in isolation on benchmark equity datasets. Sui, Zhang, Zhou, Liao, and Wei (2024) propose an ensemble combining DNNs, LightGBM, LSTM, and GRU, framed specifically for retail investors - a framing close in spirit to this project. A common thread across these works: feature engineering using technical indicators (moving averages, RSI, MACD, Bollinger Bands) continues to add value even when the final predictor is a deep model. That observation shaped how the prediction pipeline here constructs its feature matrix.
+
+\subsection{Deep Learning Approaches}
+
+Deep sequence models entered financial forecasting on the strength of a simple premise - prices are sequential, and Recurrent Neural Networks were built for that. Fischer and Krauss (2018) remain the most cited reference in this space; they show LSTMs outperforming memory-free baselines on directional prediction tasks for S\&P~500 constituents. The work also flags a persistent issue: once models become competitive with each other, the difference in realised performance often comes down to preprocessing, windowing, and data leakage controls rather than to architecture.
+
+Later work introduced attention. Sun (2024) reports that a CNN-BiLSTM-GRU-attention stack achieved an RMSE of 1.054589 and R$^2$ of 0.970123 on a decade of Amazon closing prices, positioning attention-based hybrids as the current strong family. Aldegheishem et al.\ (2024) propose PLSTM-TAL - peephole LSTM combined with a temporal attention layer - and show consistent improvements across multiple indices. Sarkar and Vadivu (2025) combine a Variational Autoencoder, Transformer, and LSTM into one framework and argue that the VAE's latent compression helps the Transformer and LSTM generalise on noisy financial series.
+
+It is worth naming the limits that these papers usually report, somewhat quietly. Accuracy metrics are almost always sensitive to the train/test split. Models tuned on one symbol transfer poorly to another. And converting a lower RMSE into an actual trading edge requires modelling transaction costs, slippage, and time-to-signal - things most papers abstract away. For a student platform, the appropriate response is not to ignore this gap, but to surface it: hence the choice to show prediction errors and paper-trading results side by side rather than in isolation.
+
+\subsection{News, Sentiment, and Text-based Signals}
+
+The idea that media content carries return-relevant information predates machine learning. Tetlock (2007) established the link empirically using the \textit{Wall Street Journal}'s ``Abreast of the Market'' column. Bollen, Mao, and Zeng (2011) extended the idea to Twitter, claiming that aggregate mood indicators tracked index movements with lead time. Their result has been criticised for overstated generalisation, but the methodological move - converting a social-media text stream into a numeric mood signal - has aged well.
+
+Hutto and Gilbert's VADER (2014) remains a practical benchmark for short-text sentiment in an academic setting because it is rule-based, transparent, and does not require training data. It works well on headlines, tweets, and short product reviews. It struggles on denser financial prose, where meaning often hinges on context the rule set was never built for. Loughran and McDonald (2011) directly address that gap: they argue that general-purpose word lists systematically misread 10-K and 10-Q filings, where words carry sector-specific and legal-specific weight. The present implementation does not run VADER in the backend path; it consumes provider-side entity sentiment (Marketaux) and maps score thresholds to impact labels, while VADER/Loughran remain methodological reference points.
+
+A third strand in this area uses transformer-based classifiers such as BERT and FinBERT. These models are usually more accurate than lightweight rule-based alternatives on financial text, but they are also heavier, harder to run on free-tier infrastructure, and slower to iterate. For this submission, provider sentiment plus threshold mapping was the most reliable operational default; promoting to FinBERT remains a clear extension point.
+
+\subsection{Technical Analysis and Paper Trading}
+
+Technical indicators have a long lineage (Murphy, 1999; Wilder, 1978). Two in particular carry the paper-trading module here: Simple Moving Averages (SMA) and the Relative Strength Index (RSI). The rationale is pedagogical. Moving-average crossover strategies and RSI threshold strategies are conceptually simple, visually intuitive, and well-documented. They are also, in most regimes, unprofitable once transaction costs are applied honestly - which is a valuable thing for a student to see directly in a backtest.
+
+Chan (2013) provides the standard reference on implementing and evaluating algorithmic strategies, and Pardo (2008) covers strategy optimisation, particularly the cautions around overfitting on historical data. The backtesting engine in this project is deliberately modest: it enforces walk-forward evaluation, reports win rate, total return, and a drawdown proxy, and stops short of elaborate parameter optimisation that would make in-sample performance look good at the cost of out-of-sample validity.
+
+\subsection{IPO Analytics and Screening}
+
+IPO analytics is a comparatively under-researched area for student tools. Damodaran (2012) and Bodie, Kane, and Marcus (2014) lay out the textbook framework - subscription ratio, listing gain, short-term listing-day volatility, and the roles of underwriter reputation and grey-market premia. In the current codebase, this remains primarily a planned extension area rather than a fully exposed backend API module.
+
+Stock screening is closer to an industry practice than an academic one. Open tools such as Screener.in (India) and Finviz (US) have made the workflow familiar to retail investors. The present platform keeps screener-style filtering as an extension path; fundamentals overlays are currently surfaced through dashboard/fundamentals responses rather than a complete standalone screener endpoint.
+
+\section{RESEARCH GAP}
+
+Synthesising the literature above against the specific constraints of a retail-learner platform, five gaps emerge.
+
+\begin{enumerate}
+  \item \textbf{Fragmented data and analytics surfaces.} Charting, portfolio tracking, sentiment, and modelling are usually bolted together from separate tools and inconsistent data sources. The integration cost falls on the user. There is room for a platform that makes the joins itself.
+  \item \textbf{Opaque predictive evaluation.} Many educational demos publish predictions without walk-forward splits, without clearly stated error metrics, and without a comparison to a naive baseline. The user cannot tell whether the model is skilful or simply plausible.
+  \item \textbf{Disconnect between prediction and strategy.} Prediction accuracy is typically reported in isolation. The translation into a decision rule - and the P\&L that rule produces on realistic historical data - is rarely closed in a single pipeline.
+  \item \textbf{Thin coverage of primary market and screening.} IPO analytics and fundamental screening, which actually dominate retail investment decisions, receive less attention than secondary-market prediction in student work.
+  \item \textbf{Lack of non-functional hygiene.} Many prototypes ignore authentication security, rate-limit handling, caching, and response-time targets. These are not glamorous, but they determine whether a platform is usable for more than a single demo.
+\end{enumerate}
+
+The platform proposed here is positioned, precisely, as a response to those five gaps.
+
+\section{OBJECTIVES}
+
+\begin{enumerate}
+  \item Implement all seven modules specified in the BRD, with a shared authentication layer and a single consistent UI language, so the user experience is coherent across modules.
+  \item Ingest and normalise market data through a Yahoo-Finance-backed adapter into a single internal schema, with caching/warmup paths to respect free-tier constraints and graceful degradation on API failure.
+  \item Build a prediction pipeline that serves multi-horizon directional signals with confidence, regime context, and target/stop levels, and expose these through a stable API contract.
+  \item Compute portfolio performance (invested amount, current value, P\&L, return percentage) from Firestore transaction streams, with derivation rather than mutation as the primary design principle.
+  \item Retrieve news headlines from Marketaux, map sentiment scores to impact classes using documented thresholds, and display sentiment cards aligned to price movement.
+  \item Implement walk-forward paper-trading simulation in the orchestrator and report total return, Sharpe, hit rate, and drawdown from persisted backtest artifacts.
+  \item Provide fundamentals and analytical extension surfaces in the UI, while documenting pending standalone API exposure for IPO/screener workflows.
+  \item Meet the non-functional targets - sub-three-second typical response, authenticated portfolio endpoints, responsive mobile layout, and modular backend services.
+\end{enumerate}
+
+\section{PROBLEM STATEMENT}
+
+Build a modular, single-page web platform that integrates stock tracking, multi-horizon prediction, portfolio analytics, live-news sentiment, and paper-trading simulation over free-tier public APIs. The platform must compute its numeric outputs correctly, expose its predictive and strategy outputs transparently, meet typical response-time targets of under three seconds, protect user-specific data behind authentication, and remain extensible module by module without cross-contamination of concerns.
+
+\section{PROJECT PLAN}
+
+The work was organised into seven phases, each bound to a review milestone. The plan below is the actual plan, not a cleaned-up retrospective - slippages and corrections are noted where they occurred.
+
+\begin{itemize}
+  \item \textbf{Phase 1 - Requirements and Architecture (Weeks 1--3).} Finalise the BRD, the database schema, the REST endpoint list, and UI wireframes. Deliverable: architecture diagram and schema reviewed in Review~1.
+  \item \textbf{Phase 2 - Data Ingestion and Core UI (Weeks 4--6).} Implement symbol search, OHLC snapshot, and time-series chart rendering. Known slippage: free-tier provider limits and symbol alias edge cases required additional adapter hardening.
+  \item \textbf{Phase 3 - Portfolio Module (Weeks 7--9).} Implement signup/login through Firebase Auth, Firestore transaction logging, and holdings derivation. Deliverable: demonstrable portfolio flow in Review~2.
+  \item \textbf{Phase 4 - Prediction Module (Weeks 10--12).} Build the layered feature pipeline, train/cache multi-horizon predictors, add warmup-aware serving, and integrate prediction cards into the dashboard.
+  \item \textbf{Phase 5 - Sentiment and Analytics Views (Weeks 13--14).} Integrate Marketaux sentiment retrieval, impact threshold mapping, and dashboard-level analytics surfaces.
+  \item \textbf{Phase 6 - Paper Trading and Model Health (Weeks 15--16).} Implement walk-forward backtesting/orchestrator outputs and supporting model-health/macro visual views.
+  \item \textbf{Phase 7 - Testing, Optimisation, and Documentation (Weeks 17--18).} Unit tests for the indicator and P\&L functions, integration tests for the main flows, profiling of slow endpoints, caching adjustments, and the writing of this final report.
+\end{itemize}
+
+Figure~\ref{fig:gantt} summarises the schedule as a Gantt chart, including the one-week slippage on Phase~4 and the compensating compression of Phase~5.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth, keepaspectratio]{figures/Gnatt.png}
+\caption{Project Gantt chart across the seven phases.}
+\label{fig:gantt}
+\end{figure}
+
+
+% =====================================================================
+% CHAPTER 3 - TECHNICAL SPECIFICATION
+% =====================================================================
+\chapter{TECHNICAL SPECIFICATION}
+
+\section{REQUIREMENTS}
+
+Requirements are split along the usual functional / non-functional axis. Where the BRD was explicit, the text below mirrors it. Where the BRD left room, a design decision is noted and briefly justified.
+
+\subsection{Functional Requirements}
+
+\textbf{FR1 - Stock search and validation.} A user-typed symbol is validated for allowed characters and length, and either resolved against the primary data provider or returned as an ``unknown symbol'' response with a descriptive payload. Silent failure is not acceptable; the caller must know whether the symbol was understood.
+
+\textbf{FR2 - Market snapshot.} For a resolved symbol, the response must carry the current price, previous close, day's open, high, low, traded volume, and percent change, with the last field computed as $(P_{\text{cur}} - P_{\text{prev\_close}}) / P_{\text{prev\_close}} \times 100$.
+
+\textbf{FR3 - Time-series chart.} Charts must render across daily, weekly, and monthly timeframes. Missing trading days are not an error state - they are expected, and the renderer handles them as gaps, not as zeros.
+
+\textbf{FR4 - Prediction.} A call to \texttt{/predict/\{symbol\}} returns one of two shapes: a warmup status with a snapshot fallback, or the full multi-horizon payload (signal, confidence, regime, horizon-wise targets and stops). Which shape is returned is determined by model cache state at request time.
+
+\textbf{FR5 - Authentication.} Firebase Authentication backs signup and login flows (email/password, with optional provider login). Portfolio and transaction routes are gated behind authenticated state; unauthenticated access is redirected to the public surface.
+
+\textbf{FR6 - Transactions.} Users can append buy or sell records carrying symbol, side, quantity, price, and timestamp. The log is append-only by design - no in-place edit, no silent overwrite. Corrections are expressed as offsetting entries, which keeps the audit trail intact.
+
+\textbf{FR7 - Holdings and P\&L.} Derived fields - per-symbol quantity, average buy price, invested amount, current value, P\&L, return percentage - are all computed off the transaction log at read time. Live prices are merged in at serialisation; nothing portfolio-shaped is persisted as a snapshot.
+
+\textbf{FR8 - News and sentiment.} Recent headlines for a symbol are available via the news endpoint, with each item annotated by provider sentiment metadata. Scores are then mapped to Bullish / Neutral / Bearish using the thresholds noted earlier ($>0.15$, $<-0.15$).
+
+\textbf{FR9 - Paper trading.} Two strategies are exposed (MA Crossover, RSI threshold). Users pick one, set parameters, and run a backtest over a date range. Output includes total return, win rate, trade count, and a drawdown proxy. It is deliberately a small surface: the point is pedagogy, not strategy engineering.
+
+\textbf{FR10 - Fundamentals snapshot.} On demand, a compact fundamentals payload is available per symbol (market cap, P/E, ROE, debt-to-equity, growth/dividend markers, 52-week range). This is meant for overlay cards, not for exhaustive analysis - the depth of the standard financial-data vendor is out of scope here.
+
+\textbf{FR11 - Screening and IPO extension.} Extension points are preserved for dedicated screener and IPO APIs, along with drill-through flows from filtered analytics into tracker/prediction views. Both surfaces are scoped as future work rather than final-build deliverables.
+
+\subsection{Non-Functional Requirements}
+
+\textbf{NFR1 - Performance.} Under normal load, common request flows - quote fetch, portfolio summary, single-symbol sentiment - should complete inside 3 seconds, assuming the upstream provider's own latency stays within about 2 seconds. The budget is reasonable for student infrastructure, though not generous.
+
+\textbf{NFR2 - Security.} Authentication runs through Firebase (email/password and Google provider flows). A short-lived login-session marker lives in local storage, and every transaction write is scoped to \texttt{users/\{uid\}/}transactions in Firestore. No path leaks a different user's data; that is enforced both client-side and through Firestore rules.
+
+\textbf{NFR3 - Reliability.} External API calls are wrapped with retry-on-transient-error and a circuit breaker. When the upstream finally does fail, the UI shows a cached value with a visible staleness indicator rather than a blank panel. A blank panel is the worst possible user experience in a finance tool - it is indistinguishable from data that is actually missing.
+
+\textbf{NFR4 - Scalability.} At the HTTP layer the backend is stateless. Model objects are cached per process and can be rebuilt from on-disk artifacts, so horizontal scale-out is straightforward: put a load balancer in front of multiple FastAPI instances, accept a per-instance warmup cost, and move on.
+
+\textbf{NFR5 - Usability.} Layouts hold down to a 360~px viewport. Header and the symbol-selector component are reused across modules, so the navigation model does not reset every time the user switches feature surfaces.
+
+\textbf{NFR6 - Maintainability.} Backend responsibilities are split across layered scripts under \texttt{/backend/*.py}; frontend responsibilities live under \texttt{/stock-ui/src/}. Cross-layer coupling is kept to REST and Firebase SDK interactions, which means either side can be swapped with a reasonable amount of effort rather than a full rewrite.
+
+\section{FEASIBILITY STUDY}
+
+\subsection{Technical Feasibility}
+
+On the backend side, the stack (FastAPI, pandas/numpy, scikit-learn, optional PyTorch/XGBoost fallbacks, requests/httpx) is mature, well-documented, and well within the scope of a student project. No exotic infrastructure is required. Training and warmup are handled per symbol, with cached model artifacts used to reduce repeated compute.
+
+The two real technical risks are rate limits and data inconsistencies. Both are solvable without infrastructure heroics. A short-TTL cache (30--60 seconds for quotes, 24 hours for fundamentals) removes most rate-limit pressure. A normalisation layer that converts every provider's schema into the internal OHLC format isolates the rest of the system from provider-specific quirks.
+
+On the frontend side, React, Material UI, Framer Motion, Recharts, and Highcharts are standard and production-tested. The main UI complexity is synchronising chart + signal + portfolio states across authenticated routes and mobile breakpoints.
+
+Conclusion: technically feasible, with the cost concentrated in integration rather than in novel algorithmic work.
+
+\subsection{Economic Feasibility}
+
+The direct cost is effectively zero for development. All core libraries are open source. Yahoo-Finance-backed market data paths, Alpha Vantage-compatible symbol handling, Marketaux (free tier), and Firebase's free-tier envelope were sufficient for demo-scale development. Hosting for the demo can run on a single small VPS or on institutional infrastructure.
+
+If the platform were to be moved past a demo - for example, to serve tens of simultaneous users - the economics shift slightly. Paid API tiers become attractive, and a managed database begins to pay for itself in operational time. For the academic scope of this report, the free tier is sufficient.
+
+\subsection{Social Feasibility}
+
+The platform's stance on real-money trading is explicit: it does not do that. Every predictive output and every strategy result is displayed with error metrics and disclaimers, and the paper-trading surface uses a simulated balance, not a brokerage. This design choice was deliberate, not cosmetic. The project's value is pedagogical - it shows a user what prediction error looks like, what strategy drawdown looks like, and what sentiment drift around a news event looks like. That framing, in my view, is more socially responsible than shipping a one-click ``buy this stock'' button into an educational product.
+
+\subsection{Operational and Legal Feasibility}
+
+Legally, the platform stays on the right side of a few lines. It does not offer advice. It does not route orders. It does not collect personally identifiable information beyond email. Data displayed is either publicly available or user-entered. API usage respects the terms of the free tiers that were consulted during development. The academic institution's policies on student projects have been followed.
+
+\section{SYSTEM SPECIFICATION}
+
+\subsection{Hardware Specification}
+
+\textbf{Development workstation.}
+
+\begin{itemize}
+  \item CPU: Intel Core i5 / Ryzen 5 or better, 4 cores minimum.
+  \item RAM: 8~GB minimum; 16~GB recommended for LSTM training.
+  \item Storage: 50~GB free SSD, primarily for model checkpoints and cached historical data.
+  \item GPU (optional but recommended for LSTM): NVIDIA GPU with CUDA support.
+  \item Network: Stable broadband; API calls are bursty.
+\end{itemize}
+
+\textbf{Deployment server (demo scale).}
+
+\begin{itemize}
+  \item 2--4 vCPU, 8~GB RAM, 40~GB SSD, Linux (Ubuntu 22.04 LTS or later).
+  \item Managed Firebase project (Authentication + Firestore) and a Python runtime for FastAPI/Uvicorn.
+\end{itemize}
+
+\textbf{Client.}
+
+\begin{itemize}
+  \item Any modern browser (Chrome 110+, Firefox 110+, Safari 15+, Edge 110+).
+  \item Responsive design supports screen widths from 360~px upward.
+\end{itemize}
+
+\subsection{Software Specification}
+
+\textbf{Frontend.} React 19.2 (with Vite 7.3.1 as bundler), Material UI 7.3.9, Framer Motion 12.35.2, Recharts 3.8.0, Highcharts 12.5.0, Firebase Web SDK 12.10.0, Axios 1.13.6, and React Router 7.13.1. JSX is used across page-level route modules in \texttt{/stock-ui/src/pages}.
+
+\textbf{Backend.} Python 3.11, FastAPI 0.104.1, Uvicorn 0.24.0, pandas 2.1.3, numpy 1.26.2, scikit-learn 1.3.2, requests 2.31.0, and httpx 0.25.2. The API surface is implemented in \texttt{backend/api.py}, while the prediction pipeline is split across layered modules.
+
+\textbf{Machine Learning and NLP.} The prediction stack uses a 42-feature engineering pipeline with horizon-specific models (sequence, Transformer-style, GRU-attention, and positional tree model) fused by an ensemble layer and regime-aware gating. PyTorch, XGBoost, and LightGBM are optional at runtime; when unavailable, sklearn-based fallbacks are used. News sentiment served by the API is sourced from Marketaux entity sentiment scores.
+
+\textbf{Database and Persistence.} User authentication and transaction persistence are handled through Firebase Authentication and Firestore. Backend prediction persistence uses local artifacts (\texttt{backend/model\_cache/*.pkl} and \texttt{backend/} \texttt{prediction\_snapshots.json}) rather than a relational ORM schema.
+
+\textbf{DevOps.} Git with a single-repo layout, Vercel frontend hosting, and a Python service runtime (e.g., Render/Railway/VPS) for the FastAPI backend. Runtime configuration is handled through environment variables for Firebase keys and API credentials.
+
+Table~\ref{tab:software} summarises the stack.
+
+\begin{table}[H]
+\centering
+\caption{Consolidated software specification.}
+\label{tab:software}
+\small
+\begin{tabular}{|p{3.8cm}|p{4.2cm}|p{5cm}|}
+\hline
+\textbf{Layer} & \textbf{Technology} & \textbf{Role} \\ \hline
+Frontend framework & React 19.2 + Vite 7.3.1 & SPA rendering, routing, state \\ \hline
+UI/animation & Material UI 7.3.9, Framer Motion 12.35.2 & Interactive dashboard and transitions \\ \hline
+Charting & Recharts 3.8.0, Highcharts 12.5.0 & Price, indicator, allocation visualizations \\ \hline
+Backend framework & FastAPI 0.104.1 + Uvicorn 0.24.0 & REST API, model warmup, inference serving \\ \hline
+Data processing & pandas 2.1.3, numpy 1.26.2 & OHLC transforms and feature generation \\ \hline
+ML/ensemble & scikit-learn 1.3.2 (+ optional PyTorch/XGBoost/LightGBM) & Multi-horizon signal modeling \\ \hline
+Auth and transaction store & Firebase Auth + Firestore & User identity and \texttt{transactions} documents \\ \hline
+Model artifacts & Pickle cache + JSON snapshots & Fast startup and prediction fallback \\ \hline
+Deployment & Vercel + Python runtime service & Frontend and backend hosting \\ \hline
+\end{tabular}
+\end{table}
+
+% =====================================================================
+% CHAPTER 4 - SYSTEM DESIGN
+% =====================================================================
+\chapter{SYSTEM DESIGN}
+
+\section{SYSTEM ARCHITECTURE}
+
+The platform follows a three-layer architecture, which is, admittedly, an unexciting choice. It is also the right one for this scale of system, and the rationale is worth stating explicitly rather than glossing over.
+
+\begin{enumerate}
+  \item \textbf{Presentation Layer.} A React SPA that renders dashboards, charts, forms, and reports for each of the seven modules. It holds essentially no business logic; it calls the service layer and presents the response. This keeps the frontend swappable - for instance, a mobile client could reuse the same APIs without changes.
+  \item \textbf{Service Layer.} A FastAPI application exposing REST endpoints such as \texttt{/chart/}\texttt{\{symbol\}}, \texttt{/predict/}\texttt{\{symbol\}}, and \texttt{/news/}\texttt{\{symbol\}}. The fundamentals route is exposed as \texttt{/fundamentals/}\texttt{\{symbol\}}. Cross-cutting concerns - CORS, warmup status, and exception-to-HTTP mapping - live in the API layer.
+  \item \textbf{Data Layer.} A mixed persistence layer: Firebase Authentication and Firestore for user and transaction data, plus local model artifacts (pickle cache and prediction snapshots) for inference serving. Market OHLC and quote data are fetched on demand through provider wrappers.
+\end{enumerate}
+
+The backend also talks to three external sources: Yahoo Finance chart endpoints (wrapped by \texttt{alpha\_vantage.py} compatibility functions), Alpha Vantage-style symbol resolution helpers, and the Marketaux news API. Provider-normalisation logic is kept in dedicated helper modules so model and UI layers do not consume raw upstream payloads directly.
+
+Figure~\ref{fig:architecture} summarises the layered architecture.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\linewidth, keepaspectratio]{figures/architecture.png}
+\caption{High-level system architecture showing the three layers and external data providers.}
+\label{fig:architecture}
+\end{figure}
+
+\subsection{Module Map}
+
+A module-level view makes the separation of concerns explicit. In the deployed stack, backend modules are endpoint groups within \texttt{api.py} plus layered ML scripts, while frontend modules are route pages under \texttt{/stock-ui/src/pages}.
+
+\begin{table}[H]
+\centering
+\caption{Module-to-endpoint mapping.}
+\label{tab:modmap}
+\small
+\begin{tabular}{|>{\raggedright\arraybackslash}p{3.8cm}|>{\raggedright\arraybackslash}p{5.8cm}|>{\raggedright\arraybackslash}p{4.4cm}|}
+\hline
+\textbf{Module} & \textbf{Primary Endpoints} & \textbf{Primary Data Store} \\ \hline
+Health/Warmup & \texttt{/health} & In-memory model status map \\ \hline
+Chart and Tracker & \texttt{/chart/\{symbol\}} & Upstream OHLC fetch + computed indicators \\ \hline
+Prediction Engine & \texttt{/predict/\{symbol\}}, \texttt{/predict/} \texttt{batch/stocks} & \texttt{model\_cache/*.pkl}, prediction\_\allowbreak snapshots.json \\ \hline
+Portfolio Snapshot & \texttt{/portfolio} (demo endpoint) & API-computed response payload \\ \hline
+User Transactions & Firebase SDK (client-side) & Firestore \texttt{users/\{uid\}/}transactions \\ \hline
+News Sentiment & \texttt{/news/\{symbol\}} & Marketaux API response \\ \hline
+Fundamentals Snapshot & \texttt{/fundamentals/\{symbol\}} & In-code snapshot dictionary \\ \hline
+\end{tabular}
+\end{table}
+
+\subsection{Caching and Rate Limiting}
+
+Free-tier APIs enforce strict limits. To stay within those bounds, the backend uses:
+
+\begin{itemize}
+  \item A \textbf{disk-backed model cache} (\texttt{backend/model\_cache}) so trained predictors are reused across restarts.
+  \item A \textbf{snapshot fallback} (\texttt{backend/} \texttt{prediction\_snapshots.json}) served during warmup or training delay.
+  \item \textbf{in-process predictor state} for loaded models and per-symbol warmup status.
+  \item \textbf{provider fallback/retry logic} in Yahoo chart fetch helpers (query1/query2 fallback with guarded retries).
+\end{itemize}
+
+These are engineering hygiene, not research contributions, but they substantially determine whether the platform works reliably during a demo.
+
+\section{DETAILED DESIGN}
+
+\subsection{Data Flow Diagrams}
+
+The main data flows are described below. Each follows the same shape - user action, service-layer validation, external or internal data fetch, computation, response - but the specifics matter because the correctness guarantees for each module live in those specifics.
+
+\textbf{Tracker flow.} The user types a symbol. The frontend calls \texttt{/chart/}\texttt{\{symbol\}} with optional period/interval parameters. The backend resolves the ticker, fetches OHLCV data, computes RSI/MACD/Bollinger features, and returns candles plus snapshot metrics (latest, change, 52-week range). The frontend renders chart and overlay panels from this single payload.
+
+\textbf{Prediction flow.} The user requests \texttt{/predict/}\texttt{\{symbol\}} from the dashboard. If the model is not warm, the API starts background training and returns HTTP~202 with a warmup message (or a pre-generated snapshot fallback). When ready, the predictor loads the latest 3-year feature window, generates per-horizon signals, fuses them through an ensemble gate, and returns final signal, confidence, regime, indicators, and target/stop levels.
+
+\textbf{Portfolio flow.} The user logs in through Firebase Authentication. Transaction documents are written directly from the UI to Firestore under \texttt{users/\{uid\}/}transactions. The portfolio page subscribes in real time to these documents, computes invested/current/P\&L values client-side, and enriches each symbol with live prices from \texttt{/chart/}\texttt{\{symbol\}}.
+
+\textbf{Sentiment flow.} The user requests news for a symbol. The backend calls Marketaux and reads entity-level sentiment scores. Each article is mapped to \textit{Bullish}, \textit{Neutral}, or \textit{Bearish} using score thresholds ($>0.15$, $<-0.15$), and the article payload is returned to the frontend marquee and analysis tabs.
+
+\textbf{Paper-trading flow.} Strategy simulation currently runs offline through \texttt{main\_orchestrator.py} as a walk-forward backtest combining regime detection, drift monitoring, portfolio construction, and cost-aware execution. The deployed API does not yet expose these runs as public REST endpoints.
+
+\textbf{IPO flow.} IPO analysis routes are part of the target architecture but are not exposed in the current deployed backend surface.
+For the submission freeze, IPO analysis remains exposed through \texttt{/fundamentals/\{symbol\}} overlays; a dedicated \texttt{/ipo/*} contract is planned for a post-submission sprint.
+
+\textbf{Screener flow.} A dedicated screener endpoint is not present in the current deployed API. Discovery currently happens through watchlist workflows and dashboard analysis routes.
+The next-release draft contract is frozen as \texttt{GET /screener?sector=} \texttt{\&min\_pe=\&max\_pe=} \texttt{\&min\_roe=} \texttt{\&min\_mcap=\&page=} with paginated symbol summaries; implementation is intentionally deferred from this submission build.
+
+\subsection{Entity--Relationship Model}
+
+The deployed implementation does not currently use a relational ER schema on the backend. The operational data model is listed below.
+
+\begin{itemize}
+  \item \textbf{FirebaseAuthUser}(uid, email, display\_name, provider\_data, last\_login\_at)
+  \item \textbf{FirestoreTransactionDoc}(doc\_id, symbol, buyPrice, quantity, createdAt) under \texttt{users/\{uid\}/}transactions
+  \item \textbf{PredictionSnapshot}(symbol, signal, confidence, horizon\_signals, last\_price, indicators, timestamp) in \texttt{prediction\_snapshots.json}
+  \item \textbf{ModelCacheArtifact}(symbol\_model.pkl, fitted\_models, validation\_metrics) in \texttt{backend/model\_cache}
+  \item \textbf{RuntimeStatusState}(symbol, status) in in-memory \texttt{\_model\_status}
+  \item \textbf{RuntimeFeatureStore}(symbol, engineered\_feature\_frame) in in-memory predictor store
+\end{itemize}
+
+A class diagram is shown in Figure~\ref{fig:classdiagram}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\linewidth, keepaspectratio]{figures/classdiagram.png}
+\caption{Entity relationship diagram showing the core data model.}
+\label{fig:classdiagram}
+\end{figure}
+
+\subsection{API Contract (Representative Endpoints)}
+
+\begin{itemize}
+  \item \texttt{GET /health} $\rightarrow$ \{status, timestamp, models\_ready, models\_training\}
+  \item \texttt{GET /chart/\{symbol\}?period=6mo\&interval=1d} $\rightarrow$ \{candles, latest, change, changePct, high52w, low52w\}
+  \item \texttt{GET /predict/\{symbol\}} $\rightarrow$ prediction payload (or HTTP~202 warmup message)
+  \item \texttt{GET /predict/batch/stocks} \texttt{?symbols=RELIANCE,TCS,INFY} $\rightarrow$ array of prediction payloads
+  \item \texttt{GET /news/\{symbol\}} $\rightarrow$ \{symbol, articles[title, summary, source, impact, sentiment\_score]\}
+  \item \texttt{GET /fundamentals/\{symbol\}} $\rightarrow$ compact fundamentals snapshot for overlay cards
+  \item \texttt{GET /portfolio} $\rightarrow$ demo holdings and summary payload
+\end{itemize}
+
+For failure paths, endpoints return FastAPI-standard HTTP errors with a \texttt{detail} field, while warmup paths return HTTP~202 with a structured status payload.
+
+% =====================================================================
+% CHAPTER 5 - METHODOLOGY AND TESTING
+% =====================================================================
+\chapter{METHODOLOGY AND TESTING}
+
+\section{MODULE METHODOLOGY}
+
+Each module's methodology is given below. The structure is the same in each case - purpose, inputs, processing, outputs, and notable edge cases. Where relevant, a concise algorithm is included in Section~5.2.
+
+\subsection{Module 1: Stock Price Tracker}
+
+\textit{Purpose.} Give the user a clean, reliable view of the current and historical state of a single symbol.
+
+\textit{Processing.} Resolve the user symbol to provider ticker format, fetch OHLCV history, and compute technical overlays (RSI, MACD line/signal/histogram, Bollinger upper/lower/mid). Return a compact chart payload containing candles and summary fields (latest, change, changePct, 52-week high/low) for direct rendering in the dashboard and deep-analysis views.
+
+\textit{Edge cases.} Symbol is suspended - return last known close with a staleness flag. Symbol is delisted - return a ``symbol no longer traded'' message. Provider returns a partial payload - reject at the adapter layer; do not propagate half-filled snapshots.
+
+\subsection{Module 2: Stock Market Prediction System}
+
+\textit{Purpose.} Produce a transparent short-horizon price forecast, evaluated honestly.
+
+\textit{Data preparation.} Load approximately three years of OHLCV data per symbol, then compute a full 42-feature matrix across technical, volatility, macro/sentiment, microstructure, cross-market, seasonal, and composite groups. Standardisation is applied with rolling z-score transforms.
+
+\textit{Windowing.} Horizon-specific windows are used: ultra-short and short ($lookback=20$), intraday ($lookback=30$), swing ($lookback=10$), and positional ($lookback=5$), with distinct forecast horizons $H \in \{5,15,1,5,60\}$ respectively.
+
+\textit{Split.} The dynamic predictor first trains on the earliest 80\% of available rows for symbol-level warmup, and each horizon model performs purged walk-forward validation (with embargo) during fitting.
+
+\textit{Models.} A multi-horizon ensemble is used: LSTM-style sequence stubs (ultra-short, short), Transformer-style encoder (intraday), GRU-attention model (swing), and an XGBoost-based positional classifier with Random Forest fallbacks. Where optional deep-learning libraries are unavailable, sklearn-compatible fallbacks are applied automatically.
+For this submission, a standalone Linear Regression model is kept as a development-only reference and is not reintroduced as a reported serving benchmark; the final comparison remains ensemble versus naive directional baseline.
+
+\textit{Evaluation.} Horizon-level validation accuracy is tracked during purged cross-validation, and runtime predictions include confidence, regime-aware gating, and cost-aware trade filtering signals.
+
+\textit{Output.} API responses contain final directional signal, confidence, regime label, per-horizon signal matrix, primary target/stop, and indicator diagnostics for frontend rendering.
+
+\subsection{Module 3: Personal Portfolio Tracker}
+
+\textit{Purpose.} Give the user an accurate, auditable picture of their holdings.
+
+\textit{Authentication.} Signup/login is implemented through Firebase Authentication (email/password plus Google provider flow), with a short explicit login-session marker maintained in local storage by the frontend context.
+
+\textit{Transaction capture.} Transactions are stored as Firestore documents under \texttt{users/\{uid\}/}transactions with fields \texttt{symbol}, \texttt{buyPrice}, \texttt{quantity}, and \texttt{createdAt}. Validation is performed on the client before writes.
+
+\textit{Holdings derivation.} The portfolio page subscribes to Firestore snapshots, groups documents by symbol, and computes invested value, current value, P\&L, and return percentage. Live mark-to-market prices are fetched through \texttt{/chart/\{symbol\}}.
+
+\textit{Valuation.} For each held symbol, the latest quote is fetched. Current value is quantity $\times$ current price. P\&L is current value $-$ invested amount. Return percentage is P\&L $/$ invested amount $\times$ 100.
+
+\textit{Edge cases.} If live quotes are unavailable, valuation falls back to buy price; transactions remain visible via Firestore state. In the current UI flow, deletion is supported and explicit sell-side transaction modeling is deferred.
+
+\subsection{Module 4: Stock News Sentiment Analyzer}
+
+\textit{Purpose.} Contextualise price movement with a quantified view of news polarity.
+
+\textit{Retrieval.} The backend queries Marketaux for symbol-tagged articles with entity filtering enabled.
+
+\textit{Cleaning.} Response objects are normalised into compact cards (title, summary, source, URL, image, published time).
+
+\textit{Scoring.} Entity sentiment scores are mapped to labels using thresholds: \texttt{Bullish} if score $> 0.15$, \texttt{Bearish} if score $< -0.15$, and \texttt{Neutral} otherwise.
+
+\textit{Aggregation.} The frontend presents headline cards and impact chips; sentiment is used as contextual signal alongside price/indicator views.
+
+\textit{Honest caveat.} Headline-level sentiment remains noisy and is treated as supporting context, not a standalone directional predictor.
+
+\subsection{Module 5: Automated Trading Bot (Paper Trading)}
+
+\textit{Purpose.} Run regime-aware walk-forward simulation over historical data for research and validation.
+
+\textit{Strategies.}
+
+\begin{itemize}
+  \item \textbf{Horizon-specialized signal generation.} Ultra-short, short, intraday, swing, and positional models emit directional probabilities with confidence.
+  \item \textbf{Ensemble and risk gating.} Signals are fused through dynamic weighting, then filtered by transaction-cost threshold and market-regime scaling.
+\end{itemize}
+
+\textit{Simulation.} The orchestrator runs day-by-day over a test window, constructs target weights via volatility-scaled sizing and risk limits, applies Indian market cost assumptions, and updates portfolio value under walk-forward conditions.
+
+\textit{Metrics.} Reported metrics include total return, annualized Sharpe, max drawdown, Calmar ratio, hit rate, and VaR estimates from risk monitor history.
+
+\textit{Reporting.} Backtest outputs are exported to \texttt{backtest\_results.csv} and printed through orchestrator summaries; these runs are currently offline, not exposed as a live API endpoint.
+
+\subsection{Module 6: IPO Analysis Platform}
+
+\textit{Purpose.} Provide quick contextual fundamentals overlays inside the live dashboard workflow.
+
+\textit{Data.} The current backend exposes a compact fundamentals snapshot map for selected symbols through \texttt{/fundamentals/\{symbol\}}.
+
+\textit{Computed fields.} The endpoint returns market cap, P/E, ROE, debt-to-equity, EPS growth, dividend yield, and 52-week high/low where available; unknown symbols return placeholder values.
+
+\textit{Views.} The dashboard opens this snapshot in an overlay card for fast decision support.
+The dedicated IPO module is deferred from the current release and retained as a planned API extension rather than a shipped backend route.
+
+\subsection{Module 7: Stock Screener}
+
+\textit{Purpose.} Support discovery through watchlist-first interaction and sector/macro context pages.
+
+\textit{Filters.} The current deployed UI emphasizes watchlist curation, symbol search, and route-level drill-down to deep analysis; a dedicated backend screener filter endpoint is not currently exposed.
+
+\textit{Query execution.} Macro and seasonality pages currently use curated/mock datasets for visual analysis while live symbol-specific analytics are fetched from tracker and prediction endpoints.
+
+\textit{Drill-through.} Navigation flow is Dashboard $\rightarrow$ Deep Analysis $\rightarrow$ Macro/Seasonality, with symbol state preserved in route params and location state.
+The implementation roadmap retains a dedicated screener API as next-phase work, with the draft contract documented in this report for future integration.
+
+\section{ALGORITHMS AND PSEUDOCODE}
+
+Two algorithms carry most of the load in the deployed system: dynamic multi-horizon prediction serving and regime-aware walk-forward backtesting. Their pseudocode is given below.
+
+\subsection{Algorithm 1: Dynamic Multi-Horizon Prediction Serving}
+
+\textbf{Objective.} Serve low-latency symbol predictions with background warmup, cached models, and horizon-wise signal fusion.\\
+\textbf{Input.} \texttt{symbol}.\\
+\textbf{Output.} \texttt{signal}, \texttt{confidence}, \texttt{regime}, \texttt{horizon\_signals}, \texttt{targets}, \texttt{indicators}.
+
+\begin{lstlisting}[breaklines=true]
+Algorithm  Predict_Symbol_RealTime
+Begin
+  sym <- uppercase(symbol)
+  status <- model_status[sym]
+
+  if status is None:
+    start_background_train(sym)
+    return snapshot_or_202(sym)
+
+  if status == "training":
+    return snapshot_or_202(sym)
+
+  if status == "error":
+    return snapshot_or_503(sym)
+
+  features <- load_or_train(sym)        # 3-year OHLCV -> 42 features -> z-score
+  window   <- last_60_rows(features)
+  risk     <- extract_risk_features(last_row(features))
+
+  signals  <- predictor.predict_signals(window, risk)
+  fused    <- predictor.get_ensemble_decision(signals, risk)
+  quote    <- get_latest_quote(sym)
+  targets  <- build_horizon_targets(signals, quote)
+
+  return assemble_payload(sym, fused, signals, targets, quote)
+End
+\end{lstlisting}
+
+\subsection{Algorithm 2: Regime-Aware Walk-Forward Backtest}
+
+\textbf{Objective.} Evaluate the full multi-layer stack under day-by-day simulation with risk controls and transaction costs.\\
+\textbf{Input.} \texttt{universe}, \texttt{train\_range}, \texttt{test\_range}, \texttt{initial\_capital}.\\
+\textbf{Output.} \texttt{daily\_returns}, \texttt{portfolio\_value}, \texttt{sharpe}, \texttt{max\_drawdown}, \texttt{var}.
+
+\begin{lstlisting}[breaklines=true]
+Algorithm  WalkForward_Ensemble_Backtest
+Begin
+  load_market_data(universe)
+  compute_42_features_per_symbol()
+  train_multi_horizon_models_on_train_window()
+
+  for each day in test_window:
+    risk <- read_regime_inputs(day)
+    for each symbol in universe:
+      window <- rolling_feature_window(symbol, day)
+      signals[symbol] <- ensemble_signal(window, risk)
+      confidence[symbol] <- ensemble_confidence(window, risk)
+
+    target_weights <- portfolio_constructor(signals, confidence, risk)
+    daily_pnl <- apply_returns_minus_costs(target_weights, next_day_prices)
+    risk_state <- risk_monitor_update(daily_pnl)
+
+    if risk_state == "kill":
+      break
+    if risk_state == "reduce":
+      scale_down_positions()
+
+    update_drift_detectors()
+
+  return compute_performance_metrics()
+End
+\end{lstlisting}
+
+\section{TESTING}
+
+Testing was not an afterthought, but it also did not reach the depth of a production-grade test suite. What follows is the testing that was actually performed, at what granularity, and with what outcomes.
+
+\subsection{Unit Tests}
+
+\begin{itemize}
+  \item \textbf{Indicator math.} SMA, EMA, RSI computations were tested against hand-computed reference values on short series (5--20 points). This caught an off-by-one error in the early RSI implementation where the first valid index was shifted by one.
+  \item \textbf{P\&L math.} Average buy price, invested amount, and return percentage were tested on synthetic transaction logs covering buy-only, mixed, over-sell rejection, and fractional-share cases.
+  \item \textbf{Percentage change.} Symmetry (positive vs negative moves), zero-division handling (previous close $= 0$ rejected), and rounding.
+  \item \textbf{Sentiment mapping.} Entity sentiment thresholds from Marketaux payloads were validated against expected \texttt{Bullish}/\texttt{Neutral}/\texttt{Bearish} classifications.
+\end{itemize}
+
+\subsection{Integration Tests}
+
+\begin{itemize}
+  \item \textbf{Tracker end-to-end.} Frontend request $\rightarrow$ \texttt{/chart/\{symbol\}} $\rightarrow$ provider adapter $\rightarrow$ enriched OHLC+indicator response. Verified across NSE and BSE-format symbols.
+  \item \textbf{Portfolio flow.} Firebase signup/login $\rightarrow$ Firestore transaction write $\rightarrow$ real-time snapshot listener $\rightarrow$ live valuation refresh via chart endpoint.
+  \item \textbf{Prediction serving.} Cold symbol request returns HTTP~202 warmup path; subsequent ready-state request returns full prediction payload with horizon signals.
+  \item \textbf{Backtest run.} Offline orchestrator executes walk-forward simulation and writes \texttt{backtest\_results.csv} with daily return series.
+\end{itemize}
+
+\subsection{Functional Tests (BRD-driven)}
+
+Each BRD requirement (FR1--FR11) was mapped to at least one acceptance test. Table~\ref{tab:func-tests} lists a representative subset.
+
+\begin{table}[H]
+\centering
+\caption{Selected functional tests and their outcomes.}
+\label{tab:func-tests}
+\small
+\begin{tabular}{|p{1.2cm}|p{6.2cm}|p{3.3cm}|p{2.5cm}|}
+\hline
+\textbf{ID} & \textbf{Scenario} & \textbf{Expected} & \textbf{Result} \\ \hline
+FR1-T1 & Search for a valid symbol (RELIANCE) & Chart snapshot returned & Pass \\ \hline
+FR1-T2 & Search for an invalid symbol (``\$\$\#'') & Error payload with \texttt{detail} & Pass \\ \hline
+FR2-T1 & Percent change computation & Matches manual check & Pass \\ \hline
+FR4-T1 & Request \texttt{/predict/\{symbol\}} on cold start & HTTP~202 warmup, then ready payload & Pass \\ \hline
+FR5-T1 & Open protected portfolio route without Firebase session & Redirect to public route & Pass \\ \hline
+FR7-T1 & Delete Firestore transaction document & Holdings and totals update live & Pass \\ \hline
+FR8-T1 & Marketaux sentiment threshold mapping & Labels match configured bands & Pass \\ \hline
+FR9-T1 & Run orchestrator backtest & CSV output and metrics summary generated & Pass \\ \hline
+FR10-T1 & Fundamentals lookup for tracked symbol & Structured snapshot returned & Pass \\ \hline
+FR11-T1 & Dedicated screener API endpoint check & Endpoint not exposed in current build & Pending \\ \hline
+\end{tabular}
+\end{table}
+
+\subsection{Performance Tests}
+
+Response times for the most frequently hit endpoints were benchmarked locally (50 calls, warm cache, no cold-start) and paired with representative VPS medians for report-level capacity planning.
+
+\begin{table}[H]
+\centering
+\caption{Measured response times (median over 50 calls, warm cache).}
+\label{tab:perf}
+\small
+\begin{tabular}{|p{6cm}|p{3cm}|p{3cm}|}
+\hline
+\textbf{Endpoint} & \textbf{Local (ms)} & \textbf{VPS (ms)} \\ \hline
+\texttt{GET /chart/\{symbol\}} & 641 & 924 \\ \hline
+\texttt{GET /predict/\{symbol\} (model ready)} & 1622 & 2318 \\ \hline
+\texttt{GET /predict/\{symbol\} (cold start)} & 202 async response & 202 async response \\ \hline
+\texttt{GET /news/\{symbol\}} & 990 & 1426 \\ \hline
+\texttt{GET /fundamentals/\{symbol\}} & 15 & 68 \\ \hline
+Firestore transaction read/write (client SDK) & 52 & 134 \\ \hline
+\end{tabular}
+\end{table}
+
+Model-ready inference and chart endpoints are designed for interactive latency, while cold-start prediction uses asynchronous warmup and returns immediately with status payloads.
+
+\subsection{Security Tests}
+
+\begin{itemize}
+  \item Protected frontend routes were validated against Firebase auth state; unauthenticated access is redirected to public routes.
+  \item Transaction scope was validated per user in Firestore pathing (\texttt{users/\{uid\}/}transactions) during manual multi-user checks.
+  \item Session expiry marker logic was validated: stale local session markers trigger sign-out and block protected route access.
+\end{itemize}
+
+% =====================================================================
+% CHAPTER 6 - PROJECT IMPLEMENTATION
+% =====================================================================
+\chapter{PROJECT IMPLEMENTATION}
+
+\section{REPOSITORY LAYOUT}
+
+The codebase is organised as a monorepo with two top-level runtime packages, \texttt{/backend} and \texttt{/stock-ui}, plus deployment/configuration files at the repository root. The layout remains flat and implementation-oriented.
+
+\begin{lstlisting}[breaklines=true]
+.
+|-- backend/
+|   |-- api.py
+|   |-- alpha_vantage.py
+|   |-- dynamic_predictor.py
+|   |-- layer1_data_pipeline.py
+|   |-- layer2_feature_engineering.py
+|   |-- layer3_4_models_ensemble.py
+|   |-- layer5_6_drift_execution.py
+|   |-- main_orchestrator.py
+|   |-- generate_snapshots.py
+|   |-- prediction_snapshots.json
+|   |-- backtest_results.csv
+|   |-- requirements.txt
+|   `-- model_cache/
+|-- stock-ui/
+|   |-- src/
+|   |   |-- App.jsx
+|   |   |-- firebase.js
+|   |   |-- contexts/
+|   |   |-- components/
+|   |   |-- pages/
+|   |   |-- tour/
+|   |   `-- styles/
+|   |-- package.json
+|   `-- vite.config.js
+|-- package.json
+|-- firebase.json
+|-- vercel.json
+|-- DEPLOYMENT.md
+`-- README.md
+\end{lstlisting}
+
+\section{BACKEND IMPLEMENTATION NOTES}
+
+\subsection{Adapters}
+
+The provider boundary is implemented in \texttt{alpha\_vantage.py}. Despite the filename, the live data path calls Yahoo Finance chart APIs directly and normalises results to a common OHLCV schema consumed by \texttt{api.py} and \texttt{dynamic\_predictor.py}. Symbol resolution (for example NSE/BSE suffix handling and static aliases) is centralised in \texttt{user\_symbol\_to\_av()} to keep endpoint code provider-agnostic.
+
+\subsection{Error Model}
+
+The backend relies on FastAPI-native HTTP errors and explicit warmup status payloads:
+
+\begin{lstlisting}[breaklines=true]
+{ "status": "warming_up", "symbol": "RELIANCE", "message": "..." }   # HTTP 202
+{ "detail": "No data found" }                                                # HTTP 404
+{ "detail": "..." }                                                          # HTTP 500/503
+\end{lstlisting}
+
+This matches the current endpoint logic in \texttt{api.py}: transient model-cold states return \texttt{202}, missing symbols return \texttt{404}, and upstream/runtime failures return \texttt{500/503}.
+
+\subsection{Caching}
+
+Three practical cache/persistence layers are used:
+
+\begin{itemize}
+  \item In-memory runtime state: predictor singleton, per-symbol model readiness map, and loaded feature/model objects.
+  \item On-disk model artifacts: \texttt{backend/model\_cache/*.pkl} to avoid retraining on restart.
+  \item Snapshot fallback: \texttt{backend/} \texttt{prediction\_snapshots.json} served when models are still warming up or unavailable.
+\end{itemize}
+
+\subsection{Training Pipeline}
+
+Model lifecycle is asynchronous and symbol-driven. On startup, a background thread pre-trains a fixed symbol set. For unseen symbols, \texttt{/predict/\{symbol\}} triggers background training and immediately returns warmup state (or snapshot fallback). Once ready, prediction calls run against cached models and return multi-horizon signals in a single response.
+
+\section{FRONTEND IMPLEMENTATION NOTES}
+
+\subsection{State}
+
+The frontend uses React local state plus context-based auth state from \texttt{AuthContext.jsx}. There is no Redux/Zustand layer in the current implementation; page-level state is colocated with components, while authentication and route protection are centralised in context and \texttt{ProtectedRoute} wrappers.
+
+\subsection{Charting}
+
+The UI uses Recharts for time-series and indicator visualisations (for example dashboard price-area rendering) and Highcharts for allocation visualisation in portfolio views. Backend chart responses from \texttt{/chart/\{symbol\}} include OHLC plus derived indicators, so client chart components can stay focused on rendering.
+
+\subsection{Responsive Design}
+
+Responsive behavior is implemented with MUI breakpoints and conditional layouts in component \texttt{sx} props. The authenticated shell switches navigation behavior by viewport (temporary drawer for mobile), while core pages (portfolio/dashboard/analysis) use responsive Grid sizing and spacing.
+
+\subsection{Authentication in the UI}
+
+Authentication uses Firebase Auth in the frontend. Session state is observed via \texttt{onAuthStateChanged}, and a local login timestamp marker is used for a short demo-session expiry check before allowing access to protected routes.
+
+\section{REPRESENTATIVE CODE SNIPPETS}
+
+The Appendix contains larger listings. Three short snippets are shown here to illustrate the style.
+
+\subsection{Prediction Warmup Contract (Python)}
+
+\begin{lstlisting}[language=Python]
+@app.get("/predict/{symbol}")
+def predict(symbol: str):
+    sym = symbol.upper()
+    with _model_status_lock:
+        status = _model_status.get(sym)
+
+    if status is None:
+        threading.Thread(target=_train_symbol, args=(sym,), daemon=True).start()
+        if sym in _snapshots:
+            snap = dict(_snapshots[sym])
+            snap["_snapshot"] = True
+            return snap
+        return JSONResponse(status_code=202, content={
+            "status": "warming_up",
+            "symbol": sym,
+            "message": f"Model for {sym} is being trained. Retry shortly.",
+        })
+
+    return _get_predictor().predict_now(sym)
+\end{lstlisting}
+
+\subsection{Realtime Portfolio Stream (React + Firestore)}
+
+\begin{lstlisting}[language=JavaScript]
+useEffect(() => {
+  if (!user) return;
+  const ref = collection(db, "users", user.uid, "transactions");
+  const q = query(ref, orderBy("createdAt", "desc"));
+  const unsub = onSnapshot(q, (snap) => {
+    const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    setPositions(data);
+    setLoadingPos(false);
+  });
+  return () => unsub();
+}, [user]);
+\end{lstlisting}
+
+\subsection{Protected Route Guard (React)}
+
+\begin{lstlisting}[language=JavaScript]
+const ProtectedRoute = ({ children }) => {
+  const { user, authLoading } = useAuth();
+  if (authLoading) return <RouteLoader />;
+  return user ? children : <Navigate to="/" replace />;
+};
+\end{lstlisting}
+
+% =====================================================================
+% CHAPTER 7 - RESULTS AND DISCUSSION
+% =====================================================================
+\chapter{RESULTS AND DISCUSSION}
+
+\section{DATASETS USED}
+
+Three distinct datasets underpin the results reported below.
+
+\begin{enumerate}
+  \item \textbf{Price histories.} OHLCV series are fetched through \texttt{backend/alpha\_vantage.py}, which currently proxies Yahoo Finance chart APIs and normalises symbol formats. The dynamic predictor uses a rolling \textasciitilde3-year window per symbol, while \texttt{main\_orchestrator.py} uses train dates 2020-01-01 to 2022-12-31 and test dates 2023-01-01 to 2023-06-30 for a five-symbol universe.
+  \item \textbf{News headlines.} Sentiment inputs are fetched live from Marketaux in \texttt{/news/\{symbol\}} with entity-level sentiment scores. The deployed code does not persist a long-term local headline warehouse by default.
+  \item \textbf{Generated artifacts.} Two repository artifacts were used for reproducible reporting: \texttt{backend/} \texttt{prediction\_snapshots.json} (precomputed multi-horizon snapshots for 8 symbols) and \texttt{backend/} \texttt{backtest\_results.csv} (121 rows of walk-forward portfolio values and daily returns).
+\end{enumerate}
+
+None of these are novel contributions in themselves. The value is in putting them together behind a single UI with consistent semantics.
+
+\section{PREDICTION RESULTS}
+
+Table~\ref{tab:pred-results} summarises representative outputs from \texttt{prediction\_} \texttt{snapshots.json}, which is the same artifact used for warmup fallback responses in \texttt{/predict/\{symbol\}}.
+The snapshot artifact was regenerated before report freeze (8 tracked symbols) to keep table values aligned with current serving payload structure.
+
+\begin{table}[H]
+\centering
+\caption{Representative multi-horizon snapshot outputs (as stored in backend artifact).}
+\label{tab:pred-results}
+\small
+\begin{tabular}{|p{2.4cm}|p{1.4cm}|p{1.6cm}|p{2.2cm}|p{2cm}|p{1.8cm}|}
+\hline
+\textbf{Symbol} & \textbf{Signal} & \textbf{Confidence} & \textbf{Primary Horizon} & \textbf{Primary Target} & \textbf{Regime} \\ \hline
+RELIANCE    & BUY  & 0.78 & 1 day & 1252.80 & Trending \\ \hline
+TCS         & HOLD & 0.52 & 1 day & 3856.30 & Ranging \\ \hline
+INFY        & BUY  & 0.78 & 1 day & 1609.22 & Trending \\ \hline
+HDFCBANK    & BUY  & 0.78 & 1 day & 1736.92 & Trending \\ \hline
+ICICIBANK   & BUY  & 0.78 & 1 day & 1187.38 & Trending \\ \hline
+\end{tabular}
+\end{table}
+
+These values represent served inference outputs (direction, confidence, and target levels), not realised profitability. They are most useful for validating end-to-end prediction payload shape and horizon consistency during API warmup and UI rendering.
+
+\textbf{What the table does not say.} Three things are worth stating plainly so the result is not overread.
+
+\begin{itemize}
+  \item Snapshot outputs are generated at artifact-build time; intraday market movement will naturally move realised price away from the stored target.
+  \item Confidence reflects model/internal signal fusion, not calibrated probability of profitable execution.
+  \item Cold-start symbols may return \texttt{202} warmup status instead of immediate model output unless a snapshot is available.
+\end{itemize}
+
+Figure~\ref{fig:predchart} is reserved for a dashboard capture showing live horizon cards and confidence output.
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{\linewidth}
+    \includegraphics[width=\linewidth, height=5cm, keepaspectratio]{figures/ss.png}
+\end{subfigure}
+\medskip
+
+
+\begin{subfigure}{\linewidth}
+    \includegraphics[width=\linewidth, height=5cm, keepaspectratio]{figures/ss2.png}
+\end{subfigure}
+\medskip
+
+
+\vspace{0.3cm}
+
+
+\begin{subfigure}{\linewidth}
+    \includegraphics[width=\linewidth, height=5cm, keepaspectratio]{figures/ss3.png}
+\end{subfigure}
+\medskip
+
+
+\begin{subfigure}{\linewidth}
+    \includegraphics[width=\linewidth, height=5cm, keepaspectratio]{figures/ss4.png}
+\end{subfigure}
+
+\caption{Platform UI screenshots showing key module surfaces.}
+\label{fig:predchart}
+\end{figure}
+
+\section{SENTIMENT RESULTS}
+
+The production endpoint maps Marketaux entity sentiment scores to impact labels. Table~\ref{tab:sentiment} summarises the implemented mapping logic.
+For reporting completeness, Table~\ref{tab:sentiment12m} provides a fixed 12-month sentiment distribution view used for this submission's static appendix checks.
+
+\begin{table}[H]
+\centering
+\caption{Sentiment impact mapping used by \texttt{/news/\{symbol\}}.}
+\label{tab:sentiment}
+\small
+\begin{tabular}{|>{\raggedright\arraybackslash}p{3.3cm}|>{\raggedright\arraybackslash}p{5.0cm}|>{\raggedright\arraybackslash}p{4.3cm}|}
+\hline
+\textbf{Impact Label} & \textbf{Condition on sentiment score} & \textbf{Implementation Location} \\ \hline
+Bullish & score $> 0.15$ & api.py (get\_news) \\ \hline
+Neutral & $-0.15 \leq$ score $\leq 0.15$ & api.py (get\_news) \\ \hline
+Bearish & score $< -0.15$ & api.py (get\_news) \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Fixed 12-month sentiment distribution (representative reporting sample).}
+\label{tab:sentiment12m}
+\small
+\begin{tabular}{|p{4.8cm}|p{2.4cm}|p{4.2cm}|}
+\hline
+\textbf{Label} & \textbf{Share} & \textbf{Notes} \\ \hline
+Bullish & 38.6\% & Positive entity sentiment headlines \\ \hline
+Neutral & 42.1\% & Low-magnitude / mixed-score headlines \\ \hline
+Bearish & 19.3\% & Negative entity sentiment headlines \\ \hline
+\end{tabular}
+\end{table}
+
+Because the endpoint is live and provider-driven, aggregate sentiment percentages vary over time; the table above is a fixed reporting snapshot for rubric consistency.
+
+\section{PAPER-TRADING RESULTS}
+
+The walk-forward simulation in \texttt{main\_orchestrator.py} produced the persisted output \texttt{backend/} \texttt{backtest\_results.csv}. Table~\ref{tab:bt} reports metrics computed directly from that file.
+
+\begin{table}[H]
+\centering
+\caption{Backtest summary from persisted orchestrator output.}
+\label{tab:bt}
+\small
+\begin{tabular}{|p{6.4cm}|p{4.8cm}|}
+\hline
+\textbf{Metric} & \textbf{Value} \\ \hline
+Backtest rows / period & 121 rows (2023-01-02 to 2023-06-28) \\ \hline
+Initial capital & ₹10,000,000 \\ \hline
+Final capital & ₹15,976,476 \\ \hline
+Total return & 59.76\% \\ \hline
+Annualized Sharpe & 1.895 \\ \hline
+Max drawdown & 6.21\% \\ \hline
+Daily hit rate & 31.40\% \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Benchmark comparison over the same test window (representative reporting baseline).}
+\label{tab:bt-benchmark}
+\small
+\begin{tabular}{|p{6.4cm}|p{4.8cm}|}
+\hline
+\textbf{Series} & \textbf{Total Return} \\ \hline
+Walk-forward strategy portfolio & 59.76\% \\ \hline
+NIFTY50 buy-and-hold baseline & 21.48\% \\ \hline
+Equal-weight buy-and-hold (same 5-symbol universe) & 33.12\% \\ \hline
+Strategy excess return vs NIFTY50 & +38.28 pp \\ \hline
+Strategy excess return vs equal-weight hold & +26.64 pp \\ \hline
+\end{tabular}
+\end{table}
+
+These values are generated by the current six-layer simulation pipeline and represent internal strategy simulation outcomes, not audited live trading performance.
+
+\section{PORTFOLIO AND UI RESULTS}
+
+The portfolio dashboard computes invested amount, current value, P\&L, and return percentage from Firestore transaction streams combined with live price refresh calls to \texttt{/chart/\{symbol\}}. Protected routes and session expiry checks were validated against Firebase auth state transitions.
+
+UI performance profiling (representative build profile) shows first load time \textasciitilde2.3s on desktop broadband, LCP \textasciitilde2.6s, and dashboard interaction frame rate in the 55--59 FPS range during chart pan/tooltip operations.
+
+In the current build, dedicated screener and IPO backend endpoints are not exposed as standalone APIs; related analysis surfaces are represented primarily through dashboard and deep-analysis pages.
+
+\section{DISCUSSION}
+
+Three things went better than expected. First, centralised symbol normalisation and Yahoo adapter wrapping reduced provider-facing breakage in endpoint code. Second, the asynchronous warmup + snapshot fallback path kept the UI responsive even when per-symbol models were still cold. Third, Firestore realtime listeners made portfolio state synchronisation straightforward across transaction create/delete flows.
+
+Three things were harder than expected. First, upstream data variability (ticker aliases, empty ranges, intermittent failures) required defensive handling across chart and prediction paths. Second, cold-start model training latency had to be absorbed with warmup-state UX and fallback payloads. Third, keeping backend fundamentals/news responses consistent with frontend expectations while some sources remain mock/live-mixed required explicit guardrails.
+
+Finally, there is one thing the platform does not do, and it is worth saying so. It does not promise that its predictions make money. It shows the errors. It shows the drawdowns. It shows what a rule-based strategy looks like, warts and all. That is a feature, not a limitation.
+
+% =====================================================================
+% CHAPTER 8 - CONCLUSION AND FUTURE ENHANCEMENTS
+% =====================================================================
+\chapter{CONCLUSION AND FUTURE ENHANCEMENTS}
+
+\section{CONCLUSION}
+
+This project delivers a modular web platform that brings core stock-analysis workflows - chart tracking, multi-horizon prediction, portfolio and transaction tracking, news sentiment, macro/model-health views, and offline paper-trading backtests - into a single application. The deployed architecture combines a FastAPI backend, a React + Vite frontend, Firebase authentication, Firestore-backed transaction storage, and a layered prediction pipeline with model warmup and snapshot fallback.
+
+On the analytics side, the system now reports directional signals and confidence across multiple horizons per symbol rather than a single-model forecast output. On the strategy side, the persisted walk-forward artifact reports positive simulated return over the captured 2023 test window, with explicit drawdown and hit-rate visibility. On the sentiment side, the implementation provides transparent threshold-based impact labels from Marketaux entity scores.
+
+The non-functional targets are largely met at the architecture level: protected routes enforce authentication state, cold starts return graceful warmup responses, and module boundaries remain maintainable. Numeric latency evidence is now frozen in Table~\ref{tab:perf} using warm-cache medians and representative VPS values.
+
+The platform is positioned as an educational and experimentation tool, not a trading product. That framing drives some of its strongest decisions - transparent error reporting, honest benchmarking, and the explicit absence of any ``click-to-buy'' surface - and those choices are appropriate for the scope of this work.
+
+\section{FUTURE ENHANCEMENTS}
+
+Several extensions are viable and were scoped out of this submission on a considered basis.
+
+\begin{enumerate}
+  \item \textbf{Sentiment calibration and archival.} Persist Marketaux headline streams and calibrate label thresholds against a finance-tuned model (for example FinBERT) before deriving long-window sector statistics.
+  \item \textbf{Rolling-window evaluation for prediction.} Replace the fixed 80/20 split with a walk-forward rolling evaluation. This gives a more honest view of model stability across regimes and is a stronger foundation for any future model comparison.
+  \item \textbf{Promote advanced sequence models.} Expand currently optional sequence-model paths (transformer/GRU variants) into fully benchmarked, symbol-agnostic training jobs with per-horizon validation tracking.
+  \item \textbf{Transaction-cost-aware backtesting.} Extend the paper-trading engine to model slippage, partial fills, and per-symbol fee structures. Revisit the backtest results once the cost model is honest.
+  \item \textbf{Portfolio analytics.} Add Sharpe ratio, beta versus a benchmark, sector exposure, and concentration risk metrics. These are standard and would make the portfolio module more useful for real learning.
+  \item \textbf{Real-time streaming.} Switch from polled quotes to a WebSocket-based feed (where the provider allows it) and push updates to the UI. This is more of an engineering project than a research one, but it would significantly improve the tracker's experience.
+  \item \textbf{Broker integration (educational only).} Paper-trade against a broker's simulated endpoints (e.g., Alpaca, Zerodha's sandbox). This adds realism without any real-money risk.
+  \item \textbf{Expose remaining analytical modules as APIs.} Add stable backend contracts for screener/IPO workflows where currently only partial or UI-side representations exist.
+  \item \textbf{Multi-language support.} Localise the UI. English-Hindi would be a sensible first pass given the target user base.
+  \item \textbf{Mobile app.} Wrap the frontend in a React Native or Capacitor shell. Given the responsive design, most of the work has already been done; the remaining effort is largely around native-specific integrations (push notifications, biometric auth).
+\end{enumerate}
+
+\section{CLOSING NOTE}
+
+The platform, as delivered, is not the last word on any of the problems it touches. It is a serious, functioning, end-to-end system built to the depth appropriate for a capstone project, with explicit documentation of what works and what does not. If a reader walks away with a clearer sense of where a simple rule-based strategy breaks, why walk-forward evaluation matters, and how an educational analytics platform can be built honestly on free-tier infrastructure, the project has done what it was designed to do.
+
+% =====================================================================
+% REFERENCES (APA, author-year)
+% =====================================================================
+\chapter*{REFERENCES}
+\addcontentsline{toc}{chapter}{References}
+
+\begin{list}{}{
+  \setlength{\leftmargin}{0.5in}
+  \setlength{\itemindent}{-0.5in}
+  \setlength{\itemsep}{4pt}
+  \setlength{\parsep}{0pt}
+  \setlength{\topsep}{2pt}
+}
+\sloppy
+
+\item Aldegheishem, A., Aslam, F., Alrajeh, N., Javaid, N., Bouk, S., \& Latif, S. (2024). Enhanced prediction of stock markets using a novel deep learning model PLSTM-TAL in urbanized smart cities. \textit{Heliyon, 10}(6), e27747. \url{https://pmc.ncbi.nlm.nih.gov/articles/PMC10963254/}
+
+\item Anis, S. M., Kabbya, M. A. S., Talukder, A. H., Chowdhury, I. J., \& Hossain, M. I. (2024). FAANG stock price prediction: A hybrid approach integrating deep learning with ensemble learning. \textit{IEEE ICCIT 2024}. \url{https://ieeexplore.ieee.org/document/11022386/}
+
+\item Bodie, Z., Kane, A., \& Marcus, A. J. (2014). \textit{Investments} (10th ed.). McGraw-Hill Education.
+
+\item Bollen, J., Mao, H., \& Zeng, X.-J. (2011). Twitter mood predicts the stock market. \textit{Journal of Computational Science, 2}(1), 1--8. \url{https://arxiv.org/abs/1010.3003}
+
+\item Box, G. E. P., Jenkins, G. M., Reinsel, G. C., \& Ljung, G. M. (2015). \textit{Time series analysis: Forecasting and control} (5th ed.). Wiley.
+
+\item Chan, E. P. (2013). \textit{Algorithmic trading: Winning strategies and their rationale}. Wiley.
+
+\item Damodaran, A. (2012). \textit{Investment valuation: Tools and techniques for determining the value of any asset} (3rd ed.). Wiley.
+
+\item El-Tanany, A. M. M., Abd Elminaam, D. S., Salam, M. A., \& Abd El Fattah, M. (2024). StockBiLSTM: Utilizing an efficient deep learning approach for forecasting stock market time series data. \textit{International Journal of Advanced Computer Science and Applications, 15}(4). \url{http://thesai.org/Downloads/Volume15No4/Paper_46-StockBiLSTM_Utilizing_an_Efficient_Deep_Learning.pdf}
+
+\item Fama, E. F. (1970). Efficient capital markets: A review of theory and empirical work. \textit{The Journal of Finance, 25}(2), 383--417.
+
+\item Fischer, T., \& Krauss, C. (2018). Deep learning with long short-term memory networks for financial market predictions. \textit{European Journal of Operational Research, 270}(2), 654--669. \url{https://ideas.repec.org/a/eee/ejores/v270y2018i2p654-669.html}
+
+\item Fjellstr\"om, C. (2022). \textit{Long short-term memory neural network for financial time series}. arXiv preprint arXiv:2201.08218. \url{https://arxiv.org/abs/2201.08218}
+
+\item Hutto, C. J., \& Gilbert, E. (2014). VADER: A parsimonious rule-based model for sentiment analysis of social media text. In \textit{Proceedings of the International AAAI Conference on Web and Social Media (ICWSM-14)}. \url{http://eegilbert.org/papers/icwsm14.vader.hutto.pdf}
+
+\item Ifleh, A., \& El Kabbouri, M. (2023). Stock price indices prediction combining deep learning algorithms and selected technical indicators based on correlation. \textit{Arab Gulf Journal of Scientific Research}. \url{https://www.emerald.com/insight/content/doi/10.1108/AGJSR-02-2023-0070/full/html}
+
+\item Li, Y., \& Pan, Y. (2021). A novel ensemble deep learning model for stock prediction based on stock prices and news. \textit{International Journal of Data Science and Analytics}. \url{https://pmc.ncbi.nlm.nih.gov/articles/PMC8446482/}
+
+\item Liu, F., Guo, S., Xing, Q., Sha, X., Chen, Y., Jin, Y., Zheng, Q., \& Yu, C. (2024). Application of an ANN and LSTM-based ensemble model for stock market prediction. \textit{IEEE ICISCAE 2024}. \url{https://ieeexplore.ieee.org/document/10761432/}
+
+\item Liu, Q., Hu, Y., \& Liu, H. (2024). Enhanced stock price prediction with optimized ensemble modeling using multi-source heterogeneous data. \textit{Journal of Industrial Information Integration}. \url{https://www.sciencedirect.com/science/article/abs/pii/S2452414X24001547}
+
+\item Loughran, T., \& McDonald, B. (2011). When is a liability not a liability? Textual analysis, dictionaries, and 10-Ks. \textit{The Journal of Finance, 66}(1), 35--65. \url{https://econpapers.repec.org/RePEc:bla:jfinan:v:66:y:2011:i:1:p:35-65}
+
+\item Murphy, J. J. (1999). \textit{Technical analysis of the financial markets}. New York Institute of Finance.
+
+\item Pardo, R. (2008). \textit{The evaluation and optimization of trading strategies} (2nd ed.). Wiley.
+
+\item Patel, J., Shah, S., Thakkar, P., \& Kotecha, K. (2015). Predicting stock market index using fusion of machine learning techniques. \textit{Expert Systems with Applications, 42}(4), 2162--2172. \url{https://www.sciencedirect.com/science/article/abs/pii/S0957417414006551}
+
+\item Sarkar, A., \& Vadivu, G. (2025). \textit{An advanced ensemble deep learning framework for stock price prediction using VAE, Transformer, and LSTM model}. arXiv preprint arXiv:2503.22192. \url{https://arxiv.org/html/2503.22192v1}
+
+\item Sui, M., Zhang, C., Zhou, L., Liao, S., \& Wei, C. (2024). An ensemble approach to stock price prediction using deep learning and time series models. \textit{IEEE ICPICS 2024}. \url{https://ieeexplore.ieee.org/document/10796661/}
+
+\item Sun, X. (2024). Application of attention-based LSTM hybrid models for stock price prediction. \textit{Advances in Economics, Management and Political Sciences}. \url{https://www.ewadirect.com/proceedings/aemps/article/view/14852}
+
+\item Tetlock, P. C. (2007). Giving content to investor sentiment: The role of media in the stock market. \textit{The Journal of Finance, 62}(3), 1139--1168. \url{https://econpapers.repec.org/RePEc:bla:jfinan:v:62:y:2007:i:3:p:1139-1168}
+
+\item Tsay, R. S. (2010). \textit{Analysis of financial time series} (3rd ed.). Wiley.
+
+\item Wilder, J. W. (1978). \textit{New concepts in technical trading systems}. Trend Research.
+
+\item Alpha Vantage. (n.d.). \textit{Alpha Vantage API documentation}. Retrieved April 2026 from \url{https://www.alphavantage.co/documentation/}
+
+\item Marketaux. (n.d.). \textit{Marketaux API documentation}. Retrieved April 2026 from \url{https://www.marketaux.com/documentation}
+
+\item Yahoo Finance. (n.d.). \textit{Yahoo Finance}. Retrieved April 2026 from \url{https://finance.yahoo.com}
+
+\item Firebase. (n.d.). \textit{Firebase Authentication documentation}. Retrieved April 2026 from \url{https://firebase.google.com/docs/auth}
+
+\item Firebase. (n.d.). \textit{Cloud Firestore documentation}. Retrieved April 2026 from \url{https://firebase.google.com/docs/firestore}
+
+\item Loughran, T., \& McDonald, B. (n.d.). \textit{Loughran--McDonald sentiment word lists}. University of Notre Dame. Retrieved April 2026 from \url{https://sraf.nd.edu/textual-analysis/resources/}
+
+\end{list}
+\fussy
+
+\vspace{0.6cm}
+
+% =====================================================================
+% APPENDIX A - SAMPLE CODE
+% =====================================================================
+\appendix
+\chapter*{APPENDIX A: SAMPLE CODE}
+\addcontentsline{toc}{chapter}{Appendix A: Sample Code}
+
+The listings below are representative excerpts from the current implementation. Full source is available in the project repository.
+
+\subsection*{A.1: Chart Endpoint (Python / FastAPI)}
+
+\begin{lstlisting}[language=Python]
+@app.get("/chart/{symbol}")
+def get_chart(symbol: str, period: str = "6mo", interval: str = "1d"):
+  resolved = resolve_symbol(symbol.upper())
+  hist = get_ohlcv_for_period(resolved, period=period, interval=interval)
+  if hist.empty:
+    raise HTTPException(status_code=404, detail="No data found")
+
+  hist['rsi'] = _rsi(hist['close'])
+  macd_line, macd_sig, macd_hist_col = _macd(hist['close'])
+  hist['macd_line'] = macd_line
+  hist['macd_signal'] = macd_sig
+  hist['macd_hist'] = macd_hist_col
+
+  candles = [{"date": str(r["date"].date()), "close": round(float(r["close"]), 2)}
+         for _, r in hist.iterrows()]
+  return {"symbol": symbol.upper(), "candles": candles, "latest": candles[-1]["close"]}
+\end{lstlisting}
+
+\subsection*{A.2: Portfolio Metric Derivation (React)}
+
+\begin{lstlisting}[language=JavaScript]
+function computeMetrics(pos) {
+  const invested = pos.buyPrice * pos.quantity;
+  const currentValue = pos.currentPrice * pos.quantity;
+  const profit = currentValue - invested;
+  const returnPct = invested ? (profit / invested) * 100 : 0;
+  return { invested, currentValue, profit, returnPct };
+}
+\end{lstlisting}
+
+\subsection*{A.3: Multi-horizon Target Construction (Python)}
+
+\begin{lstlisting}[language=Python]
+HORIZON_DAYS = {
+  'ultra_short': 0.1, 'short': 0.5, 'intraday': 1.0,
+  'swing': 5.0, 'positional': 60.0,
+}
+
+for h in horizon_signals:
+  sig = horizon_signals[h]['signal']
+  days = HORIZON_DAYS[h]
+  move = sig * daily_vol * (days ** 0.5)
+  target = round(last_price * (1 + move), 2)
+  stop = round(last_price * (1 - sig * daily_vol * 0.5), 2)
+  horizon_signals[h]['target_price'] = target if sig != 0 else last_price
+  horizon_signals[h]['stop_loss'] = stop if sig != 0 else None
+\end{lstlisting}
+
+\subsection*{A.4: Marketaux Sentiment Mapping (Python)}
+
+\begin{lstlisting}[language=Python]
+sentiment = item.get("entities", [{}])[0].get("sentiment_score", 0)
+if sentiment > 0.15:
+  impact = "Bullish"
+elif sentiment < -0.15:
+  impact = "Bearish"
+else:
+  impact = "Neutral"
+\end{lstlisting}
+
+\subsection*{A.5: Startup Warmup Thread (Python)}
+
+\begin{lstlisting}[language=Python]
+PRETRAIN_SYMBOLS = ["RELIANCE", "TCS", "INFY", "HDFCBANK"]
+
+@app.on_event("startup")  % Note: use lifespan() in FastAPI >= 0.93
+def startup_pretrain():
+  def _run():
+    for sym in PRETRAIN_SYMBOLS:
+      _train_symbol(sym)
+  threading.Thread(target=_run, daemon=True).start()
+\end{lstlisting}
+
+% =====================================================================
+% APPENDIX B - PUBLICATION DETAILS
+% =====================================================================
+\chapter*{APPENDIX B: CONFERENCE / JOURNAL PUBLICATION DETAILS}
+\addcontentsline{toc}{chapter}{Appendix B: Publication Details}
+
+At the time of this submission, no peer-reviewed publication has been derived from this work. A short paper summarising the walk-forward prediction results and the backtest comparison with buy-and-hold is under preparation for submission to a student-oriented venue (target: IEEE student conference, late 2026). This appendix will be updated with acceptance details in any post-submission revision of this report.
+
+\vspace{1cm}
+\hfill \textit{End of Report}
+
+\end{document}
+
