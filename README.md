@@ -14,6 +14,11 @@ The system was built to explore how machine learning pipelines can be integrated
 > Disclaimer: This project is experimental and intended for educational purposes only.
 
 ---
+DEMO Video - 
+<img width="1000" height="1000" alt="Demo Video" src="https://github.com/user-attachments/assets/b473de3d-a3df-48ff-9c16-3a15f3e5a7a5" />
+
+
+---
 
 ## System Architecture
 
