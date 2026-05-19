@@ -32,7 +32,6 @@ import {
 } from 'recharts';
 
 const MacroDashboard = () => {
-  // ───────────────────── MOCK DATA ─────────────────────
   const [horizon, setHorizon] = useState('1M');
 
   const indexSeries = [
@@ -103,7 +102,6 @@ const MacroDashboard = () => {
     return 'High';
   };
 
-  // ───────────────────── LAYOUT ─────────────────────
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#f3f4f6', py: { xs: 2, md: 3 }, px: { xs: 1.5, sm: 2, md: 4 } }}>
       {/* Header */}

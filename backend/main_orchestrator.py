@@ -1,18 +1,4 @@
-"""
-MAIN ORCHESTRATOR: Elite Stock Prediction System
-Integrates all 6 layers and runs a full walk-forward backtest.
-
-Usage:
-    python main_orchestrator.py
-
-Architecture:
-    Layer 1: Point-in-Time Data Pipeline
-    Layer 2: 42-Feature Engineering
-    Layer 3: Multi-Horizon Models (LSTM, Transformer, GRU, XGBoost)
-    Layer 4: Ensemble Fusion + Meta-Labeling
-    Layer 5: Drift Detection & Regime Adaptation
-    Layer 6: Portfolio Construction, Execution & Risk Management
-"""
+"""Walk-forward backtest orchestrating all 6 layers."""
 
 import sys
 import os
@@ -25,7 +11,6 @@ from typing import Dict, List, Tuple
 import warnings
 warnings.filterwarnings('ignore')
 
-# Import all layers
 from layer1_data_pipeline import MarketDataLoader, SurvivourshipBiasFilter
 from layer2_feature_engineering import FeatureEngine, z_score_features
 from layer3_4_models_ensemble import (
@@ -37,17 +22,13 @@ from layer5_6_drift_execution import (
 )
 
 
-# ─────────────────────────────────────────────
-# CONFIGURATION
-# ─────────────────────────────────────────────
-
 UNIVERSE = [
     'RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'ICICIBANK',
 ]
 
 SECTOR_MAP = {
-    'RELIANCE': 'Energy', 'TCS': 'IT', 'HDFC': 'Finance',
-    'INFY': 'IT', 'ICICIBANK': 'Finance', 'HDFCBANK': 'Finance',
+    'RELIANCE': 'Energy', 'TCS': 'IT', 'INFY': 'IT',
+    'ICICIBANK': 'Finance', 'HDFCBANK': 'Finance',
     'KOTAKBANK': 'Finance', 'LT': 'Industrial',
     'HINDUNILVR': 'FMCG', 'SBIN': 'Finance'
 }
@@ -58,24 +39,15 @@ TEST_START  = '2023-01-01'
 TEST_END    = '2023-06-30'
 
 
-# ─────────────────────────────────────────────
-# BACKTEST ENGINE
-# ─────────────────────────────────────────────
-
 class BacktestEngine:
-    """
-    Walk-forward backtest that simulates the full 6-layer pipeline
-    operating day by day, as it would in live trading.
-    """
 
     def __init__(self, universe: List[str], initial_capital: float = 10_000_000):
         self.universe = universe
         self.initial_capital = initial_capital
         self.capital = initial_capital
-        self.positions: Dict[str, float] = {sym: 0.0 for sym in universe}  # shares held
-        self.weights: Dict[str, float] = {sym: 0.0 for sym in universe}    # target weights
+        self.positions: Dict[str, float] = {sym: 0.0 for sym in universe}
+        self.weights: Dict[str, float] = {sym: 0.0 for sym in universe}
 
-        # Initialize all layers
         self.data_loader   = MarketDataLoader(universe, TRAIN_START, TEST_END)
         self.surv_filter   = SurvivourshipBiasFilter()
         self.feature_engine = FeatureEngine()
@@ -147,8 +119,6 @@ class BacktestEngine:
         print("LAYER 3 & 4: Training Multi-Horizon Ensemble")
         print("="*60)
 
-        # Use the first (largest) symbol's features for training
-        # In production: train per-symbol or on panel data
         anchor_sym = self.universe[0]
         train_mask = (feature_store[anchor_sym].index >= TRAIN_START) & \
                      (feature_store[anchor_sym].index <= TRAIN_END)
@@ -361,10 +331,6 @@ class BacktestEngine:
         print("System Status: All 6 Layers operational")
         print("="*60)
 
-
-# ─────────────────────────────────────────────
-# MAIN ENTRY POINT
-# ─────────────────────────────────────────────
 
 def main():
     print("\n" + "█"*60)

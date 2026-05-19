@@ -1,15 +1,4 @@
-"""
-LAYER 5: Adaptive Learning & Concept Drift Detection
-LAYER 6: Cost-Aware Execution, Portfolio Construction & Risk Management
-
-Implements:
-- ADWIN-style drift detection
-- Regime-conditional model weighting
-- Portfolio construction: signal → position sizes
-- Risk limits: per-name, sector, drawdown, kill-switch
-- Transaction cost modeling (Indian market: brokerage, STT, impact)
-- Full audit logging
-"""
+"""Layers 5 & 6: drift detection, regime-adaptive routing, portfolio construction, and risk management."""
 
 import numpy as np
 import pandas as pd
@@ -19,10 +8,6 @@ from collections import deque
 import warnings
 warnings.filterwarnings('ignore')
 
-
-# ─────────────────────────────────────────────
-# LAYER 5A: CONCEPT DRIFT DETECTION
-# ─────────────────────────────────────────────
 
 class ADWINDriftDetector:
     """
@@ -173,15 +158,9 @@ class DriftAwareModelRouter:
         return queue
 
 
-# ─────────────────────────────────────────────
-# LAYER 6A: TRANSACTION COST MODEL
-# ─────────────────────────────────────────────
-
 @dataclass
 class IndianMarketCosts:
-    """
-    Realistic Indian market transaction costs (NSE/BSE, 2024).
-    Source: SEBI circulars, NSE fee schedule.
+    """Indian market transaction costs (NSE/BSE): brokerage, STT, SEBI fee, stamp duty, market impact.
     """
     # Brokerage: typically ₹20/order flat or 0.03% for delivery
     brokerage_pct: float = 0.0003          # 0.03% one-way
@@ -199,10 +178,6 @@ class IndianMarketCosts:
 
     def total_round_trip_cost(self, trade_type: str = 'intraday',
                               size_pct_adv: float = 0.01) -> float:
-        """
-        Total cost for a round-trip trade as a fraction of notional.
-        size_pct_adv: trade size as fraction of Average Daily Volume.
-        """
         if trade_type == 'intraday':
             stt = self.stt_equity_intraday
         else:
@@ -217,15 +192,7 @@ class IndianMarketCosts:
         return total
 
 
-# ─────────────────────────────────────────────
-# LAYER 6B: POSITION SIZING
-# ─────────────────────────────────────────────
-
 class VolatilityScaledSizing:
-    """
-    Position sizing using volatility targeting.
-    Target portfolio volatility = target_vol (annualized).
-    """
 
     def __init__(self, target_vol: float = 0.15, max_leverage: float = 1.5):
         self.target_vol = target_vol
@@ -261,13 +228,8 @@ class VolatilityScaledSizing:
         return float(np.sign(signal) * size)
 
 
-# ─────────────────────────────────────────────
-# LAYER 6C: PORTFOLIO CONSTRUCTION
-# ─────────────────────────────────────────────
-
 @dataclass
 class RiskLimits:
-    """Hard risk limits enforced at portfolio construction."""
     max_position_pct: float = 0.10        # Max 10% in any single name
     max_sector_pct: float = 0.30          # Max 30% in any sector
     max_gross_leverage: float = 1.5       # Max 150% gross
@@ -364,15 +326,7 @@ class PortfolioConstructor:
         return sum(w * betas.get(sym, 1.0) for sym, w in weights.items())
 
 
-# ─────────────────────────────────────────────
-# LAYER 6D: RISK MONITOR & KILL-SWITCH
-# ─────────────────────────────────────────────
-
 class RiskMonitor:
-    """
-    Real-time risk monitoring with automatic de-risking and kill-switch.
-    Monitors: drawdown, VaR, factor exposures, slippage tracking.
-    """
 
     def __init__(self, limits: Optional[RiskLimits] = None):
         self.limits = limits or RiskLimits()
@@ -458,15 +412,10 @@ class RiskMonitor:
         }
 
 
-# ─────────────────────────────────────────────
-# EXECUTION ENGINE
-# ─────────────────────────────────────────────
-
 @dataclass
 class Order:
-    """Represents a single trade order."""
     symbol: str
-    direction: int          # +1 buy, -1 sell
+    direction: int
     quantity: float
     order_type: str         # 'limit' or 'market'
     limit_price: float
@@ -518,4 +467,3 @@ class SmartOrderRouter:
         return [slice_qty] * n_slices
 
 
-print("Layer 5 (Drift Detection) + Layer 6 (Execution & Risk) loaded successfully.")
