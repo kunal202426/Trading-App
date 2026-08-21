@@ -14,7 +14,7 @@ import { AnimatePresence } from "framer-motion";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { TourOverlay } from "./tour/TourOverlay";
 import { useTour } from "./tour/useTour";
-import { TOUR_LOGIN_TRIGGER_KEY, hasDoneTour, clearQueuedTour } from "./tour/tourSteps";
+import { TOUR_LOGIN_TRIGGER_KEY, clearQueuedTour } from "./tour/tourSteps";
 import Navbar from "./components/layout/Navbar.jsx";
 
 const Dashboard = lazy(() => import("./pages/Dashboard.jsx"));
@@ -126,21 +126,16 @@ function AppRoutes() {
   const isAuthPage = ["/login", "/signup", "/"].includes(location.pathname);
   const isTourNavStep = tour.active && tour.currentStep?.id === "navigation-panel";
 
-  // Start onboarding after login queue, and also auto-start on first portfolio entry.
+  // Onboarding auto-starts only when queued at login — which happens on a
+  // brand-new account or when the last login was 2+ days ago (see
+  // useAppStore.recordLogin). A regular, frequent user never sees it.
   useEffect(() => {
     if (!user || tour.active) return;
-
     const queued = sessionStorage.getItem(TOUR_LOGIN_TRIGGER_KEY) === "1";
-    const shouldAutoStartOnPortfolio = !hasDoneTour() && location.pathname === "/portfolio";
-
-    if (!queued && !shouldAutoStartOnPortfolio) return;
-
-    if (queued) {
-      clearQueuedTour();
-    }
-
+    if (!queued) return;
+    clearQueuedTour();
     tour.restart();
-  }, [user, tour.active, tour.restart, location.pathname]);
+  }, [user, tour.active, tour.restart]);
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>

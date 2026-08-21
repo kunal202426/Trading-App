@@ -75,7 +75,7 @@ export default function Transactions() {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
-      <Box sx={{ bgcolor: '#f3f4f6', minHeight: '100vh', px: { xs: 1.5, sm: 2, md: 3, lg: 4 }, py: { xs: 2, sm: 3, md: 4 }, maxWidth: 900, mx: 'auto', boxSizing: 'border-box', overflowX: 'hidden' }}>
+      <Box sx={{ bgcolor: '#f5f7ff', minHeight: '100vh', px: { xs: 1.5, sm: 2, md: 3, lg: 4 }, py: { xs: 2, sm: 3, md: 4 }, maxWidth: 900, mx: 'auto', boxSizing: 'border-box', overflowX: 'hidden' }}>
 
         {/* Header */}
         <Stack

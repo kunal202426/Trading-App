@@ -64,6 +64,21 @@ export default function DeepAnalysis() {
     }).catch(() => {}).finally(() => setLoading(false));
   }, [symbol]);
 
+  // Real aggregated sentiment (symbol narrative + broad india/global reads),
+  // only fetched once the News & Sentiment tab is actually opened.
+  const [newsSentiment, setNewsSentiment] = useState(null);
+  const [sentimentLoading, setSentimentLoading] = useState(false);
+  useEffect(() => {
+    if (activeTab !== 3 || !symbol) return;
+    let cancelled = false;
+    setSentimentLoading(true);
+    axios.get(`${API}/news/${symbol}`)
+      .then((res) => { if (!cancelled) setNewsSentiment(res.data?.sentiment || null); })
+      .catch(() => { if (!cancelled) setNewsSentiment(null); })
+      .finally(() => { if (!cancelled) setSentimentLoading(false); });
+    return () => { cancelled = true; };
+  }, [activeTab, symbol]);
+
   const toggleOverlay = useCallback((key) => {
     setOverlays((prev) =>
       prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
@@ -202,6 +217,21 @@ export default function DeepAnalysis() {
             </Stack>
           )}
         </Paper>
+
+        {/* ═══ SNAPSHOT DISCLOSURE ═══ */}
+        {predData?._snapshot && (
+          <Box sx={{
+            px: { xs: 1.5, sm: 2, md: 3 }, py: 1, bgcolor: '#fef9c3', borderBottom: '1px solid #fde68a',
+            display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap',
+          }}>
+            <Typography sx={{ fontSize: 12, fontWeight: 700, color: '#854d0e' }}>
+              Cached signal{predData._snapshot_date ? ` from ${predData._snapshot_date}` : ''}
+            </Typography>
+            <Typography sx={{ fontSize: 12, color: '#a16207' }}>
+              — the live model is warming up; this is a last-known reading, not a fresh read.
+            </Typography>
+          </Box>
+        )}
 
         {/* ═══ TABS ═══ */}
         <Box sx={{ borderBottom: '1px solid #e5e7eb', bgcolor: '#ffffff', overflowX: 'auto' }}>
@@ -365,6 +395,9 @@ export default function DeepAnalysis() {
                     sx={{ height: 6, borderRadius: 3, bgcolor: '#e5e7eb', '& .MuiLinearProgress-bar': { bgcolor: signalColor(predData.signal), borderRadius: 3 } }} />
                 </Box>
                 <Typography sx={{ fontSize: 10, color: '#94a3b8', mt: 1 }}>Generated: {predData.timestamp}</Typography>
+                {predData._snapshot && (
+                  <Chip label="Cached snapshot" size="small" sx={{ mt: 0.75, height: 20, fontSize: 10, fontWeight: 700, bgcolor: '#fef9c3', color: '#854d0e', border: '1px solid #fde68a' }} />
+                )}
               </Box>
             
               <Box>
@@ -395,7 +428,18 @@ export default function DeepAnalysis() {
               </Box>
             </Box>
 
-            
+            {predData.ai_take && (
+              <Paper elevation={0} sx={{ p: 2, mb: 3, borderRadius: 2, border: '1px solid #e5e7eb', bgcolor: '#ffffff' }}>
+                <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: '#94a3b8', textTransform: 'uppercase', mb: 0.75 }}>
+                  AI Take
+                </Typography>
+                <Typography sx={{ fontSize: 13.5, color: '#334155', lineHeight: 1.6 }}>
+                  {predData.ai_take}
+                </Typography>
+              </Paper>
+            )}
+
+
             <Typography sx={{ fontSize: 13, fontWeight: 800, color: '#0f172a', mb: 1.5 }}>Horizon Matrix</Typography>
             <Box id="analysis-signals-grid" sx={{ display: 'flex', gap: 1.5, mb: 3, flexWrap: 'wrap' }}>
               {horizons.map(([key, data]) => {
@@ -908,33 +952,48 @@ export default function DeepAnalysis() {
                       const sentColor = (v) => v > 0.3 ? '#16a34a' : v > 0.05 ? '#22c55e' : v > -0.05 ? '#6b7280' : v > -0.3 ? '#f97316' : '#dc2626';
                       const sentLabel = (v) => v > 0.3 ? 'Strong Bullish' : v > 0.05 ? 'Bullish' : v > -0.05 ? 'Neutral' : v > -0.3 ? 'Bearish' : 'Strong Bearish';
                       return [
-                        { label: 'Global Macro', value: 0.1 },
-                        { label: 'India Equities', value: 0.2 },
-                        { label: `${symbol} Narrative`, value: -0.15 },
-                      ].map((row) => (
-                        <Box key={row.label}>
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
-                            <Typography variant="body2" sx={{ color: '#334155', fontWeight: 500 }}>{row.label}</Typography>
-                            <Chip label={sentLabel(row.value)} size="small" sx={{ height: 22, fontSize: 11, fontWeight: 600, bgcolor: `${sentColor(row.value)}15`, color: sentColor(row.value) }} />
+                        { label: 'Global Macro', value: newsSentiment?.global_macro },
+                        { label: 'India Equities', value: newsSentiment?.india_equities },
+                        { label: `${symbol} Narrative`, value: newsSentiment?.symbol_narrative },
+                      ].map((row) => {
+                        const hasValue = row.value != null;
+                        return (
+                          <Box key={row.label}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
+                              <Typography variant="body2" sx={{ color: '#334155', fontWeight: 500 }}>{row.label}</Typography>
+                              {sentimentLoading ? (
+                                <Chip label="Loading…" size="small" sx={{ height: 22, fontSize: 11, fontWeight: 600, bgcolor: '#f1f5f9', color: '#94a3b8' }} />
+                              ) : hasValue ? (
+                                <Chip label={sentLabel(row.value)} size="small" sx={{ height: 22, fontSize: 11, fontWeight: 600, bgcolor: `${sentColor(row.value)}15`, color: sentColor(row.value) }} />
+                              ) : (
+                                <Chip label="No signal yet" size="small" sx={{ height: 22, fontSize: 11, fontWeight: 600, bgcolor: '#f1f5f9', color: '#94a3b8' }} />
+                              )}
+                            </Box>
+                            <LinearProgress
+                              variant="determinate"
+                              value={hasValue ? 50 + row.value * 50 : 50}
+                              sx={{
+                                height: 6, borderRadius: 999, bgcolor: '#e5e7eb',
+                                '& .MuiLinearProgress-bar': { backgroundColor: hasValue ? sentColor(row.value) : '#cbd5e1', borderRadius: 999 },
+                              }}
+                            />
                           </Box>
-                          <LinearProgress
-                            variant="determinate"
-                            value={50 + row.value * 50}
-                            sx={{
-                              height: 6, borderRadius: 999, bgcolor: '#e5e7eb',
-                              '& .MuiLinearProgress-bar': { backgroundColor: sentColor(row.value), borderRadius: 999 },
-                            }}
-                          />
-                        </Box>
-                      ));
+                        );
+                      });
                     })()}
                   </Stack>
+                  <Typography variant="caption" sx={{ color: '#94a3b8', display: 'block', mt: 1 }}>
+                    Live sentiment from recent news coverage, not a hardcoded estimate — "No signal yet" means no scored articles came back this refresh.
+                  </Typography>
                 </Paper>
 
                 {/* Event Radar — moved into left column */}
-                <Typography sx={{ fontSize: 13, fontWeight: 800, color: '#0f172a', mb: 0.5 }}>Event Radar (Next 30–60 days)</Typography>
+                <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
+                  <Typography sx={{ fontSize: 13, fontWeight: 800, color: '#0f172a' }}>Event Radar (Next 30–60 days)</Typography>
+                  <Chip label="Illustrative" size="small" sx={{ height: 18, fontSize: 9.5, fontWeight: 700, bgcolor: '#fef9c3', color: '#854d0e', border: '1px solid #fde68a' }} />
+                </Stack>
                 <Typography variant="body2" sx={{ color: '#64748b', mb: 1.5 }}>
-                  Macro releases and scheduled events that can move this name.
+                  Example of what a live economic calendar would show here — not sourced from a real feed yet.
                 </Typography>
                 <Paper elevation={0} sx={{ p: 2.5, borderRadius: 2, border: '1px solid #e5e7eb', bgcolor: '#ffffff' }}>
                   <Stack spacing={1.5} divider={<Divider sx={{ borderColor: '#f1f5f9' }} />}>

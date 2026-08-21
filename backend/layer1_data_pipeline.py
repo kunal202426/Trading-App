@@ -111,20 +111,51 @@ class MarketDataLoader:
             data[sym] = df
         return data
 
+    def _load_real_india_vix(self, dates: pd.DatetimeIndex) -> Optional[pd.Series]:
+        """
+        Fetch real India VIX (Yahoo Finance ^INDIAVIX) and align it to
+        *dates*, forward/back-filling the small gaps around market holidays.
+        Returns None on any failure so the caller falls back to a synthetic
+        series rather than aborting a training run over a flaky network call.
+        """
+        try:
+            from alpha_vantage import get_daily_ohlcv
+            raw = get_daily_ohlcv(
+                "^INDIAVIX",
+                start_date=dates[0].strftime("%Y-%m-%d"),
+                end_date=dates[-1].strftime("%Y-%m-%d"),
+            )
+            if raw.empty:
+                return None
+            vix = raw.set_index("date")["close"].reindex(dates, method="ffill").bfill()
+            return None if vix.isna().any() else vix
+        except Exception:
+            return None
+
     def load_options_data(self) -> pd.DataFrame:
-        """Simulate options chain data (PCR, IV, Greeks)."""
+        """
+        Options/volatility context per date. india_vix is REAL (Yahoo
+        Finance ^INDIAVIX) with a synthetic-walk fallback only if the live
+        fetch fails. PCR / ATM IV / open interest have no free public data
+        source and remain simulated — treat them as illustrative, not live.
+        """
         dates = pd.date_range(self.start_date, self.end_date, freq='B')
         np.random.seed(99)
         n = len(dates)
+
+        vix_series = self._load_real_india_vix(dates)
+        if vix_series is None:
+            vix_series = pd.Series(np.clip(15 + np.cumsum(np.random.normal(0, 0.3, n)), 8, 80), index=dates)
+
         df = pd.DataFrame({
             'date': dates,
-            'india_vix': np.clip(15 + np.cumsum(np.random.normal(0, 0.3, n)), 8, 80),
-            'pcr_index': np.clip(np.random.normal(0.9, 0.15, n), 0.4, 2.0),
-            'iv_atm': np.clip(0.20 + np.cumsum(np.random.normal(0, 0.005, n)), 0.05, 0.80),
-            'call_oi': np.random.randint(5_000_000, 20_000_000, n),
-            'put_oi':  np.random.randint(4_000_000, 18_000_000, n),
+            'india_vix': vix_series.values,
+            'pcr_index': np.clip(np.random.normal(0.9, 0.15, n), 0.4, 2.0),               # synthetic
+            'iv_atm': np.clip(0.20 + np.cumsum(np.random.normal(0, 0.005, n)), 0.05, 0.80),  # synthetic
+            'call_oi': np.random.randint(5_000_000, 20_000_000, n),                       # synthetic
+            'put_oi':  np.random.randint(4_000_000, 18_000_000, n),                       # synthetic
         })
-        df['cpiv'] = df['iv_atm'] * np.random.normal(0, 0.02, n)  # Call-Put IV spread
+        df['cpiv'] = df['iv_atm'] * np.random.normal(0, 0.02, n)  # Call-Put IV spread (synthetic)
         return df
 
     def load_macro_data(self) -> pd.DataFrame:

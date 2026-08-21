@@ -21,6 +21,10 @@ from layer5_6_drift_execution import RegimeDetector
 MODEL_CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                "model_cache")
 
+# A cached model older than this is retrained from fresh data on next
+# request instead of being served indefinitely.
+MODEL_MAX_AGE_DAYS = 7
+
 
 class DynamicStockPredictor:
     """Download data, build features, train models, and predict for any NSE symbol."""
@@ -102,12 +106,19 @@ class DynamicStockPredictor:
 
         # ── Layer 3-4: try to load cached model, else train ─────────
         pkl_path = os.path.join(MODEL_CACHE_DIR, f"{symbol}_model.pkl")
+        cache_age_days = (
+            (datetime.datetime.now().timestamp() - os.path.getmtime(pkl_path)) / 86400
+            if os.path.exists(pkl_path) else None
+        )
+        cache_is_fresh = cache_age_days is not None and cache_age_days < MODEL_MAX_AGE_DAYS
 
-        if os.path.exists(pkl_path):
+        if cache_is_fresh:
             with open(pkl_path, "rb") as f:
                 self._predictors[symbol] = pickle.load(f)
-            print(f"  Loaded cached model for {symbol} from {pkl_path}")
+            print(f"  Loaded cached model for {symbol} from {pkl_path} ({cache_age_days:.1f}d old)")
         else:
+            if cache_age_days is not None:
+                print(f"  Cached model for {symbol} is {cache_age_days:.1f}d old (>{MODEL_MAX_AGE_DAYS}d) — retraining.")
             predictor = MultiHorizonPredictor()
             # Train on first 80 % of data
             n_train = int(len(master_df) * 0.80)

@@ -7,8 +7,9 @@ import {
 } from "firebase/auth";
 import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
-import { markLoginSession, clearLoginSession } from "../contexts/AuthContext";
+import { touchSession, clearLoginSession } from "../contexts/AuthContext";
 import { queueTourAfterLogin, clearQueuedTour } from "../tour/tourSteps";
+import { useAppStore } from "../store/useAppStore";
 import logo from "../assets/logo.png";
 import AnimatedCharactersLoginPage from "../components/ui/animated-characters-login-page";
 
@@ -30,9 +31,9 @@ const Login = () => {
     setLoading(true);
 
     try {
-      markLoginSession();
+      touchSession();
       await signInWithEmailAndPassword(auth, email, password);
-      queueTourAfterLogin();
+      if (useAppStore.getState().recordLogin()) queueTourAfterLogin();
       navigate("/portfolio");
     } catch (err) {
       clearLoginSession();
@@ -63,16 +64,16 @@ const Login = () => {
     setLoading(true);
     try {
       const provider = new GoogleAuthProvider();
-      markLoginSession();
+      touchSession();
       await signInWithPopup(auth, provider);
-      queueTourAfterLogin();
+      if (useAppStore.getState().recordLogin()) queueTourAfterLogin();
       navigate("/portfolio");
     } catch (err) {
       if (err.code === "auth/popup-blocked" || err.code === "auth/cancelled-popup-request") {
         try {
           const provider = new GoogleAuthProvider();
-          markLoginSession();
-          queueTourAfterLogin();
+          touchSession();
+          if (useAppStore.getState().recordLogin()) queueTourAfterLogin();
           await signInWithRedirect(auth, provider);
           return;
         } catch {

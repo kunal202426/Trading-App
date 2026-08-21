@@ -58,6 +58,9 @@ logs/
 *.temp
 .cache/
 
+# CodeGraph local index
+.codegraph/
+
 # OS
 Thumbs.db
 .DS_Store

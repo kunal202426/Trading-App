@@ -26,6 +26,7 @@ import {
 
 const API = import.meta.env.VITE_API_URL || '';
 import TroubleshootIcon from '@mui/icons-material/Troubleshoot';
+import { useAppStore } from '../store/useAppStore';
 const signalColors = { 1: '#16a34a', 0: '#d97706', [-1]: '#dc2626' };
 const signalLabels = { 1: 'BUY', 0: 'HOLD', [-1]: 'SELL' };
 
@@ -526,8 +527,6 @@ function HorizonMatrix({ horizonSignals={} }) {
 // ═════════════════════════════════════════════════════
 // MAIN DASHBOARD
 // ═════════════════════════════════════════════════════
-const DEFAULT_WATCHLIST = ['RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'ICICIBANK'];
-
 export default function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -535,7 +534,9 @@ export default function Dashboard() {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [symbol, setSymbol] = useState('RELIANCE');
   const [currentSymbol, setCurrentSymbol] = useState('');
-  const [watchlist, setWatchlist] = useState(DEFAULT_WATCHLIST);
+  const watchlist = useAppStore((s) => s.watchlist);
+  const addToWatchlist = useAppStore((s) => s.addToWatchlist);
+  const removeFromWatchlist = useAppStore((s) => s.removeFromWatchlist);
   const [prediction, setPrediction] = useState(null);
   const [predLoading, setPredLoading] = useState(false);
   const [predError, setPredError] = useState('');
@@ -665,20 +666,17 @@ export default function Dashboard() {
   };
 
   const handleRemoveFromWatchlist = (symToRemove) => {
-    setWatchlist((prev) => {
-      if (prev.length === 1) return prev;
-      const next = prev.filter((sym) => sym !== symToRemove);
+    if (watchlist.length <= 1) return;
+    const next = watchlist.filter((sym) => sym !== symToRemove);
+    removeFromWatchlist(symToRemove);
 
-      if (symbol === symToRemove) {
-        setSymbol(next[0] || '');
-        setPrediction(null);
-      }
-      if (currentSymbol === symToRemove) {
-        setCurrentSymbol('');
-      }
-
-      return next;
-    });
+    if (symbol === symToRemove) {
+      setSymbol(next[0] || '');
+      setPrediction(null);
+    }
+    if (currentSymbol === symToRemove) {
+      setCurrentSymbol('');
+    }
   };
 
   const handleOpenFundamentals = async (e) => {
@@ -733,7 +731,7 @@ export default function Dashboard() {
               symbols={watchlist}
               activeSymbol={symbol}
               onSelect={(s) => { setSymbol(s); setPrediction(null); }}
-              onAdd={(s) => setWatchlist((prev) => [...prev, s])}
+              onAdd={(s) => addToWatchlist(s)}
               onRemove={handleRemoveFromWatchlist}
               flash={flashWatchlist}
             />
@@ -911,7 +909,29 @@ export default function Dashboard() {
                 exit={{ opacity: 0 }}
                 style={{ display: 'flex', flexDirection: 'column', gap: 12 }}
               >
+                {prediction._snapshot && (
+                  <Box sx={{ p: 1.25, borderRadius: 2, bgcolor: '#fef9c3', border: '1px solid #fde68a' }}>
+                    <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: '#854d0e' }}>
+                      Cached signal{prediction._snapshot_date ? ` from ${prediction._snapshot_date}` : ''}
+                    </Typography>
+                    <Typography sx={{ fontSize: 11, color: '#a16207' }}>
+                      Live model is warming up — showing the last known reading.
+                    </Typography>
+                  </Box>
+                )}
                 <SignalCard prediction={prediction} onOpenAnalysis={handleOpenAnalysis} onOpenFundamentals={handleOpenFundamentals} currentSymbol={currentSymbol} />
+                {prediction.ai_take && (
+                  <Card sx={cardSx}>
+                    <CardContent sx={{ py: 1.75 }}>
+                      <Typography sx={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, color: '#94a3b8', textTransform: 'uppercase', mb: 0.75 }}>
+                        AI Take
+                      </Typography>
+                      <Typography sx={{ fontSize: 13, color: '#334155', lineHeight: 1.55 }}>
+                        {prediction.ai_take}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                )}
                 <PriceTargetCard prediction={prediction} />
                 <RegimeCard regime={prediction.regime} />
                 <HorizonMatrix horizonSignals={prediction.horizon_signals} />
@@ -966,11 +986,18 @@ export default function Dashboard() {
           }}
         >
           <Box>
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              {fundamentalSymbol} Quick Fundamentals
-            </Typography>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                {fundamentalSymbol} Quick Fundamentals
+              </Typography>
+              {fundamentalData?.is_demo_data && (
+                <Chip label="Demo data" size="small" sx={{ height: 20, fontSize: 10.5, fontWeight: 700, bgcolor: '#fef9c3', color: '#854d0e', border: '1px solid #fde68a' }} />
+              )}
+            </Stack>
             <Typography variant="body2" sx={{ color: '#6b7280' }}>
-              Compact snapshot for traders
+              {fundamentalData && !fundamentalData.has_coverage
+                ? "Not covered yet — figures below are placeholders."
+                : "Compact snapshot for traders"}
             </Typography>
           </Box>
 
@@ -1080,7 +1107,7 @@ export default function Dashboard() {
           symbols={watchlist}
           activeSymbol={symbol}
           onSelect={(s) => { setSymbol(s); setPrediction(null); setWatchlistDrawerOpen(false); }}
-          onAdd={(s) => setWatchlist((prev) => [...prev, s])}
+          onAdd={(s) => addToWatchlist(s)}
           onRemove={handleRemoveFromWatchlist}
           flash={flashWatchlist}
         />

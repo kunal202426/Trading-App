@@ -3,8 +3,9 @@ import { ArrowLeft } from "lucide-react";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
-import { markLoginSession, clearLoginSession } from "../contexts/AuthContext";
+import { touchSession, clearLoginSession } from "../contexts/AuthContext";
 import { queueTourAfterLogin, clearQueuedTour } from "../tour/tourSteps";
+import { useAppStore } from "../store/useAppStore";
 import logo from "../assets/logo.png";
 import { AuthCharactersScene } from "../components/ui/auth-characters-scene";
 import { Button } from "../components/ui/button";
@@ -41,12 +42,12 @@ const Signup = () => {
 
     setLoading(true);
     try {
-      markLoginSession();
+      touchSession();
       const cred = await createUserWithEmailAndPassword(auth, email, password);
       if (name.trim()) {
         await updateProfile(cred.user, { displayName: name.trim() });
       }
-      queueTourAfterLogin();
+      if (useAppStore.getState().recordLogin()) queueTourAfterLogin();
       navigate("/portfolio");
     } catch (err) {
       clearLoginSession();
