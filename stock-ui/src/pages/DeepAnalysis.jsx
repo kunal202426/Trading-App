@@ -22,7 +22,6 @@ const API = import.meta.env.VITE_API_URL || '';
 const signalColor = (s) => s === 1 ? '#16a34a' : s === -1 ? '#dc2626' : '#d97706';
 const signalLabel = (s) => s === 1 ? 'BUY' : s === -1 ? 'SELL' : 'HOLD';
 
-// ═══════════════════════════════════════════════════════
 export default function DeepAnalysis() {
   const { symbol } = useParams();
   const navigate = useNavigate();
@@ -34,7 +33,6 @@ export default function DeepAnalysis() {
   const [activeTab, setActiveTab] = useState(0);
   const [overlays, setOverlays] = useState(['bb']);
 
-  // ── Back navigation handler ──
   const backPath = location.state?.from || null;
   const backLabel = location.state?.fromLabel || 'Back';
 

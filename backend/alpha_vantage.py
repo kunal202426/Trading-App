@@ -1,10 +1,4 @@
-"""
-Stock data client — queries Yahoo Finance HTTP API directly (no yfinance library).
-Avoids yfinance's rate-limit / IP-block issues while using the same data source.
-
-Alpha Vantage key is retained as an env var for potential premium use later.
-Public interface is unchanged so api.py / dynamic_predictor / layer1 need no edits.
-"""
+"""Yahoo Finance HTTP client for daily/intraday OHLCV and quote data."""
 import os
 import time
 import requests
@@ -27,7 +21,6 @@ _HEADERS = {
     "Accept-Language": "en-US,en;q=0.9",
 }
 
-# Static alias map: user-facing name → Yahoo Finance ticker
 _SYMBOL_ALIASES = {
     "TATAMOTORS":    "TATAMOTORS.NS",
     "TATAMOTORSDVR": "TATAMOTORS.NS",
@@ -44,18 +37,7 @@ _SYMBOL_ALIASES = {
 
 
 def user_symbol_to_av(symbol: str) -> str:
-    """
-    Convert a user-facing symbol to Yahoo Finance ticker format.
-    (Function kept as 'to_av' so existing imports in api.py / dynamic_predictor
-    / layer1 require no changes.)
-
-    Examples:
-      HDFCBANK    → HDFCBANK.NS
-      RELIANCE    → RELIANCE.NS
-      526071      → 526071.BO
-      NIFTY50     → ^NSEI
-      NSE:INFY    → INFY.NS   (Alpha Vantage format passthrough)
-    """
+    """Convert a user-facing symbol to Yahoo Finance ticker format."""
     sym = symbol.upper().replace("%26", "&")
 
     if sym in _SYMBOL_ALIASES:
@@ -79,8 +61,6 @@ def user_symbol_to_av(symbol: str) -> str:
     return sym + ".NS"
 
 
-# ── period / interval helpers ────────────────────────────────────────────────
-
 def _period_to_range(period: str) -> str:
     mapping = {
         "1d": "1d", "5d": "5d", "1mo": "1mo", "3mo": "3mo",
@@ -90,21 +70,14 @@ def _period_to_range(period: str) -> str:
 
 
 def _yf_interval_to_av(interval: str) -> Optional[str]:
-    """Return None for daily (use daily endpoint), else return intraday interval."""
     intraday = {"1m", "2m", "5m", "15m", "30m", "60m", "90m", "1h"}
     return interval.lower() if interval.lower() in intraday else None
 
 
-# ── core HTTP fetcher ─────────────────────────────────────────────────────────
-
 def _fetch_yf_chart(yf_symbol: str, range_: str = "6mo",
                     interval: str = "1d",
                     period1: int = None, period2: int = None) -> dict:
-    """
-    Call Yahoo Finance chart API, retrying on query2 if query1 fails.
-    Prefer period1/period2 (unix timestamps) over range when available — more reliable.
-    Returns the raw result[0] dict.
-    """
+    """Fetch Yahoo Finance chart data, retrying on query2 if query1 fails."""
     if period1 and period2:
         params = {
             "period1":        str(period1),
@@ -160,7 +133,6 @@ def _chart_to_df(result: dict) -> pd.DataFrame:
         or quotes.get("close", [])
     )
 
-    # Convert UTC epoch → IST date (NSE trading hours are all within UTC day)
     dates = (
         pd.to_datetime(timestamps, unit="s", utc=True)
           .tz_convert("Asia/Kolkata")
@@ -179,8 +151,6 @@ def _chart_to_df(result: dict) -> pd.DataFrame:
     })
     return df.dropna(subset=["close"]).reset_index(drop=True)
 
-
-# ── public API (interface unchanged from original alpha_vantage.py) ───────────
 
 def get_daily_ohlcv(av_symbol: str, start_date: Optional[str] = None,
                     end_date: Optional[str] = None) -> pd.DataFrame:

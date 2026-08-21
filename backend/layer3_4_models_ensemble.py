@@ -1,16 +1,4 @@
-"""
-LAYER 3: Multi-Horizon Specialized Models
-LAYER 4: Hierarchical Ensemble Fusion + Meta-Labeling
-
-Each horizon has its own architecture:
-  - Ultra-Short (1–5 min): LSTM
-  - Short (15–60 min):     CNN-LSTM
-  - Intraday (1 day):      Transformer
-  - Swing (2–10 days):     GRU-Attention
-  - Positional (1–3 mo):   XGBoost + LightGBM
-
-Layer 4 fuses these via a meta-model with cost awareness.
-"""
+"""Layers 3 & 4: multi-horizon models (LSTM, CNN-LSTM, Transformer, GRU, XGBoost) with ensemble fusion."""
 
 import numpy as np
 import pandas as pd
@@ -19,21 +7,20 @@ from dataclasses import dataclass
 import warnings
 warnings.filterwarnings('ignore')
 
-# ── optional deep-learning backend (graceful fallback) ──────────────────────
 try:
     import torch
     import torch.nn as nn
     TORCH_AVAILABLE = True
 except ImportError:
     TORCH_AVAILABLE = False
-    print("PyTorch not available – using numpy-based model stubs.")
+    print("PyTorch unavailable.")
 
 try:
     import xgboost as xgb
     XGB_AVAILABLE = True
 except ImportError:
     XGB_AVAILABLE = False
-    print("XGBoost not available – using sklearn RandomForest as fallback.")
+    print("XGBoost unavailable.")
 
 try:
     import lightgbm as lgb
@@ -47,25 +34,12 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score, roc_auc_score
 
 
-# ─────────────────────────────────────────────
-# LABEL GENERATION (per blueprint Section 3.3)
-# ─────────────────────────────────────────────
-
 class LabelGenerator:
-    """
-    Generates prediction targets per horizon with point-in-time safety.
-    All labels use FORWARD returns but are only attached to the observation
-    date (no information bleed into features).
-    """
 
     def binary_direction_label(self, returns: pd.Series,
                                horizon: int,
                                vol_series: Optional[pd.Series] = None,
                                n_std: float = 0.5) -> pd.Series:
-        """
-        Ultra-short / short: +1 if next H-bar return > threshold, -1 if < -threshold, 0 otherwise.
-        Threshold is volatility-scaled (avoids noise trading).
-        """
         future_return = returns.shift(-horizon)
         if vol_series is not None:
             threshold = n_std * vol_series
@@ -76,9 +50,6 @@ class LabelGenerator:
         return pd.Series(label, index=returns.index, name=f'label_binary_h{horizon}')
 
     def regression_label(self, close: pd.Series, horizon: int) -> pd.Series:
-        """
-        Intraday: volatility-scaled return (z-scored) over next H bars.
-        """
         future_return = np.log(close.shift(-horizon) / close)
         vol = future_return.rolling(20).std()
         scaled = future_return / (vol + 1e-10)
@@ -86,10 +57,6 @@ class LabelGenerator:
 
     def cross_sectional_rank_label(self, returns_dict: Dict[str, pd.Series],
                                    horizon: int) -> Dict[str, pd.Series]:
-        """
-        Swing / Positional: cross-sectional percentile rank of forward returns.
-        Converts to top-decile (1), bottom-decile (-1), middle (0).
-        """
         dates = list(returns_dict.values())[0].index
         ranks = {}
         for sym, ret in returns_dict.items():
@@ -110,20 +77,11 @@ class LabelGenerator:
     def meta_label(self, base_signal: pd.Series,
                    actual_return: pd.Series,
                    transaction_cost: float = 0.001) -> pd.Series:
-        """
-        Meta-label: was acting on this signal profitable after costs?
-        +1 = profitable trade, 0 = don't trade
-        """
         trade_return = base_signal * actual_return.shift(-1) - abs(base_signal) * transaction_cost
         return pd.Series((trade_return > 0).astype(int),
                          index=base_signal.index, name='meta_label')
 
 
-# ─────────────────────────────────────────────
-# LAYER 3A: HORIZON MODEL ARCHITECTURES
-# ─────────────────────────────────────────────
-
-# ── PyTorch network definitions (only when torch is available) ───────────────
 if TORCH_AVAILABLE:
 
     class _LSTMNet(nn.Module):
@@ -565,15 +523,7 @@ class XGBoostPositional:
         return np.array([])
 
 
-# ─────────────────────────────────────────────
-# PURGED WALK-FORWARD CROSS-VALIDATION
-# ─────────────────────────────────────────────
-
 class PurgedWalkForwardCV:
-    """
-    Implements purged, embargoed walk-forward cross-validation.
-    Prevents information leakage between train/validation splits.
-    """
 
     def __init__(self, n_splits: int = 5, train_size: float = 0.6,
                  embargo_pct: float = 0.01):
@@ -603,13 +553,8 @@ class PurgedWalkForwardCV:
         return splits
 
 
-# ─────────────────────────────────────────────
-# LAYER 4: HIERARCHICAL ENSEMBLE FUSION
-# ─────────────────────────────────────────────
-
 @dataclass
 class HorizonSignal:
-    """Encapsulates the output of a single horizon model."""
     horizon: str
     signal: float         # -1, 0, +1 direction
     confidence: float     # 0–1 probability of signal being correct
@@ -749,14 +694,8 @@ class EnsembleFusion:
         return pd.DataFrame(rows).set_index('t')
 
 
-# ─────────────────────────────────────────────
-# ORCHESTRATOR: Trains and runs all models
-# ─────────────────────────────────────────────
-
 class MultiHorizonPredictor:
-    """
-    Top-level orchestrator for Layer 3 + Layer 4.
-    Trains one model per horizon, runs ensemble fusion.
+    """Top-level orchestrator: trains one model per horizon, runs ensemble fusion.
     """
 
     HORIZON_CONFIG = {
@@ -952,4 +891,3 @@ class MultiHorizonPredictor:
         }
 
 
-print("Layer 3 (Models) + Layer 4 (Ensemble) loaded successfully.")

@@ -1,9 +1,4 @@
-"""
-DynamicStockPredictor
-=====================
-End-to-end wrapper: download NSE data → feature engineering → train/cache
-horizon models → produce a live prediction dict for any symbol.
-"""
+"""End-to-end wrapper: fetch NSE data → feature engineering → train/cache models → predict."""
 
 import os
 import pickle
@@ -38,27 +33,13 @@ class DynamicStockPredictor:
         os.makedirs(MODEL_CACHE_DIR, exist_ok=True)
 
     def _resolve_symbol(self, symbol: str) -> str:
-        """Resolve a user-facing symbol to an Alpha Vantage ticker (e.g. NSE:INFY)."""
         return user_symbol_to_av(symbol)
 
-    # ──────────────────────────────────────────────
-    # 1. load_or_train
-    # ──────────────────────────────────────────────
-
     def load_or_train(self, symbol: str) -> pd.DataFrame:
-        """
-        Download last 3 years of NSE data for *symbol*, run it through
-        Layer 1 + Layer 2, train all 5 horizon models on 80 % of the data,
-        and cache the trained predictor to disk.  If a cached model already
-        exists the training step is skipped.
-
-        Returns the full feature DataFrame for *symbol*.
-        """
-        # Return early if already loaded this session
+        """Download data, run feature engineering, train/load cached model. Returns feature DataFrame."""
         if symbol in self._feature_store and symbol in self._predictors and symbol in self._raw_feature_store:
             return self._feature_store[symbol]
 
-        # ── Layer 1: fetch data ──────────────────────────────────────
         end_date = datetime.date.today().strftime("%Y-%m-%d")
         start_date = (datetime.date.today()
                       - datetime.timedelta(days=3 * 365)).strftime("%Y-%m-%d")
@@ -74,7 +55,6 @@ class DynamicStockPredictor:
             )
         print(f"  Downloaded {len(raw)} rows for {av_ticker} ({start_date} → {end_date})")
 
-        # raw already has lowercase columns: date, open, high, low, close, volume, adjusted_close
         price_df = raw.copy()
         price_df['symbol'] = symbol
         price_df = price_df.dropna().reset_index(drop=True)
@@ -91,7 +71,6 @@ class DynamicStockPredictor:
             index=price_df["date"],
         )
 
-        # ── Layer 2: feature engineering ─────────────────────────────
         master_df = self.feature_engine.compute_full_feature_matrix(
             price_df=price_df,
             options_df=options_df,
@@ -104,7 +83,6 @@ class DynamicStockPredictor:
         master_df = z_score_features(master_df)
         self._feature_store[symbol] = master_df
 
-        # ── Layer 3-4: try to load cached model, else train ─────────
         pkl_path = os.path.join(MODEL_CACHE_DIR, f"{symbol}_model.pkl")
         cache_age_days = (
             (datetime.datetime.now().timestamp() - os.path.getmtime(pkl_path)) / 86400
@@ -120,12 +98,10 @@ class DynamicStockPredictor:
             if cache_age_days is not None:
                 print(f"  Cached model for {symbol} is {cache_age_days:.1f}d old (>{MODEL_MAX_AGE_DAYS}d) — retraining.")
             predictor = MultiHorizonPredictor()
-            # Train on first 80 % of data
             n_train = int(len(master_df) * 0.80)
             train_df = master_df.iloc[:n_train]
             predictor.fit(train_df)
 
-            # Persist
             with open(pkl_path, "wb") as f:
                 pickle.dump(predictor, f)
             print(f"  Saved trained model for {symbol} to {pkl_path}")
@@ -133,19 +109,11 @@ class DynamicStockPredictor:
 
         return master_df
 
-    # ──────────────────────────────────────────────
-    # 2. predict_now
-    # ──────────────────────────────────────────────
-
     def predict_now(self, symbol: str) -> dict:
-        """
-        Produce a prediction dict for *symbol* using the most recent day
-        of features.
-        """
+        """Return a prediction dict for the symbol using the most recent feature row."""
         master_df = self.load_or_train(symbol)
         predictor = self._predictors[symbol]
 
-        # Last row's raw values for risk features
         last_row = master_df.iloc[-1]
         risk_features = {
             "india_vix": float(last_row.get("india_vix", 18) or 18),
@@ -155,17 +123,14 @@ class DynamicStockPredictor:
             "pcr_index": float(last_row.get("pcr_index", 0.9) or 0.9),
         }
 
-        # Use a lookback window (last 60 rows) for sequence models
         window_df = master_df.iloc[-60:]
 
         signals = predictor.predict_signals(window_df, risk_features)
         decision = predictor.get_ensemble_decision(signals, risk_features)
 
-        # Regime label
         regime_int = int(risk_features["regime"])
         regime_label = self.regime_detector.regime_label(regime_int)
 
-        # Build per-horizon sub-dict
         horizon_signals = {}
         for h_name in ["ultra_short", "short", "intraday", "swing",
                         "positional"]:
@@ -177,7 +142,6 @@ class DynamicStockPredictor:
             else:
                 horizon_signals[h_name] = {"signal": 0, "confidence": 0.0}
 
-        # Final consolidated signal: map float to int direction
         raw_sig = decision["signal"]
         if raw_sig > 0:
             final_signal = 1
@@ -186,7 +150,6 @@ class DynamicStockPredictor:
         else:
             final_signal = 0
 
-        # ── Live price via Alpha Vantage GLOBAL_QUOTE ─────────────────
         av_sym = self._resolve_symbol(symbol)
         try:
             quote = get_quote(av_sym)
@@ -198,7 +161,6 @@ class DynamicStockPredictor:
                         if hasattr(master_df.index[-1], "date")
                         else master_df.index[-1])
 
-        # ── 60-day volatility for price targets ───────────────────────
         raw_hist = None
         try:
             sixty_days_ago = (datetime.date.today()
@@ -248,7 +210,6 @@ class DynamicStockPredictor:
             "timestamp": timestamp,
         }
 
-        # ── Primary target: pick best matching horizon ────────────
         primary_horizon = 'intraday'
         for h in ['intraday', 'short', 'ultra_short', 'swing', 'positional']:
             if h in result['horizon_signals']:
@@ -260,7 +221,6 @@ class DynamicStockPredictor:
         result['primary_stop']   = result['horizon_signals'][primary_horizon]['stop_loss']
         result['primary_horizon_label'] = result['horizon_signals'][primary_horizon]['horizon_label']
 
-        # ── Key indicators from RAW (pre-scaled) feature matrix ───────
         raw_df = self._raw_feature_store[symbol]
         raw_row = raw_df.iloc[-1]
 
@@ -291,16 +251,12 @@ class DynamicStockPredictor:
             'fear_greed':   safe('fear_greed', 50, 1),
         }
 
-        # ── ATR manual fallback if still 0 ──
         def get_series(df, *names):
             for name in names:
                 if name in df.columns:
                     return df[name]
             return None
 
-        print("ATR fallback columns:", list(raw_df.columns)[-20:])
-
-        # Prefer raw_hist (original OHLCV, lowercase columns from Alpha Vantage)
         _atr_df = raw_hist if (raw_hist is not None and not raw_hist.empty) else raw_df
 
         high_s  = get_series(_atr_df, 'High', 'high')
@@ -319,12 +275,7 @@ class DynamicStockPredictor:
 
         return result
 
-    # ──────────────────────────────────────────────
-    # 3. batch_predict
-    # ──────────────────────────────────────────────
-
     def batch_predict(self, symbols: List[str]) -> list:
-        """Run predict_now() for every symbol and return list of dicts."""
         results = []
         for sym in symbols:
             try:

@@ -42,7 +42,6 @@ const cardSx = {
   border: '1px solid #e5e7eb',
 };
 
-// ── Animated number counter ──
 function CountUp({ value, prefix = '', decimals = 2, duration = 800 }) {
   const [display, setDisplay] = useState(0);
   const raf = useRef();
@@ -60,7 +59,6 @@ function CountUp({ value, prefix = '', decimals = 2, duration = 800 }) {
   return <span>{prefix}{display.toFixed(decimals)}</span>;
 }
 
-// ── Page entry variants ──
 const pageEntry = {
   hidden: { opacity: 0 },
   show: { opacity: 1, transition: { staggerChildren: 0.1 } },
@@ -74,9 +72,6 @@ const slideUp = {
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 160, damping: 20 } },
 };
 
-// ─────────────────────────────────────────────────────
-// WATCHLIST (Left Panel)
-// ─────────────────────────────────────────────────────
 function Watchlist({ symbols, activeSymbol, onSelect, onAdd, onRemove, flash }) {
   const [newSym, setNewSym] = useState('');
   const handleAdd = () => {
@@ -167,9 +162,6 @@ function Watchlist({ symbols, activeSymbol, onSelect, onAdd, onRemove, flash }) 
   );
 }
 
-// ─────────────────────────────────────────────────────
-// PRICE CHART
-// ─────────────────────────────────────────────────────
 function PriceChart({ chartData, isUp }) {
   if (!chartData || chartData.length === 0) {
     return (
@@ -238,9 +230,6 @@ function PriceChart({ chartData, isUp }) {
   );
 }
 
-// ─────────────────────────────────────────────────────
-// METRIC BOX
-// ─────────────────────────────────────────────────────
 function MetricBox({ label, value, delay = 0 }) {
   return (
     <motion.div
@@ -261,9 +250,6 @@ function MetricBox({ label, value, delay = 0 }) {
   );
 }
 
-// ─────────────────────────────────────────────────────
-// SIGNAL CARD (Right panel)
-// ─────────────────────────────────────────────────────
 function SignalCard({ prediction, onOpenAnalysis, onOpenFundamentals, currentSymbol }) {
   const label = signalLabels[prediction.signal];
   const color = signalColors[prediction.signal];
@@ -367,9 +353,6 @@ function SignalCard({ prediction, onOpenAnalysis, onOpenFundamentals, currentSym
   );
 }
 
-// ─────────────────────────────────────────────────────
-// PRICE TARGET CARD
-// ─────────────────────────────────────────────────────
 function PriceTargetCard({ prediction }) {
   const isDown = prediction.signal === -1;
   const moveColor = isDown ? '#dc2626' : '#16a34a';
@@ -417,9 +400,6 @@ function PriceTargetCard({ prediction }) {
   );
 }
 
-// ─────────────────────────────────────────────────────
-// REGIME CARD
-// ─────────────────────────────────────────────────────
 function RegimeCard({ regime }) {
   const config = {
     'Calm':     { color: '#16a34a', pulse: false },
@@ -463,9 +443,6 @@ function RegimeCard({ regime }) {
   );
 }
 
-// ─────────────────────────────────────────────────────
-// HORIZON MATRIX
-// ─────────────────────────────────────────────────────
 function HorizonMatrix({ horizonSignals={} }) {
   const horizons = Object.entries(horizonSignals);
   
@@ -524,9 +501,6 @@ function HorizonMatrix({ horizonSignals={} }) {
   );
 }
 
-// ═════════════════════════════════════════════════════
-// MAIN DASHBOARD
-// ═════════════════════════════════════════════════════
 export default function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();

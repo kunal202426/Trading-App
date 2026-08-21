@@ -1,7 +1,4 @@
-"""
-LAYER 1: Point-in-Time Data Pipeline
-Handles NSE/BSE data ingestion with survivorship-bias prevention and look-ahead protection.
-"""
+"""Layer 1: point-in-time market data pipeline for NSE/BSE."""
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
@@ -12,10 +9,7 @@ warnings.filterwarnings('ignore')
 
 
 class PointInTimeDataStore:
-    """
-    Ensures all data is available only up to the query date.
-    Prevents look-ahead bias by tracking as-of dates for each data series.
-    """
+    """Tracks as-of dates for each data series to prevent look-ahead bias."""
 
     def __init__(self):
         self._store: Dict[str, pd.DataFrame] = {}
@@ -31,7 +25,6 @@ class PointInTimeDataStore:
         }
 
     def register(self, key: str, df: pd.DataFrame, data_type: str = 'daily_price'):
-        """Register a dataset with its release lag."""
         lag = self._release_lags.get(data_type, 0)
         df = df.copy()
         # Shift data forward by release lag to simulate real availability
@@ -40,7 +33,6 @@ class PointInTimeDataStore:
         self._store[key] = (df, lag)
 
     def query(self, key: str, as_of_date: datetime) -> pd.DataFrame:
-        """Return only data available as of query date (point-in-time safe)."""
         if key not in self._store:
             raise KeyError(f"Dataset '{key}' not registered.")
         df, lag = self._store[key]
@@ -50,10 +42,7 @@ class PointInTimeDataStore:
 
 
 class MarketDataLoader:
-    """
-    Simulates loading OHLCV + metadata for Indian markets.
-    In production: connect to NSE/BSE APIs, Bloomberg, Refinitiv, or Zerodha/Angel APIs.
-    """
+    """Loads OHLCV and auxiliary data (options, macro, sentiment) for Indian markets."""
 
     def __init__(self, universe: List[str], start_date: str, end_date: str):
         self.universe = universe
@@ -62,11 +51,6 @@ class MarketDataLoader:
         self.pit_store = PointInTimeDataStore()
 
     def load_real_ohlcv(self, symbol: str) -> pd.DataFrame:
-        """
-        Fetch real OHLCV data from Alpha Vantage.
-        NSE symbols are resolved via user_symbol_to_av (e.g. RELIANCE → NSE:RELIANCE).
-        Falls back to synthetic data if the API returns no results.
-        """
         from alpha_vantage import get_daily_ohlcv, user_symbol_to_av
         av_ticker = user_symbol_to_av(symbol)
         start_str = self.start_date.strftime("%Y-%m-%d") if hasattr(self.start_date, 'strftime') else str(self.start_date)[:10]
@@ -78,7 +62,6 @@ class MarketDataLoader:
             print(f"  ⚠ No data for {av_ticker}, using synthetic fallback.")
             return self.generate_synthetic_ohlcv(symbol)
 
-        # Alpha Vantage already returns lowercase columns: date, open, high, low, close, volume, adjusted_close
         df = raw.copy()
         df['symbol'] = symbol
         return df.dropna().reset_index(drop=True)
@@ -102,10 +85,8 @@ class MarketDataLoader:
         })
 
     def load_all(self) -> Dict[str, pd.DataFrame]:
-        """Load real OHLCV data for the entire universe via Alpha Vantage."""
         data = {}
         for sym in self.universe:
-            print(f"  Downloading {sym} via Alpha Vantage...")
             df = self.load_real_ohlcv(sym)
             self.pit_store.register(sym, df, 'daily_price')
             data[sym] = df
@@ -191,13 +172,9 @@ class MarketDataLoader:
 
 
 class SurvivourshipBiasFilter:
-    """
-    Tracks which symbols were actually listed/tradeable at each point in time.
-    Prevents including delisted stocks' returns in historical analysis.
-    """
+    """Tracks symbol listing/delisting dates to exclude non-tradeable stocks from analysis."""
 
     def __init__(self):
-        # In production: load from NSE historical constituent lists
         self.listing_dates: Dict[str, datetime] = {}
         self.delisting_dates: Dict[str, Optional[datetime]] = {}
 
@@ -217,4 +194,3 @@ class SurvivourshipBiasFilter:
         return tradeable
 
 
-print("Layer 1 (Data Pipeline) loaded successfully.")

@@ -1,5 +1,4 @@
-import sys, os, json
-# Ensure backend/ siblings (dynamic_predictor, layer*.py etc.) are importable
+import sys, os, json, traceback
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import threading
@@ -11,7 +10,6 @@ import pandas as pd
 from alpha_vantage import user_symbol_to_av, get_ohlcv_for_period, get_daily_ohlcv
 import gemini_client
 
-# --------------- inline technical indicators (no ta dependency) --
 def _rsi(close, window=14):
     delta = close.diff()
     gain = delta.clip(lower=0).ewm(com=window - 1, min_periods=window).mean()
@@ -31,7 +29,6 @@ def _bollinger(close, window=20, dev=2):
     std = close.rolling(window).std()
     return mid + dev * std, mid - dev * std, mid
 
-# --------------- snapshot fallback (pre-computed for presentation warmup) ---
 _SNAPSHOT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                "prediction_snapshots.json")
 _snapshots: dict = {}
@@ -60,12 +57,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --------------- symbol resolution (delegates to alpha_vantage module) --------
-
 def resolve_symbol(symbol: str) -> str:
     return user_symbol_to_av(symbol)
 
-# --------------- lazy predictor (heavy ML, only for /predict) ----
 _predictor = None
 _predictor_lock = threading.Lock()
 
@@ -89,7 +83,6 @@ def _get_predictor():
 
 
 def _train_symbol(symbol: str):
-    """Train (or load cached) model for one symbol. Updates _model_status."""
     with _model_status_lock:
         if _model_status.get(symbol) == "training":
             return                          # already in progress
@@ -107,7 +100,6 @@ def _train_symbol(symbol: str):
 
 @app.on_event("startup")
 def startup_pretrain():
-    """Pre-train all common symbols sequentially in one background thread."""
     def _run():
         print(f"[warmup] Starting background pre-training: {', '.join(PRETRAIN_SYMBOLS)}")
         for sym in PRETRAIN_SYMBOLS:
@@ -138,7 +130,6 @@ def predict(symbol: str):
     with _model_status_lock:
         status = _model_status.get(sym)
 
-    # Not seen before → kick off background training, ask client to retry
     if status is None:
         threading.Thread(target=_train_symbol, args=(sym,), daemon=True).start()
         if sym in _snapshots:
@@ -151,7 +142,6 @@ def predict(symbol: str):
             "message": f"Model for {sym} is being trained. Retry in ~2 minutes.",
         })
 
-    # Still training → ask client to retry
     if status == "training":
         if sym in _snapshots:
             snap = dict(_snapshots[sym])
@@ -163,7 +153,6 @@ def predict(symbol: str):
             "message": f"Model for {sym} is still training. Retry in ~60 seconds.",
         })
 
-    # Training failed → serve snapshot or return error
     if status == "error":
         if sym in _snapshots:
             snap = dict(_snapshots[sym])
@@ -171,7 +160,6 @@ def predict(symbol: str):
             return snap
         raise HTTPException(status_code=503, detail=f"Model training failed for {sym}. No snapshot available.")
 
-    # Ready → predict instantly (in-memory cache hit inside load_or_train)
     try:
         result = _get_predictor().predict_now(sym)
         if gemini_client.is_configured():
@@ -198,7 +186,6 @@ def get_chart(symbol: str, period: str = "6mo", interval: str = "1d"):
         if hist.empty:
             raise HTTPException(status_code=404, detail="No data found")
 
-        # Compute indicators on full hist (lowercase column names from Alpha Vantage)
         hist['rsi']         = _rsi(hist['close'])
         macd_line, macd_sig, macd_hist_col = _macd(hist['close'])
         hist['macd_line']   = macd_line
@@ -244,7 +231,6 @@ def get_chart(symbol: str, period: str = "6mo", interval: str = "1d"):
     except HTTPException:
         raise
     except Exception as e:
-        import traceback
         print(f"CHART ERROR [{symbol}]: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -274,14 +260,9 @@ async def get_news(symbol: str):
 
 @app.get("/fundamentals/{symbol}")
 def get_fundamentals(symbol: str):
-    """
-    Return a compact fundamentals snapshot for trader overlay.
-    Keep response small and fast.
-    """
     try:
         clean = symbol.upper().replace(".NS", "").replace(".BO", "").strip()
 
-        # Temporary mock snapshot; replace with real provider later
         mock_data = {
             "INFY": {
                 "symbol": "INFY",
@@ -363,14 +344,9 @@ def get_fundamentals(symbol: str):
         result["is_demo_data"] = True
         result["has_coverage"] = has_coverage
 
-        print(f"Fundamentals request: {symbol} -> {clean}")
-        print("Fundamentals response:", result)
-
         return result
     except Exception as e:
-        import traceback
-        print("FUNDAMENTALS ERROR")
-        print(traceback.format_exc())
+        print(f"FUNDAMENTALS ERROR: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # ── Macro / Regime dashboard — was 100% hardcoded mock data, now real ───────

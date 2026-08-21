@@ -20,7 +20,6 @@ export default function Navbar({ symbol, onSymbolChange, onSearch, onLogout, onM
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  // ── Live IST clock ──
   const [now, setNow] = useState(new Date());
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1000);
@@ -31,15 +30,12 @@ export default function Navbar({ symbol, onSymbolChange, onSearch, onLogout, onM
     timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', year: 'numeric',
   });
 
-  // ── Profile menu ──
   const [profileAnchor, setProfileAnchor] = useState(null);
   const profileOpen = Boolean(profileAnchor);
 
-  // ── Mobile menu ──
   const [mobileAnchor, setMobileAnchor] = useState(null);
   const mobileOpen = Boolean(mobileAnchor);
 
-  // ── Search focus glow ──
   const [searchFocused, setSearchFocused] = useState(false);
 
   return (
