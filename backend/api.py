@@ -439,47 +439,6 @@ def _compute_nifty_seasonality():
         return cached or []
 
 
-@app.get("/debug/gemini")
-async def debug_gemini():
-    """Temporary — reports the exact Gemini failure mode instead of the
-    silent fallback the real endpoints use. Remove once diagnosed."""
-    import traceback
-    out = {}
-    client = gemini_client._get_client()
-
-    try:
-        r = await client.aio.models.generate_content(model=gemini_client.GEMINI_MODEL, contents="Say OK.")
-        out["plain"] = {"ok": True, "text": r.text}
-    except Exception as e:
-        out["plain"] = {"ok": False, "error": str(e), "trace": traceback.format_exc()[-1500:]}
-
-    try:
-        from google.genai import types
-        r = await client.aio.models.generate_content(
-            model=gemini_client.GEMINI_MODEL, contents="What is today's date?",
-            config=types.GenerateContentConfig(tools=[types.Tool(google_search=types.GoogleSearch())]),
-        )
-        out["grounded"] = {"ok": True, "text": r.text}
-    except Exception as e:
-        out["grounded"] = {"ok": False, "error": str(e), "trace": traceback.format_exc()[-1500:]}
-
-    try:
-        from google.genai import types
-        r = await client.aio.models.generate_content(
-            model=gemini_client.GEMINI_MODEL, contents="Sentiment for India equities?",
-            config=types.GenerateContentConfig(
-                tools=[types.Tool(google_search=types.GoogleSearch())],
-                response_mime_type="application/json",
-                response_schema=gemini_client.SentimentReading,
-            ),
-        )
-        out["grounded_structured"] = {"ok": True, "parsed": str(r.parsed), "text": r.text}
-    except Exception as e:
-        out["grounded_structured"] = {"ok": False, "error": str(e), "trace": traceback.format_exc()[-1500:]}
-
-    return out
-
-
 @app.get("/macro/overview")
 async def get_macro_overview(horizon: str = "3mo"):
     try:
